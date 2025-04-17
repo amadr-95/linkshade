@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout}">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Home</title>
+</head>
+<body>
+<div layout:fragment="content">
+    <div class="jumbotron bg-light p-5 rounded-3 my-4">
+        <h1>Hello<span th:text="${name == null} ? '':', ' + ${name}"></span></h1>
+        <p class="lead">Welcome to the home page of the URL Shortener App.</p>
+    </div>
+</div>
+</body>
+</html>
