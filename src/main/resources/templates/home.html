@@ -12,8 +12,42 @@
 <body>
 <div layout:fragment="content">
     <div class="jumbotron bg-light p-5 rounded-3 my-4">
-        <h1>Hello<span th:text="${name == null} ? '':', ' + ${name}"></span></h1>
+        <h1>Hello<span th:text="${name == null || name.isBlank()} ? '':', ' + ${name}"></span></h1>
         <p class="lead">Welcome to the home page of the URL Shortener App.</p>
+    </div>
+
+    <h2 class="mt-5">Public Shortened URLs</h2>
+    <div th:if="${publicUrls.isEmpty()}" class="alert alert-info">
+        No public URLs have been created yet.
+    </div>
+    <div th:unless="${publicUrls.isEmpty()}" class="table-responsive">
+        <table class="table table-striped table-hover">
+            <thead>
+            <tr>
+                <th>Short URL</th>
+                <th>Original URL</th>
+                <th>Number of Clicks</th>
+                <th>Created By</th>
+                <th>Created At</th>
+                <th>Expires At</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr th:each="url : ${publicUrls}">
+                <td>
+                    <a th:href="${url.shortenedUrl}" th:text="${url.shortenedUrl}" target="_blank"></a>
+                </td>
+                <td>
+                    <a th:href="${url.originalUrl}" th:text="${#strings.abbreviate(url.originalUrl, 50)}"
+                       target="_blank"></a>
+                </td>
+                <td th:text="${url.numberOfClicks}"></td>
+                <td th:text="${url.createdByUser != null ? url.createdByUser.name : 'Guest'}"></td>
+                <td th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd HH:mm') : 'Never'}"></td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 </body>
