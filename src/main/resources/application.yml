@@ -1,4 +1,20 @@
 spring:
   application:
     name: url-shortener
+# Database config
+  datasource:
+    url: jdbc:postgresql://localhost:5432/url-shortener-db
+    username: asabido
+    password: asabido
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+  # to load scripts under resources folder
+#  sql:
+#    init:
+#      mode: always
 
