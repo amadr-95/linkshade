@@ -29,7 +29,7 @@ public class ShortUrl {
     @Column(nullable = false)
     private String originalUrl;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "created_by_user", foreignKey = @ForeignKey(name = "fk_user"))
     private User createdByUser;
 
