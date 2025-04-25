@@ -1,7 +1,9 @@
 spring:
   application:
     name: url-shortener
-# Database config
+  messages:
+    basename: messages
+  # Database config
   datasource:
     url: jdbc:postgresql://localhost:5432/url-shortener-db
     username: asabido
@@ -14,8 +16,7 @@ spring:
         show_sql: true
         format_sql: true
     open-in-view: false
-  # to load scripts under resources folder
-#  sql:
-#    init:
-#      mode: always
-
+# App properties
+app:
+  base-url: "http://localhost:8080"
+  default-expiry-days: 30
