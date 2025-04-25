@@ -12,7 +12,7 @@
 <body>
 <div layout:fragment="content">
     <div class="jumbotron bg-light p-5 rounded-3 my-4">
-        <h1>Hello<span th:text="${name == null || name.isBlank()} ? '':', ' + ${name}"></span></h1>
+        <h1>Hello, <span th:text="${name}"></span></h1>
         <p class="lead">Welcome to the home page of the URL Shortener App.</p>
     </div>
 
@@ -42,7 +42,7 @@
                        target="_blank"></a>
                 </td>
                 <td th:text="${url.numberOfClicks}"></td>
-                <td th:text="${url.createdByUser != null ? url.createdByUser.name : 'Guest'}"></td>
+                <td th:text="${url.createdByUser != null ? url.createdByUser : 'Guest'}"></td>
                 <td th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd HH:mm') : 'Never'}"></td>
             </tr>
