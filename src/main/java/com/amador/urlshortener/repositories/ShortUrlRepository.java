@@ -13,4 +13,6 @@ public interface ShortUrlRepository extends JpaRepository<ShortUrl, UUID> {
     @Query("select su from ShortUrl su where su.isPrivate=false order by su.createdAt desc")
     @EntityGraph(attributePaths = {"createdByUser"})
     List<ShortUrl> findAllPublicUrls();
+
+    boolean existsByShortenedUrl(String shortenedUrl);
 }

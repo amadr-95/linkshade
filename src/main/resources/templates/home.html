@@ -21,14 +21,19 @@
             <h5 class="card-title mb-0">Insert your loooong URL here to get it shortened:</h5>
         </div>
         <div class="card-body">
-            <form action="/">
+            <form th:action="@{/short-url}" method="POST" th:object="${shortUrlForm}">
                 <div class="mb-3">
                     <label for="originalUrl" class="form-label">Original URL</label>
                     <input type="text" class="form-control" id="originalUrl"
+                           th:field="*{originalUrl}"
                            placeholder="https://example.com/my-long-url">
+                    <!-- Print errors if any (based on the validation annotations) -->
+                    <div class="text-danger"
+                         th:if="${#fields.hasErrors('originalUrl')}"
+                         th:errors="*{originalUrl}"></div>
                 </div>
 
-                <button type="submit" class="btn btn-primary">Shorten URL</button>
+                <button type="submit" class="btn btn-primary">Shorten!</button>
             </form>
         </div>
     </div>
@@ -52,14 +57,14 @@
             <tbody>
             <tr th:each="url : ${publicUrls}">
                 <td>
-                    <a th:href="${url.shortenedUrl}" th:text="${url.shortenedUrl}" target="_blank"></a>
+                    <a th:href="${url.shortenedUrl}" th:text="${baseUrl + '/' + url.shortenedUrl}" target="_blank"></a>
                 </td>
                 <td>
                     <a th:href="${url.originalUrl}" th:text="${#strings.abbreviate(url.originalUrl, 50)}"
                        target="_blank"></a>
                 </td>
                 <td th:text="${url.numberOfClicks}"></td>
-                <td th:text="${url.createdByUser != null ? url.createdByUser : 'Guest'}"></td>
+                <td th:text="${url.createdByUser != null ? url.createdByUser.name() : 'Guest'}"></td>
                 <td th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd HH:mm') : 'Never'}"></td>
             </tr>
