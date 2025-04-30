@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 public record ShortUrlDTO(
         String shortenedUrl,
         String originalUrl,
-        String createdByUser,
+        UserDTO createdByUser,
         boolean isPrivate,
         LocalDateTime createdAt,
         LocalDateTime expiresAt,
