@@ -11,7 +11,8 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "short_urls")
+@Table(name = "short_urls", uniqueConstraints = {@UniqueConstraint(
+        name = "shortUrlUnique", columnNames = {"shortened_url"})})
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -23,7 +24,7 @@ public class ShortUrl {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, name = "shortened_url")
     private String shortenedUrl;
 
     @Column(nullable = false)

@@ -16,7 +16,7 @@ import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-import static jakarta.persistence.GenerationType.IDENTITY;
+import static jakarta.persistence.GenerationType.SEQUENCE;
 
 
 @Entity
@@ -31,7 +31,7 @@ public class User {
 
     @Id
     @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 1)
-    @GeneratedValue(strategy = IDENTITY, generator = "user_seq")
+    @GeneratedValue(strategy = SEQUENCE, generator = "user_seq")
     private Long id;
 
     @Column(nullable = false)
