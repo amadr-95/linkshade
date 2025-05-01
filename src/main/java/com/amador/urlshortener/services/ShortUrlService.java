@@ -1,5 +1,6 @@
 package com.amador.urlshortener.services;
 
+import com.amador.urlshortener.config.ShortUrlProperties;
 import com.amador.urlshortener.domain.entities.ShortUrl;
 import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
 import com.amador.urlshortener.repositories.ShortUrlRepository;
@@ -19,6 +20,7 @@ public class ShortUrlService {
 
     private final ShortUrlRepository shortUrlRepository;
     private final ShortUrlMapper shortUrlMapper;
+    private final ShortUrlProperties shortUrlProperties;
 
     public List<ShortUrlDTO> findAllPublicUrls() {
         return shortUrlRepository.findAllPublicUrls().stream()
@@ -34,7 +36,7 @@ public class ShortUrlService {
                 .isPrivate(false)
                 .numberOfClicks(0L)
                 .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusDays(30))
+                .expiresAt(LocalDateTime.now().plusDays(shortUrlProperties.defaultExpiryDays()))
                 .build();
 
         shortUrlRepository.save(shortUrl);

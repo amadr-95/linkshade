@@ -1,6 +1,6 @@
 package com.amador.urlshortener.web.controllers;
 
-import com.amador.urlshortener.config.ShortUrlConfig;
+import com.amador.urlshortener.config.ShortUrlProperties;
 import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
 import com.amador.urlshortener.services.ShortUrlService;
 import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
@@ -18,12 +18,12 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class HomeController {
 
     private final ShortUrlService shortUrlService;
-    private final ShortUrlConfig shortUrlConfig;
+    private final ShortUrlProperties shortUrlProperties;
 
     @GetMapping
     public String home(@RequestParam(required = false, defaultValue = "Guest") String name, Model model) {
         model.addAttribute("name", name);
-        model.addAttribute("baseUrl", shortUrlConfig.baseUrl());
+        model.addAttribute("baseUrl", shortUrlProperties.baseUrl());
         model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls());
         model.addAttribute("shortUrlForm", new ShortUrlForm(""));
         return "home";
@@ -37,14 +37,14 @@ public class HomeController {
     ) {
         // When receiving the form, check for errors
         if (bindingResult.hasErrors()) {
-            model.addAttribute("baseUrl", shortUrlConfig.baseUrl());
+            model.addAttribute("baseUrl", shortUrlProperties.baseUrl());
             model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls());
             return "home";
         }
         try {
             ShortUrlDTO shortUrlDTO = shortUrlService.createShortUrl(shortUrlForm);
             redirectAttributes.addFlashAttribute("successMessage",
-                    "URL created successfully: " + shortUrlConfig.baseUrl() + "/" + shortUrlDTO.shortenedUrl());
+                    "URL created successfully: " + shortUrlProperties.baseUrl() + "/" + shortUrlDTO.shortenedUrl());
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", "There was an error creating the URL, try again");
         }
