@@ -28,7 +28,7 @@
                            th:field="*{originalUrl}"
                            placeholder="https://example.com/my-long-url">
                     <!-- Print errors if any (based on the validation annotations) -->
-                    <div class="text-danger"
+                    <div class="text-danger mt-2"
                          th:if="${#fields.hasErrors('originalUrl')}"
                          th:errors="*{originalUrl}"></div>
                 </div>
