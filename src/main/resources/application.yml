@@ -13,9 +13,12 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        show_sql: true
-        format_sql: true
+#        show_sql: true
+#        format_sql: true
     open-in-view: false
+logging:
+  level:
+    com.amador.urlshortener: DEBUG
 # App properties
 app:
   base-url: "http://localhost:8080"
