@@ -3,6 +3,9 @@ package com.amador.urlshortener.services;
 import com.amador.urlshortener.config.ShortUrlProperties;
 import com.amador.urlshortener.domain.entities.ShortUrl;
 import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
+import com.amador.urlshortener.exceptions.UrlException;
+import com.amador.urlshortener.exceptions.UrlExpiredException;
+import com.amador.urlshortener.exceptions.UrlNotFoundException;
 import com.amador.urlshortener.repositories.ShortUrlRepository;
 import com.amador.urlshortener.services.mapper.ShortUrlMapper;
 import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
@@ -12,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Random;
 
 @Service
@@ -28,7 +32,7 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public ShortUrlDTO createShortUrl(ShortUrlForm shortUrlForm) throws Exception { //we already know the url is valid from the controller
+    public ShortUrlDTO createShortUrl(ShortUrlForm shortUrlForm) throws UrlException { //we already know the url is valid from the controller
         ShortUrl shortUrl = ShortUrl.builder()
                 .originalUrl(shortUrlForm.originalUrl())
                 .shortenedUrl(shortenUrl()) //TODO: make the short URL of a combination of letters from the originalUrl
@@ -43,7 +47,7 @@ public class ShortUrlService {
         return shortUrlMapper.toShortUrlDTO(shortUrl);
     }
 
-    private String shortenUrl() throws Exception {
+    private String shortenUrl() throws UrlException {
         Random random = new Random();
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         //TODO: make this customizable by the user (pick the length they want)
@@ -57,9 +61,25 @@ public class ShortUrlService {
             }
 
             //check if that combination of characters already exists in database
-            if(!shortUrlRepository.existsByShortenedUrl(shortUrl.toString()))
+            if (!shortUrlRepository.existsByShortenedUrl(shortUrl.toString()))
                 return shortUrl.toString();
         }
-        throw new Exception(); //TODO: throw custom exception
+        throw new UrlException("URL cannot be created");
+    }
+
+    @Transactional
+    public String accessOriginalUrl(String url) throws UrlException {
+        Optional<ShortUrl> shortUrlOptional = shortUrlRepository.findByShortenedUrl(url);
+        if(shortUrlOptional.isEmpty())
+            throw new UrlNotFoundException("URL '" + url + "' not found");
+
+        ShortUrl shortUrl = shortUrlOptional.get();
+
+        if(shortUrl.getExpiresAt().isBefore(LocalDateTime.now()))
+            throw new UrlExpiredException("URL '" + url + "' is expired");
+
+        shortUrl.setNumberOfClicks(shortUrl.getNumberOfClicks() + 1);
+        shortUrlRepository.save(shortUrl);
+        return shortUrl.getOriginalUrl();
     }
 }

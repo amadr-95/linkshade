@@ -2,6 +2,7 @@ package com.amador.urlshortener.web.controllers;
 
 import com.amador.urlshortener.config.ShortUrlProperties;
 import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
+import com.amador.urlshortener.exceptions.UrlException;
 import com.amador.urlshortener.services.ShortUrlService;
 import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
 import jakarta.validation.Valid;
@@ -21,10 +22,8 @@ public class HomeController {
     private final ShortUrlProperties shortUrlProperties;
 
     @GetMapping
-    public String home(@RequestParam(required = false, defaultValue = "Guest") String name, Model model) {
-        model.addAttribute("name", name);
-        model.addAttribute("baseUrl", shortUrlProperties.baseUrl());
-        model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls());
+    public String home(Model model) {
+        getHomePage(model);
         model.addAttribute("shortUrlForm", new ShortUrlForm(""));
         return "home";
     }
@@ -36,18 +35,27 @@ public class HomeController {
                                  Model model
     ) {
         // When receiving the form, check for errors
-        if (bindingResult.hasErrors()) {
-            model.addAttribute("baseUrl", shortUrlProperties.baseUrl());
-            model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls());
+        if (bindingResult.hasErrors()) { //if errors, display the home page again
+            getHomePage(model);
             return "home";
         }
         try {
             ShortUrlDTO shortUrlDTO = shortUrlService.createShortUrl(shortUrlForm);
             redirectAttributes.addFlashAttribute("successMessage",
                     "URL created successfully: " + shortUrlProperties.baseUrl() + "/" + shortUrlDTO.shortenedUrl());
-        } catch (Exception e) {
+        } catch (UrlException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "There was an error creating the URL, try again");
         }
         return "redirect:/";
+    }
+
+    @GetMapping("/{short-url}")
+    public String accessOriginalUrl(@PathVariable("short-url") String shortUrl) throws UrlException {
+        return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl);
+    }
+
+    private void getHomePage(Model model) {
+        model.addAttribute("baseUrl", shortUrlProperties.baseUrl());
+        model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls());
     }
 }
