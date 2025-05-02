@@ -59,12 +59,12 @@
                 <td>
                     <div class="d-flex align-items-center gap-3">
                         <button class="btn btn-sm btn-outline-secondary"
-                                th:data-url="${baseUrl + '/' + url.shortenedUrl}"
+                                th:data-url="${baseUrl + '/s/' + url.shortenedUrl}"
                                 title="Copy link"
                                 onclick="navigator.clipboard.writeText(this.getAttribute('data-url'));">
                             <i class="bi bi-clipboard"></i>
                         </button>
-                        <a th:href="${url.shortenedUrl}" th:text="${baseUrl + '/' + url.shortenedUrl}" target="_blank"
+                        <a th:href="@{'/s/' + ${url.shortenedUrl}}" th:text="${baseUrl + '/s/' + url.shortenedUrl}" target="_blank"
                            class="me-2"></a>
                     </div>
                 </td>

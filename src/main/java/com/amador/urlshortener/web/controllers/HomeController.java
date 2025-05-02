@@ -42,14 +42,14 @@ public class HomeController {
         try {
             ShortUrlDTO shortUrlDTO = shortUrlService.createShortUrl(shortUrlForm);
             redirectAttributes.addFlashAttribute("successMessage",
-                    "URL created successfully: " + shortUrlProperties.baseUrl() + "/" + shortUrlDTO.shortenedUrl());
+                    "URL created successfully: " + shortUrlProperties.baseUrl() + "/s/" + shortUrlDTO.shortenedUrl());
         } catch (UrlException e) {
             redirectAttributes.addFlashAttribute("errorMessage", "There was an error creating the URL, try again");
         }
         return "redirect:/";
     }
 
-    @GetMapping("/{short-url}")
+    @GetMapping("/s/{short-url}")
     public String accessOriginalUrl(@PathVariable("short-url") String shortUrl) throws UrlException {
         return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl);
     }
