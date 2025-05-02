@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -18,6 +20,7 @@ import java.util.UUID;
 @Builder
 @Setter
 @Getter
+@EntityListeners(AuditingEntityListener.class)
 public class ShortUrl {
 
     @Id
@@ -36,6 +39,8 @@ public class ShortUrl {
 
     private boolean isPrivate;
 
+    @CreatedDate
+    @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime expiresAt;
