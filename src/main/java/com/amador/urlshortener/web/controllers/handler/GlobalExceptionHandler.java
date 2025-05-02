@@ -1,4 +1,4 @@
-package com.amador.urlshortener.exceptions.handler;
+package com.amador.urlshortener.web.controllers.handler;
 
 import com.amador.urlshortener.exceptions.UrlException;
 import com.amador.urlshortener.exceptions.UrlExpiredException;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 @ControllerAdvice
 @Slf4j
-public class GlobalHandlerException {
+public class GlobalExceptionHandler {
 
     @ExceptionHandler(UrlException.class)
     public String urlExceptionHandler(UrlException ex) {
