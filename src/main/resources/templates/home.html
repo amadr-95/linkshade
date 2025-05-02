@@ -12,7 +12,7 @@
 <body>
 <div layout:fragment="content">
     <div class="jumbotron bg-light p-5 rounded-3 my-4">
-        <h1>Hello, <span th:text="${name}"></span></h1>
+        <h1>Hello</h1>
         <p class="lead">Welcome to the home page of the URL Shortener App.</p>
     </div>
 
@@ -57,7 +57,16 @@
             <tbody>
             <tr th:each="url : ${publicUrls}">
                 <td>
-                    <a th:href="${url.shortenedUrl}" th:text="${baseUrl + '/' + url.shortenedUrl}" target="_blank"></a>
+                    <div class="d-flex align-items-center gap-3">
+                        <button class="btn btn-sm btn-outline-secondary"
+                                th:data-url="${baseUrl + '/' + url.shortenedUrl}"
+                                title="Copy link"
+                                onclick="navigator.clipboard.writeText(this.getAttribute('data-url'));">
+                            <i class="bi bi-clipboard"></i>
+                        </button>
+                        <a th:href="${url.shortenedUrl}" th:text="${baseUrl + '/' + url.shortenedUrl}" target="_blank"
+                           class="me-2"></a>
+                    </div>
                 </td>
                 <td>
                     <a th:href="${url.originalUrl}" th:text="${#strings.abbreviate(url.originalUrl, 50)}"
@@ -66,7 +75,8 @@
                 <td th:text="${url.numberOfClicks}"></td>
                 <td th:text="${url.createdByUser != null ? url.createdByUser.name() : 'Guest'}"></td>
                 <td th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
-                <td th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd HH:mm') : 'Never'}"></td>
+                <td th:class="${url.expiresAt != null && url.expiresAt.isBefore(#temporals.createNow()) ? 'text-danger' : 'text-success'}"
+                    th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd HH:mm') : 'Never'}"></td>
             </tr>
             </tbody>
         </table>
