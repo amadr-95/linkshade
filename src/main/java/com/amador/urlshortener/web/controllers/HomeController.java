@@ -25,7 +25,7 @@ public class HomeController {
     public String home(Model model) {
         getHomePage(model);
         model.addAttribute("shortUrlForm", new ShortUrlForm(""));
-        return "home";
+        return "index";
     }
 
     @PostMapping("/short-url")
@@ -37,7 +37,7 @@ public class HomeController {
         // When receiving the form, check for errors
         if (bindingResult.hasErrors()) { //if errors, display the home page again
             getHomePage(model);
-            return "home";
+            return "index";
         }
         try {
             ShortUrlDTO shortUrlDTO = shortUrlService.createShortUrl(shortUrlForm);
