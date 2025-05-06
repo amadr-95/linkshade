@@ -21,7 +21,7 @@
             <h5 class="card-title mb-0">Insert your loooong URL here to get it shortened:</h5>
         </div>
         <div class="card-body">
-            <form th:action="@{/short-url}" method="POST" th:object="${shortUrlForm}">
+            <form th:action="@{/short-urls}" method="POST" th:object="${shortUrlForm}">
                 <div class="mb-3">
                     <label for="originalUrl" class="form-label">Original URL</label>
                     <input type="text" class="form-control" id="originalUrl"

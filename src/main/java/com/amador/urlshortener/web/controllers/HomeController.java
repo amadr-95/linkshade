@@ -28,7 +28,7 @@ public class HomeController {
         return "index";
     }
 
-    @PostMapping("/short-url")
+    @PostMapping("/short-urls")
     public String createShortUrl(@ModelAttribute("shortUrlForm") @Valid ShortUrlForm shortUrlForm,
                                  BindingResult bindingResult, //for errors (important! right after the ModelAttribute)
                                  RedirectAttributes redirectAttributes,
@@ -49,8 +49,8 @@ public class HomeController {
         return "redirect:/";
     }
 
-    @GetMapping("/s/{short-url}")
-    public String accessOriginalUrl(@PathVariable("short-url") String shortUrl) throws UrlException {
+    @GetMapping("/s/{short-urls}")
+    public String accessOriginalUrl(@PathVariable("short-urls") String shortUrl) throws UrlException {
         return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl);
     }
 
