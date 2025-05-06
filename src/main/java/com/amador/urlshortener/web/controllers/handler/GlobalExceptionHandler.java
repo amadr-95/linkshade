@@ -13,7 +13,7 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(UrlException.class)
     public String urlExceptionHandler(UrlException ex) {
-        log.error("Problem accessing shorturl, reason: {}", ex.getMessage());
+        log.error("Problem accessing shorturl, reason: {}", ex.getMessage(), ex);
         if(ex instanceof UrlNotFoundException || ex instanceof UrlExpiredException)
             return "error/404"; //not found
         return "error/500"; //server error

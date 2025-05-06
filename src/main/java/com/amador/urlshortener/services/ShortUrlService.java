@@ -64,7 +64,7 @@ public class ShortUrlService {
             if (!shortUrlRepository.existsByShortenedUrl(shortUrl.toString()))
                 return shortUrl.toString();
         }
-        throw new UrlException("URL cannot be created");
+        throw new UrlException("URL cannot be created because it exceed the number of allowed attempts");
     }
 
     @Transactional
