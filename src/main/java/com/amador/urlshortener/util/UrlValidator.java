@@ -14,7 +14,7 @@ public class UrlValidator implements ConstraintValidator<ValidUrl, String> {
     @Override
     public boolean isValid(String formUrl, ConstraintValidatorContext context) {
         try {
-            log.info("Checking url: '{}'", formUrl);
+            log.debug("Checking url: '{}'", formUrl);
             URL url = new URI(formUrl).toURL();
             HttpURLConnection connection = (HttpURLConnection) url.openConnection();
             connection.setRequestMethod("HEAD");
@@ -23,7 +23,7 @@ public class UrlValidator implements ConstraintValidator<ValidUrl, String> {
 
             int responseCode = connection.getResponseCode();
             if(responseCode >= 200 && responseCode < 400) {
-                log.info("URL '{}' valid with status code: {}", url, responseCode);
+                log.debug("URL '{}' valid with status code: {}", url, responseCode);
                 return true;
             } else {
                 log.error("URL '{}' not reachable with status code: {}", url, responseCode);
