@@ -54,6 +54,11 @@ public class HomeController {
         return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl);
     }
 
+    @GetMapping("/login")
+    public String loginForm() {
+        return "login";
+    }
+
     private void getHomePage(Model model) {
         model.addAttribute("baseUrl", shortUrlProperties.baseUrl());
         model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls());

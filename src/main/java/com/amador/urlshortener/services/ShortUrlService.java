@@ -7,6 +7,7 @@ import com.amador.urlshortener.exceptions.UrlException;
 import com.amador.urlshortener.exceptions.UrlExpiredException;
 import com.amador.urlshortener.exceptions.UrlNotFoundException;
 import com.amador.urlshortener.repositories.ShortUrlRepository;
+import com.amador.urlshortener.security.AuthenticationService;
 import com.amador.urlshortener.services.mapper.ShortUrlMapper;
 import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
 import jakarta.transaction.Transactional;
@@ -25,6 +26,7 @@ public class ShortUrlService {
     private final ShortUrlRepository shortUrlRepository;
     private final ShortUrlMapper shortUrlMapper;
     private final ShortUrlProperties shortUrlProperties;
+    private final AuthenticationService authenticationService;
 
     public List<ShortUrlDTO> findAllPublicUrls() {
         return shortUrlRepository.findAllPublicUrls().stream()
@@ -35,9 +37,9 @@ public class ShortUrlService {
     public ShortUrlDTO createShortUrl(ShortUrlForm shortUrlForm) throws UrlException { //we already know the url is valid from the controller
         ShortUrl shortUrl = ShortUrl.builder()
                 .originalUrl(shortUrlForm.originalUrl())
-                .shortenedUrl(shortenUrl()) //TODO: make the short URL of a combination of letters from the originalUrl
-                .createdByUser(null)
-                .isPrivate(false)
+                .shortenedUrl(shortenUrl())
+                .createdByUser(authenticationService.getCurrentUserInfo())
+                .isPrivate(false) //TODO: for authenticated users give the option of making the url private or not (ShortUrlForm)
                 .numberOfClicks(0L)
                 .createdAt(LocalDateTime.now())
                 .expiresAt(LocalDateTime.now().plusDays(shortUrlProperties.defaultExpiryDays()))
@@ -50,7 +52,7 @@ public class ShortUrlService {
     private String shortenUrl() throws UrlException {
         Random random = new Random();
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        //TODO: make this customizable by the user (pick the length they want)
+        //TODO: make this customizable for authenticated users (ShortUrlForm) (pick the length they want)
         int shortUrlLength = 10;
         int maxAttempts = 5;
         StringBuilder shortUrl = new StringBuilder(shortUrlLength);
@@ -71,12 +73,12 @@ public class ShortUrlService {
     public String accessOriginalUrl(String url) throws UrlException {
         Optional<ShortUrl> shortUrlOptional = shortUrlRepository.findByShortenedUrl(url);
         if(shortUrlOptional.isEmpty())
-            throw new UrlNotFoundException("URL '" + url + "' not found");
+            throw new UrlNotFoundException(String.format("URL '%s' not found", url));
 
         ShortUrl shortUrl = shortUrlOptional.get();
 
         if(shortUrl.getExpiresAt().isBefore(LocalDateTime.now()))
-            throw new UrlExpiredException("URL '" + url + "' is expired");
+            throw new UrlExpiredException(String.format("URL '%s' is expired", url));
 
         shortUrl.setNumberOfClicks(shortUrl.getNumberOfClicks() + 1);
         shortUrlRepository.save(shortUrl);
