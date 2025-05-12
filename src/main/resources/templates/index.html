@@ -72,7 +72,7 @@
                        target="_blank"></a>
                 </td>
                 <td th:text="${url.numberOfClicks}"></td>
-                <td th:text="${url.createdByUser != null ? url.createdByUser.name() : 'Guest'}"></td>
+                <td th:text="${url.createdByUser.name()}"></td>
                 <td th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
                 <td th:class="${url.expiresAt != null && url.expiresAt.isBefore(#temporals.createNow()) ? 'text-danger' : 'text-success'}"
                     th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd HH:mm') : 'Never'}"></td>
