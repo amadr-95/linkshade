@@ -2,6 +2,7 @@ package com.amador.urlshortener.services;
 
 import com.amador.urlshortener.config.ShortUrlProperties;
 import com.amador.urlshortener.domain.entities.ShortUrl;
+import com.amador.urlshortener.domain.entities.User;
 import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
 import com.amador.urlshortener.exceptions.UrlException;
 import com.amador.urlshortener.exceptions.UrlExpiredException;
@@ -12,15 +13,16 @@ import com.amador.urlshortener.services.mapper.ShortUrlMapper;
 import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.Random;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ShortUrlService {
 
     private final ShortUrlRepository shortUrlRepository;
@@ -34,26 +36,35 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public ShortUrlDTO createShortUrl(ShortUrlForm shortUrlForm) throws UrlException { //we already know the url is valid from the controller
+    public ShortUrlDTO createShortUrl(ShortUrlForm shortUrlForm) throws UrlException {
+        User currentUser = authenticationService.getCurrentUserInfo();
+        Integer expirationInDays;
+        LocalDateTime createdAt = LocalDateTime.now();
+
+        if (currentUser == null) expirationInDays = shortUrlProperties.defaultExpiryDays();
+        else if (shortUrlForm.expirationInDays() == null) expirationInDays = null;
+        else expirationInDays = shortUrlForm.expirationInDays();
+
         ShortUrl shortUrl = ShortUrl.builder()
                 .originalUrl(shortUrlForm.originalUrl())
-                .shortenedUrl(shortenUrl())
-                .createdByUser(authenticationService.getCurrentUserInfo())
-                .isPrivate(false) //TODO: for authenticated users give the option of making the url private or not (ShortUrlForm)
+                .shortenedUrl(shortenUrl(shortUrlForm.urlLength()))
+                .createdByUser(currentUser) //either null or real user
+                .isPrivate(shortUrlForm.isPrivate() != null && shortUrlForm.isPrivate()) //false by default if the user is not logged in
                 .numberOfClicks(0L)
-                .createdAt(LocalDateTime.now())
-                .expiresAt(LocalDateTime.now().plusDays(shortUrlProperties.defaultExpiryDays()))
+                .createdAt(createdAt)
+                .expiresAt(expirationInDays == null ?
+                        null :
+                        createdAt.plusDays(expirationInDays)) //either the default value or the custom value picked by the authenticated user
                 .build();
 
         shortUrlRepository.save(shortUrl);
         return shortUrlMapper.toShortUrlDTO(shortUrl);
     }
 
-    private String shortenUrl() throws UrlException {
+    private String shortenUrl(Integer length) throws UrlException {
         Random random = new Random();
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        //TODO: make this customizable for authenticated users (ShortUrlForm) (pick the length they want)
-        int shortUrlLength = 10;
+        int shortUrlLength = length == null ? shortUrlProperties.urlLength() : length;
         int maxAttempts = 5;
         StringBuilder shortUrl = new StringBuilder(shortUrlLength);
 
@@ -71,17 +82,33 @@ public class ShortUrlService {
 
     @Transactional
     public String accessOriginalUrl(String url) throws UrlException {
-        Optional<ShortUrl> shortUrlOptional = shortUrlRepository.findByShortenedUrl(url);
-        if(shortUrlOptional.isEmpty())
-            throw new UrlNotFoundException(String.format("URL '%s' not found", url));
+        if (url == null || url.isBlank()) throw new UrlException("URL is null or empty");
+        ShortUrl shortUrl = shortUrlRepository.findByShortenedUrl(url)
+                .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", url)));
 
-        ShortUrl shortUrl = shortUrlOptional.get();
-
-        if(shortUrl.getExpiresAt().isBefore(LocalDateTime.now()))
+        LocalDateTime expiresAt = shortUrl.getExpiresAt();
+        if (expiresAt != null && expiresAt.isBefore(LocalDateTime.now()))
             throw new UrlExpiredException(String.format("URL '%s' is expired", url));
+
+        validateUserPermissions(authenticationService.getCurrentUserInfo(), shortUrl);
 
         shortUrl.setNumberOfClicks(shortUrl.getNumberOfClicks() + 1);
         shortUrlRepository.save(shortUrl);
         return shortUrl.getOriginalUrl();
+    }
+
+    private void validateUserPermissions(User currentUser, ShortUrl shortUrl) throws UrlException {
+        if (!shortUrl.isPrivate()) {
+            log.debug("Accessing public url '{}'", shortUrl.getShortenedUrl());
+            return; //public urls are accessible by all
+        }
+        if (currentUser == null) {
+            log.warn("Accessing private url '{}' without logging in", shortUrl.getShortenedUrl());
+            throw new UrlException("Trying to access to private URL without logging in");
+        }
+        if (!shortUrl.getCreatedByUser().getId().equals(currentUser.getId())) {
+            log.warn("Accessing private url '{}' with wrong user", shortUrl.getShortenedUrl());
+            throw new UrlException("Trying to access to private URL with wrong user");
+        }
     }
 }

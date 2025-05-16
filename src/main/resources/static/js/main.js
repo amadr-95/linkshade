@@ -21,4 +21,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     });
+
+    const lengthRange = document.getElementById('urlLength');
+    let urlLength = lengthRange.value;
+    const span = document.getElementById('urlLengthValue');
+    span.innerText = urlLength;
+
+    lengthRange.addEventListener("input", (event) => {
+        urlLength = event.target.value;
+        span.innerText = urlLength;
+    })
 });

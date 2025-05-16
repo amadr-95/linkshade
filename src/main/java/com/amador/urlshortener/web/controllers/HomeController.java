@@ -24,7 +24,11 @@ public class HomeController {
     @GetMapping
     public String home(Model model) {
         getHomePage(model);
-        model.addAttribute("shortUrlForm", new ShortUrlForm(""));
+        model.addAttribute("shortUrlForm", new ShortUrlForm(
+                "",
+                shortUrlProperties.defaultExpiryDays(),
+                shortUrlProperties.isPrivate(),
+                shortUrlProperties.urlLength()));
         return "index";
     }
 
@@ -42,9 +46,10 @@ public class HomeController {
         try {
             ShortUrlDTO shortUrlDTO = shortUrlService.createShortUrl(shortUrlForm);
             redirectAttributes.addFlashAttribute("successMessage",
-                    "URL created successfully: " + shortUrlProperties.baseUrl() + "/s/" + shortUrlDTO.shortenedUrl());
+                    String.format("URL created successfully: %s/s/%s", shortUrlProperties.baseUrl(), shortUrlDTO.shortenedUrl()));
         } catch (UrlException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", "There was an error creating the URL, try again");
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "There was an error creating the URL, try again");
         }
         return "redirect:/";
     }

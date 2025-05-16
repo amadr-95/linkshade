@@ -145,6 +145,8 @@ public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Excepti
     return http.build();
 }
 ```
+Note: disabling anonymous authentication will lead to `sec:authorize="isAnonymous()` and `sec:authorize="isAuthenticated()` 
+in index.html to not work properly, because it is always expecting some authentication (anonymous or not) to show/not show the different navbar links.
 
 ### Implications
 

@@ -2,6 +2,7 @@
 <html lang="en"
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout}">
 
 <head>
@@ -32,7 +33,31 @@
                          th:if="${#fields.hasErrors('originalUrl')}"
                          th:errors="*{originalUrl}"></div>
                 </div>
-
+                <!-- When the user is not authenticated these values will not be sent resulting null in the backend -->
+                <div class="mb-3" sec:authorize="isAuthenticated()">
+                    <label for="expirationInDays" class="form-label">Expiration (days)</label>
+                    <input type="number" class="form-control" id="expirationInDays"
+                           th:field="*{expirationInDays}"
+                    >
+                    <div class="form-text">Leave empty to never expire</div>
+                    <!-- Print errors if any (based on the validation annotations) -->
+                    <div class="text-danger mt-2"
+                         th:if="${#fields.hasErrors('expirationInDays')}"
+                         th:errors="*{expirationInDays}"></div>
+                </div>
+                <div class="mb-3 form-check" sec:authorize="isAuthenticated()">
+                    <input type="checkbox" class="form-check-input" id="isPrivate" th:field="*{isPrivate}">
+                    <label class="form-check-label" for="isPrivate">Private (only you can access)</label>
+                </div>
+                <div class="mb-3" sec:authorize="isAuthenticated()">
+                    <label class="form-label" for="urlLength">Pick the length you want</label>
+                    <div class="d-flex align-items-center gap-2">
+                        <input type="range" class="form-range" id="urlLength"
+                               th:field="*{urlLength}"
+                               min="5" max="20" step="1">
+                        <span id="urlLengthValue" class="badge bg-primary"></span>
+                    </div>
+                </div>
                 <button type="submit" class="btn btn-primary">Shorten!</button>
             </form>
         </div>
@@ -63,7 +88,9 @@
                                 title="Copy link">
                             <i class="bi bi-clipboard"></i>
                         </button>
-                        <a th:href="@{'/s/' + ${url.shortenedUrl}}" th:text="${baseUrl + '/s/' + url.shortenedUrl}" target="_blank"
+                        <a th:href="@{'/s/' + ${url.shortenedUrl}}"
+                           th:text="${#strings.abbreviate(baseUrl + '/s/' + url.shortenedUrl, 40)}"
+                           target="_blank"
                            class="me-2"></a>
                     </div>
                 </td>
@@ -73,9 +100,9 @@
                 </td>
                 <td th:text="${url.numberOfClicks}"></td>
                 <td th:text="${url.createdByUser.name()}"></td>
-                <td th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd HH:mm')}"></td>
+                <td th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd')}"></td>
                 <td th:class="${url.expiresAt != null && url.expiresAt.isBefore(#temporals.createNow()) ? 'text-danger' : 'text-success'}"
-                    th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd HH:mm') : 'Never'}"></td>
+                    th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd') : 'Never'}"></td>
             </tr>
             </tbody>
         </table>
