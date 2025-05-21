@@ -1,5 +1,6 @@
 package com.amador.urlshortener.web.controllers;
 
+import com.amador.urlshortener.config.AppProperties;
 import com.amador.urlshortener.config.ShortUrlProperties;
 import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
 import com.amador.urlshortener.exceptions.UrlException;
@@ -20,10 +21,11 @@ public class HomeController {
 
     private final ShortUrlService shortUrlService;
     private final ShortUrlProperties shortUrlProperties;
+    private final AppProperties appProperties;
 
     @GetMapping
-    public String home(Model model) {
-        getHomePage(model);
+    public String home(Model model, @RequestParam(name = "page", defaultValue = "0") Integer pageNumber) {
+        getHomePage(model, pageNumber);
         model.addAttribute("shortUrlForm", new ShortUrlForm(
                 "",
                 shortUrlProperties.defaultExpiryDays(),
@@ -36,11 +38,12 @@ public class HomeController {
     public String createShortUrl(@ModelAttribute("shortUrlForm") @Valid ShortUrlForm shortUrlForm,
                                  BindingResult bindingResult, //for errors (important! right after the ModelAttribute)
                                  RedirectAttributes redirectAttributes,
-                                 Model model
+                                 Model model,
+                                 @RequestParam(name = "page", defaultValue = "0") Integer pageNumber
     ) {
         // When receiving the form, check for errors
         if (bindingResult.hasErrors()) { //if errors, display the home page again
-            getHomePage(model);
+            getHomePage(model, pageNumber);
             return "index";
         }
         try {
@@ -64,8 +67,8 @@ public class HomeController {
         return "login";
     }
 
-    private void getHomePage(Model model) {
+    private void getHomePage(Model model, Integer pageNumber) {
         model.addAttribute("baseUrl", shortUrlProperties.baseUrl());
-        model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls());
+        model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls(pageNumber, appProperties.pageSize()));
     }
 }

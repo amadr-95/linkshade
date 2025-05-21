@@ -13,16 +13,18 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-#        show_sql: true
-#        format_sql: true
+        show_sql: true
+        format_sql: true
     open-in-view: false
 logging:
   level:
     com.amador.urlshortener: DEBUG
 
-# short-url properties by default
-short-url:
-  base-url: "http://localhost:8080"
-  default-expiry-days: 30
-  is-private: false
-  urlLength: 10
+# App properties by default
+app:
+  page-size: 10
+  short-url:
+    base-url: "http://localhost:8080"
+    default-expiry-days: 30
+    is-private: false
+    url-length: 10

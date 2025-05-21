@@ -1,6 +1,7 @@
 package com.amador.urlshortener.services;
 
 import com.amador.urlshortener.config.ShortUrlProperties;
+import com.amador.urlshortener.domain.entities.PagedResult;
 import com.amador.urlshortener.domain.entities.ShortUrl;
 import com.amador.urlshortener.domain.entities.User;
 import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
@@ -14,10 +15,12 @@ import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.Random;
 
 @Service
@@ -30,9 +33,13 @@ public class ShortUrlService {
     private final ShortUrlProperties shortUrlProperties;
     private final AuthenticationService authenticationService;
 
-    public List<ShortUrlDTO> findAllPublicUrls() {
-        return shortUrlRepository.findAllPublicUrls().stream()
-                .map(shortUrlMapper::toShortUrlDTO).toList();
+    public PagedResult<ShortUrlDTO> findAllPublicUrls(Integer pageNumber, Integer pageSize) {
+        pageNumber = pageNumber < 0 ? 0 : pageNumber;
+        Pageable pageable = PageRequest
+                .of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        //We need some wrapper object that allows us to store all the data coming from Page so we can show it in the frontend
+        return PagedResult.from(shortUrlRepository.findAllPublicUrls(pageable)
+                .map(shortUrlMapper::toShortUrlDTO));
     }
 
     @Transactional

@@ -7,7 +7,7 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-@ConfigurationProperties(prefix = "short-url")
+@ConfigurationProperties(prefix = "app.short-url")
 @Validated //to be validated before the application starts, ensuring correct values
 public record ShortUrlProperties(
     @NotBlank(message = "{validation.baseUrl.notBlank}")
