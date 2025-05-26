@@ -8,6 +8,8 @@ import com.amador.urlshortener.services.ShortUrlService;
 import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -24,8 +26,8 @@ public class HomeController {
     private final AppProperties appProperties;
 
     @GetMapping
-    public String home(Model model, @RequestParam(name = "page", defaultValue = "0") Integer pageNumber) {
-        getHomePage(model, pageNumber);
+    public String home(Model model, @PageableDefault Pageable pageable) {
+        getHomePage(model, pageable);
         model.addAttribute("shortUrlForm", new ShortUrlForm(
                 "",
                 shortUrlProperties.defaultExpiryDays(),
@@ -39,11 +41,11 @@ public class HomeController {
                                  BindingResult bindingResult, //for errors (important! right after the ModelAttribute)
                                  RedirectAttributes redirectAttributes,
                                  Model model,
-                                 @RequestParam(name = "page", defaultValue = "0") Integer pageNumber
+                                 @PageableDefault Pageable pageable
     ) {
         // When receiving the form, check for errors
         if (bindingResult.hasErrors()) { //if errors, display the home page again
-            getHomePage(model, pageNumber);
+            getHomePage(model, pageable);
             return "index";
         }
         try {
@@ -67,8 +69,9 @@ public class HomeController {
         return "login";
     }
 
-    private void getHomePage(Model model, Integer pageNumber) {
+    private void getHomePage(Model model, Pageable pageable) {
+        model.addAttribute("pageAvailableSizes", appProperties.pageAvailableSizes());
         model.addAttribute("baseUrl", shortUrlProperties.baseUrl());
-        model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls(pageNumber, appProperties.pageSize()));
+        model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls(pageable));
     }
 }

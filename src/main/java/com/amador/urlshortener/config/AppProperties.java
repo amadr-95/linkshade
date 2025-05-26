@@ -4,6 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 
 @ConfigurationProperties(prefix = "app")
 public record AppProperties (
-        int pageSize
+        int pageDefaultSize,
+        int[] pageAvailableSizes
 ) {
 }

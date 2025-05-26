@@ -19,4 +19,7 @@ public interface ShortUrlRepository extends JpaRepository<ShortUrl, UUID> {
     boolean existsByShortenedUrl(String shortenedUrl);
 
     Optional<ShortUrl> findByShortenedUrl(String shortenedUrl);
+
+    @Query("select count(su) from ShortUrl su where su.isPrivate=false")
+    Long countAllPublicUrls();
 }
