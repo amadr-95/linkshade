@@ -2,29 +2,29 @@
     <nav th:if="${publicUrls.totalPages > 1}">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${publicUrls.isFirst ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/(page=0, size=${publicUrls.size})}" aria-label="First">
+                <a class="page-link" th:href="@{/(page=1, size=${publicUrls.size})}" aria-label="First">
                     <span aria-hidden="true">First</span>
                 </a>
             </li>
             <li class="page-item" th:classappend="${publicUrls.isFirst ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/(page=${publicUrls.pageNumber - 1}, size=${publicUrls.size}) }"
+                <a class="page-link" th:href="@{/(page=${publicUrls.pageNumber}, size=${publicUrls.size}) }"
                    aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
             <li class="page-item disabled">
                         <span class="page-link" aria-label="Current Page Number of Total Pages"
-                              th:text="${'Page '+publicUrls.pageNumber + ' of ' + (publicUrls.totalPages - 1)}">
+                              th:text="${'Page '+ (publicUrls.pageNumber + 1) + ' of ' + (publicUrls.totalPages)}">
                         </span>
             </li>
             <li class="page-item" th:classappend="${publicUrls.isLast ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/(page=${publicUrls.pageNumber + 1}, size=${publicUrls.size})}"
+                <a class="page-link" th:href="@{/(page=${publicUrls.pageNumber + 2}, size=${publicUrls.size})}"
                    aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>
             <li class="page-item" th:classappend="${publicUrls.isLast ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{/(page=${publicUrls.totalPages - 1}, size=${publicUrls.size})}"
+                <a class="page-link" th:href="@{/(page=${publicUrls.totalPages}, size=${publicUrls.size})}"
                    aria-label="Last">
                     <span aria-hidden="true">Last</span>
                 </a>
@@ -35,7 +35,7 @@
     <ul class="pagination">
         <li class="page-item ms-3">
             <form th:action="@{/}" method="GET" class="d-flex align-items-center">
-                <input type="hidden" name="page" value="0"/>
+                <input type="hidden" name="page" value="1"/>
                 <label for="size">
                     <select id="size" name="size" class="form-select form-select" onchange="this.form.submit()">
                         <option th:each="size : ${pageAvailableSizes}"

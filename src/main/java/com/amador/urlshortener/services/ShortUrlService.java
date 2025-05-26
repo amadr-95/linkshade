@@ -16,7 +16,6 @@ import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -43,19 +42,18 @@ public class ShortUrlService {
                 .anyMatch(size -> size == pageableRequest.getPageSize()) ?
                 pageableRequest.getPageSize() : appProperties.pageDefaultSize();
 
-        int pageNumber = Math.max(pageableRequest.getPageNumber(), 0);
-        // calculate the number of max pages to handle wrong pageNumber values coming from frontend
+        int pageNumber = Math.max(pageableRequest.getPageNumber() - 1, 0);
+        // calculate the number of max pages to handle wrong pageNumber values coming from frontend (url)
         long totalElements = shortUrlRepository.countAllPublicUrls();
         int maxPages = (int) Math.ceil((double) totalElements / pageSize);
-        if(pageNumber >= maxPages) pageNumber = maxPages - 1; //redirect to the last page available
+        if (pageNumber >= maxPages) pageNumber = maxPages - 1; //redirect to the last page available
 
         Pageable pageable = PageRequest
                 .of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
 
         //We need some wrapper object that allows us to store all the data coming from Page so we can show it in the frontend
-        Page<ShortUrl> allPublicUrls = shortUrlRepository.findAllPublicUrls(pageable);
-        Page<ShortUrlDTO> shortUrlDTOS = allPublicUrls.map(shortUrlMapper::toShortUrlDTO);
-        return PagedResult.from(shortUrlDTOS);
+        return PagedResult.from(shortUrlRepository.findAllPublicUrls(pageable)
+                .map(shortUrlMapper::toShortUrlDTO));
     }
 
     @Transactional
