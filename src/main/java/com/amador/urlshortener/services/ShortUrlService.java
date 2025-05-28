@@ -1,7 +1,6 @@
 package com.amador.urlshortener.services;
 
 import com.amador.urlshortener.config.AppProperties;
-import com.amador.urlshortener.config.ShortUrlProperties;
 import com.amador.urlshortener.domain.entities.PagedResult;
 import com.amador.urlshortener.domain.entities.ShortUrl;
 import com.amador.urlshortener.domain.entities.User;
@@ -32,7 +31,6 @@ public class ShortUrlService {
 
     private final ShortUrlRepository shortUrlRepository;
     private final ShortUrlMapper shortUrlMapper;
-    private final ShortUrlProperties shortUrlProperties;
     private final AuthenticationService authenticationService;
     private final AppProperties appProperties;
 
@@ -62,7 +60,8 @@ public class ShortUrlService {
         Integer expirationInDays;
         LocalDateTime createdAt = LocalDateTime.now();
 
-        if (currentUser == null) expirationInDays = shortUrlProperties.defaultExpiryDays();
+        if (currentUser == null)
+            expirationInDays = appProperties.shortUrlProperties().defaultExpiryDays();
         else if (shortUrlForm.expirationInDays() == null) expirationInDays = null;
         else expirationInDays = shortUrlForm.expirationInDays();
 
@@ -85,7 +84,8 @@ public class ShortUrlService {
     private String shortenUrl(Integer length) throws UrlException {
         Random random = new Random();
         String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        int shortUrlLength = length == null ? shortUrlProperties.urlLength() : length;
+        int shortUrlLength = length == null ?
+                appProperties.shortUrlProperties().urlLength() : length;
         int maxAttempts = 5;
         StringBuilder shortUrl = new StringBuilder(shortUrlLength);
 

@@ -24,7 +24,7 @@ logging:
 app:
   page-default-size: 10
   page-available-sizes: [5, 10, 20, 50]
-  short-url:
+  short-url-properties:
     base-url: "http://localhost:8080"
     default-expiry-days: 30
     is-private: false

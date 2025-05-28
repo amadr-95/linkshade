@@ -1,7 +1,6 @@
 package com.amador.urlshortener.web.controllers;
 
 import com.amador.urlshortener.config.AppProperties;
-import com.amador.urlshortener.config.ShortUrlProperties;
 import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
 import com.amador.urlshortener.exceptions.UrlException;
 import com.amador.urlshortener.services.ShortUrlService;
@@ -22,7 +21,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class HomeController {
 
     private final ShortUrlService shortUrlService;
-    private final ShortUrlProperties shortUrlProperties;
     private final AppProperties appProperties;
 
     @GetMapping
@@ -30,9 +28,9 @@ public class HomeController {
         getHomePage(model, pageable);
         model.addAttribute("shortUrlForm", new ShortUrlForm(
                 "",
-                shortUrlProperties.defaultExpiryDays(),
-                shortUrlProperties.isPrivate(),
-                shortUrlProperties.urlLength()));
+                appProperties.shortUrlProperties().defaultExpiryDays(),
+                appProperties.shortUrlProperties().isPrivate(),
+                appProperties.shortUrlProperties().urlLength()));
         return "index";
     }
 
@@ -51,7 +49,7 @@ public class HomeController {
         try {
             ShortUrlDTO shortUrlDTO = shortUrlService.createShortUrl(shortUrlForm);
             redirectAttributes.addFlashAttribute("successMessage",
-                    String.format("URL created successfully: %s/s/%s", shortUrlProperties.baseUrl(), shortUrlDTO.shortenedUrl()));
+                    String.format("URL created successfully: %s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortUrlDTO.shortenedUrl()));
         } catch (UrlException e) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "There was an error creating the URL, try again");
@@ -71,7 +69,7 @@ public class HomeController {
 
     private void getHomePage(Model model, Pageable pageable) {
         model.addAttribute("pageAvailableSizes", appProperties.pageAvailableSizes());
-        model.addAttribute("baseUrl", shortUrlProperties.baseUrl());
+        model.addAttribute("baseUrl", appProperties.shortUrlProperties().baseUrl());
         model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls(pageable));
     }
 }
