@@ -71,5 +71,6 @@ public class HomeController {
         model.addAttribute("pageAvailableSizes", appProperties.pageAvailableSizes());
         model.addAttribute("baseUrl", appProperties.shortUrlProperties().baseUrl());
         model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls(pageable));
+        model.addAttribute("path", "/");
     }
 }
