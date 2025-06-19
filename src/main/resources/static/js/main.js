@@ -17,18 +17,51 @@ document.addEventListener('DOMContentLoaded', function () {
                     }, 1000);
                 })
                 .catch(err => {
-                    console.error('Error al copiar: ', err);
+                    console.error('Copy error: ', err);
                 });
         });
     });
 
+    // Only in my-urls html page when the user is logged in
     const lengthRange = document.getElementById('urlLength');
-    let urlLength = lengthRange.value;
     const span = document.getElementById('urlLengthValue');
-    span.innerText = urlLength;
+    if (lengthRange && span) { //check they're present (when the user is logged in)
+        let urlLength = lengthRange;
+        span.innerText = urlLength.value;
 
-    lengthRange.addEventListener("input", (event) => {
-        urlLength = event.target.value;
-        span.innerText = urlLength;
-    })
+        lengthRange.addEventListener("input", (event) => {
+            urlLength = event.target.value;
+            span.innerText = urlLength;
+        })
+    }
+
+    // Delete selected urls when the user is logged in
+    const selectAllCheckboxButton = document.getElementById('selectAll');
+    const urlCheckboxes = document.querySelectorAll('.url-checkbox');
+    const deleteButton = document.getElementById('deleteSelectedBtn');
+
+    if (selectAllCheckboxButton && urlCheckboxes && deleteButton) {
+
+        selectAllCheckboxButton.addEventListener('change', (event) => {
+            const isChecked = event.target.checked;
+            urlCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            updateDeleteButtonState();
+        })
+
+        urlCheckboxes.forEach(checkbox => {
+            checkbox.addEventListener('change', () => {
+                updateDeleteButtonState();
+                //if all are checked, also check the select all one
+                selectAllCheckboxButton.checked = Array.from(urlCheckboxes).every(checkbox => checkbox.checked);
+            })
+        })
+
+        function updateDeleteButtonState() {
+            const anyChecked = Array.from(urlCheckboxes).some(checkbox => checkbox.checked);
+            deleteButton.disabled = !anyChecked;
+        }
+    }
+
 });

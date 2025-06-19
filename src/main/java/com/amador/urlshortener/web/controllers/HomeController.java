@@ -41,6 +41,15 @@ public class HomeController {
                                  Model model,
                                  @PageableDefault Pageable pageable
     ) {
+        //TODO: if the number is too big, it cannot be converted to Integer nor Long, so it fails.
+        // When calling index again, the field gets the null instead of the big number introduced, resulting in
+        // a server error page.
+//        if (shortUrlForm.expirationInDays() == null) {
+//            redirectAttributes.addFlashAttribute("errorMessage",
+//                    "There was an error creating the URL, try again");
+//            bindingResult.rejectValue("expirationInDays", "{validation.defaultExpiryDays.range}");
+//            return home(model, pageable);
+//        }
         // When receiving the form, check for errors
         if (bindingResult.hasErrors()) { //if errors, display the home page again
             getHomePage(model, pageable);

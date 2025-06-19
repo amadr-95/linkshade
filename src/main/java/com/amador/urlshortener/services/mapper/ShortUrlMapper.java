@@ -10,6 +10,7 @@ public class ShortUrlMapper {
 
     public ShortUrlDTO toShortUrlDTO(ShortUrl shortUrl) {
         return ShortUrlDTO.builder()
+                .id(shortUrl.getId())
                 .shortenedUrl(shortUrl.getShortenedUrl())
                 .originalUrl(shortUrl.getOriginalUrl())
                 .createdByUser(UserDTO.builder()

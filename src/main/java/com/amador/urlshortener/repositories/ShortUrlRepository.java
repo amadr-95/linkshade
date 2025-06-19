@@ -7,6 +7,7 @@ import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -29,4 +30,6 @@ public interface ShortUrlRepository extends JpaRepository<ShortUrl, UUID> {
 
     @Query("select count(su) from ShortUrl su where su.createdByUser.id=:userId")
     Long countByCreatedByUser(Long userId);
+
+    void deleteByIdIn(List<UUID> ids);
 }

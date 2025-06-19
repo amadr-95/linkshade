@@ -12,49 +12,94 @@
 <div layout:fragment="content">
     <div class="mt-5 d-flex justify-content-between align-items-center">
         <h2>My Urls</h2>
-        <div th:insert="~{paginationNavbar :: pagination(pagedResult=${userShortUrls})}"></div>
+        <div th:insert="~{fragments/pagination-navbar :: pagination(pagedResult=${userShortUrls})}"></div>
     </div>
 
     <div th:if="${userShortUrls.data().isEmpty()}" class="alert alert-info">
-        No public URLs have been created yet.
+        No URLs have been created by you yet.
     </div>
     <div th:unless="${userShortUrls.data().isEmpty()}" class="table-responsive">
-        <table class="table table-striped table-hover">
-            <thead>
-            <tr>
-                <th>Short URL</th>
-                <th>Original URL</th>
-                <th>Number of Clicks</th>
-                <th>Created At</th>
-                <th>Expires At</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr th:each="url : ${userShortUrls.data()}">
-                <td>
-                    <div class="d-flex align-items-center gap-3">
-                        <button class="btn btn-sm btn-outline-secondary clipboard-button"
-                                th:data-url="${baseUrl + '/s/' + url.shortenedUrl}"
-                                title="Copy link">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
-                        <a th:href="@{'/s/' + ${url.shortenedUrl}}"
-                           th:text="${#strings.abbreviate(baseUrl + '/s/' + url.shortenedUrl, 40)}"
-                           target="_blank"
-                           class="me-2"></a>
+        <form th:action="@{/delete-urls}" method="POST">
+            <div class="mb-3">
+                <!-- Button trigger modal -->
+                <button type="button" id="deleteSelectedBtn" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#deleteConfirmation" disabled>
+                    Delete Selected
+                </button>
+                <!-- Modal -->
+                <div class="modal fade" id="deleteConfirmation" tabindex="-1" aria-labelledby="deleteConfirmationLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fs-5" id="deleteConfirmationLabel">Delete confirmation</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <p>Are you sure you want to delete the selected URLs?</p>
+                                <span class="text-danger">This action cannot be undone</span>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                <button type="submit" class="btn btn-danger">Delete</button>
+                            </div>
+                        </div>
                     </div>
-                </td>
-                <td>
-                    <a th:href="${url.originalUrl}" th:text="${#strings.abbreviate(url.originalUrl, 50)}"
-                       target="_blank"></a>
-                </td>
-                <td th:text="${url.numberOfClicks}"></td>
-                <td th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd')}"></td>
-                <td th:class="${url.expiresAt != null && url.expiresAt.isBefore(#temporals.createNow()) ? 'text-danger' : 'text-success'}"
-                    th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd') : 'Never'}"></td>
-            </tr>
-            </tbody>
-        </table>
+                </div>
+            </div>
+            <table class="table table-striped table-hover">
+                <thead>
+                <tr>
+                    <th>
+                        <label><input type="checkbox" id="selectAll" class="form-check-input"/></label>
+                    </th>
+                    <th>Short URL</th>
+                    <th>Original URL</th>
+                    <th>Clicks</th>
+                    <th>Private</th>
+                    <th>Created At</th>
+                    <th>Expires At</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="url : ${userShortUrls.data()}">
+                    <td>
+                        <label>
+                            <input type="checkbox" name="urlIds" th:value="${url.id()}"
+                                   class="form-check-input url-checkbox">
+                        </label>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-3">
+                            <button class="btn btn-sm btn-outline-secondary clipboard-button"
+                                    th:data-url="${baseUrl + '/s/' + url.shortenedUrl}"
+                                    title="Copy link"
+                                    type="button">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
+                            <a th:href="@{'/s/' + ${url.shortenedUrl}}"
+                               th:text="${#strings.abbreviate(baseUrl + '/s/' + url.shortenedUrl, 40)}"
+                               target="_blank"
+                               class="me-2"></a>
+                        </div>
+                    </td>
+                    <td>
+                        <a th:href="${url.originalUrl}" th:text="${#strings.abbreviate(url.originalUrl, 50)}"
+                           target="_blank"></a>
+                    </td>
+                    <td th:text="${url.numberOfClicks}"></td>
+                    <td>
+                        <span th:if="${url.isPrivate()}" class="badge bg-primary-subtle text-dark-emphasis">Private</span>
+                        <span th:unless="${url.isPrivate()}" class="badge bg-success">Public</span>
+                    </td>
+                    <td th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd')}"></td>
+                    <td>
+                        <span th:class="${url.expiresAt != null && url.expiresAt.isBefore(#temporals.createNow()) ? 'badge bg-warning' : 'badge bg-success'}"
+                              th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd') : 'Never'}">
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </form>
     </div>
 
     <ul class="pagination justify-content-center">
