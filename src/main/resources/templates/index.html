@@ -13,13 +13,16 @@
 <body>
 <div layout:fragment="content">
     <div class="jumbotron bg-light p-5 rounded-3 my-4">
-        <h1>Hello</h1>
+        <h1 sec:authorize="isAuthenticated()">Hello,
+            <span sec:authentication="name"></span>
+        </h1>
+        <h1 sec:authorize="isAnonymous()">Hello, Guest</h1>
         <p class="lead">Welcome to the home page of the URL Shortener App.</p>
     </div>
 
     <div class="card mt-4">
         <div class="card-header">
-            <h5 class="card-title mb-0">Insert your loooong URL here to get it shortened:</h5>
+            <h5 class="card-title mb-0">Insert your loooong URL here to get it shortened</h5>
         </div>
         <div class="card-body">
             <form th:action="@{/short-urls}" method="POST" th:object="${shortUrlForm}">
@@ -65,7 +68,7 @@
 
     <div class="mt-5 d-flex justify-content-between align-items-center">
         <h2>Public Shortened URLs</h2>
-        <div th:insert="~{paginationNavbar :: pagination(pagedResult=${publicUrls})}"></div>
+        <div th:insert="~{fragments/pagination-navbar :: pagination(pagedResult=${publicUrls})}"></div>
     </div>
     <div th:if="${publicUrls.data().isEmpty()}" class="alert alert-info">
         No public URLs have been created yet.
@@ -76,7 +79,7 @@
             <tr>
                 <th>Short URL</th>
                 <th>Original URL</th>
-                <th>Number of Clicks</th>
+                <th>Clicks</th>
                 <th>Created By</th>
                 <th>Created At</th>
                 <th>Expires At</th>
@@ -88,7 +91,8 @@
                     <div class="d-flex align-items-center gap-3">
                         <button class="btn btn-sm btn-outline-secondary clipboard-button"
                                 th:data-url="${baseUrl + '/s/' + url.shortenedUrl}"
-                                title="Copy link">
+                                title="Copy link"
+                                type="button">
                             <i class="bi bi-clipboard"></i>
                         </button>
                         <a th:href="@{'/s/' + ${url.shortenedUrl}}"
@@ -104,8 +108,11 @@
                 <td th:text="${url.numberOfClicks}"></td>
                 <td th:text="${url.createdByUser.name()}"></td>
                 <td th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd')}"></td>
-                <td th:class="${url.expiresAt != null && url.expiresAt.isBefore(#temporals.createNow()) ? 'text-danger' : 'text-success'}"
-                    th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd') : 'Never'}"></td>
+                <td>
+                    <span th:class="${url.expiresAt != null && url.expiresAt.isBefore(#temporals.createNow()) ? 'badge bg-warning' : 'badge bg-success'}"
+                          th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd') : 'Never'}">
+                    </span>
+                </td>
             </tr>
             </tbody>
         </table>
