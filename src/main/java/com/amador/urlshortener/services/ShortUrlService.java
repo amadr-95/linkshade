@@ -109,6 +109,8 @@ public class ShortUrlService {
             log.debug("Accessing public url '{}'", shortUrl.getShortenedUrl());
             return; //public urls are accessible by all
         }
+        //TODO: create html page to display when the url is valid but it's private and user
+        // has no rights to access
         if (currentUser == null) {
             log.warn("Accessing private url '{}' without logging in", shortUrl.getShortenedUrl());
             throw new UrlException("Trying to access to private URL without logging in");
