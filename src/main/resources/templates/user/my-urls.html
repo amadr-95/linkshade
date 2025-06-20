@@ -10,10 +10,8 @@
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="mt-5 d-flex justify-content-between align-items-center">
-        <h2>My Urls</h2>
-        <div th:insert="~{fragments/pagination-navbar :: pagination(pagedResult=${userShortUrls})}"></div>
-    </div>
+
+    <div th:replace="~{fragments/section-header :: section-header(title='My URLs', pagedResult=${userShortUrls})}"></div>
 
     <div th:if="${userShortUrls.data().isEmpty()}" class="alert alert-info">
         No URLs have been created by you yet.
