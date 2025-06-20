@@ -1,4 +1,4 @@
-<nav class="d-flex justify-content-between" th:fragment="pagination(pagedResult)">
+<nav class="d-flex justify-content-lg-between" th:fragment="pagination(pagedResult)">
     <nav th:if="${pagedResult.totalPages > 1}">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${pagedResult.isFirst ? 'disabled' : ''}">
@@ -12,7 +12,7 @@
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
-            <li class="page-item disabled">
+            <li class="page-item d-none d-sm-block disabled">
                         <span class="page-link" aria-label="Current Page Number of Total Pages"
                               th:text="${'Page '+ (pagedResult.pageNumber + 1) + ' of ' + (pagedResult.totalPages)}">
                         </span>
