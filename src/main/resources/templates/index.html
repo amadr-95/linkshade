@@ -13,10 +13,7 @@
 <body>
 <div layout:fragment="content">
     <div class="jumbotron bg-light p-5 rounded-3 my-4">
-        <h1 sec:authorize="isAuthenticated()">Hello,
-            <span sec:authentication="name"></span>
-        </h1>
-        <h1 sec:authorize="isAnonymous()">Hello, Guest</h1>
+        <h1>Hello, <span th:text="${userName}"></span></h1>
         <p class="lead">Welcome to the home page of the URL Shortener App.</p>
     </div>
 

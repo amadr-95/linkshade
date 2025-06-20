@@ -3,6 +3,7 @@ package com.amador.urlshortener.web.controllers;
 import com.amador.urlshortener.config.AppProperties;
 import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
 import com.amador.urlshortener.exceptions.UrlException;
+import com.amador.urlshortener.security.AuthenticationService;
 import com.amador.urlshortener.services.ShortUrlService;
 import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
 import jakarta.validation.Valid;
@@ -22,13 +23,14 @@ public class HomeController {
 
     private final ShortUrlService shortUrlService;
     private final AppProperties appProperties;
+    private final AuthenticationService authenticationService;
 
     @GetMapping
     public String home(Model model, @PageableDefault Pageable pageable) {
         getHomePage(model, pageable);
         model.addAttribute("shortUrlForm", new ShortUrlForm(
                 "",
-                appProperties.shortUrlProperties().defaultExpiryDays(),
+                null,
                 appProperties.shortUrlProperties().isPrivate(),
                 appProperties.shortUrlProperties().urlLength()));
         return "index";
@@ -44,12 +46,7 @@ public class HomeController {
         //TODO: if the number is too big, it cannot be converted to Integer nor Long, so it fails.
         // When calling index again, the field gets the null instead of the big number introduced, resulting in
         // a server error page.
-//        if (shortUrlForm.expirationInDays() == null) {
-//            redirectAttributes.addFlashAttribute("errorMessage",
-//                    "There was an error creating the URL, try again");
-//            bindingResult.rejectValue("expirationInDays", "{validation.defaultExpiryDays.range}");
-//            return home(model, pageable);
-//        }
+
         // When receiving the form, check for errors
         if (bindingResult.hasErrors()) { //if errors, display the home page again
             getHomePage(model, pageable);
@@ -77,6 +74,7 @@ public class HomeController {
     }
 
     private void getHomePage(Model model, Pageable pageable) {
+        model.addAttribute("userName", authenticationService.getUserName());
         model.addAttribute("pageAvailableSizes", appProperties.pageAvailableSizes());
         model.addAttribute("baseUrl", appProperties.shortUrlProperties().baseUrl());
         model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls(pageable));

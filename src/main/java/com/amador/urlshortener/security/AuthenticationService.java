@@ -17,6 +17,11 @@ public class AuthenticationService {
                 (User) authentication.getPrincipal();
     }
 
+    public String getUserName () {
+        User user = getCurrentUserInfo();
+        return user == null ? "Guest" : user.getName();
+    }
+
     @Deprecated
     public User getCurrentUserInfoAlternative() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
