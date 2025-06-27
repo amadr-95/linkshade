@@ -32,7 +32,9 @@ public class HomeController {
                 "",
                 null,
                 appProperties.shortUrlProperties().isPrivate(),
-                appProperties.shortUrlProperties().urlLength()));
+                appProperties.shortUrlProperties().defaultUrlLength(),
+                appProperties.shortUrlProperties().isCustom(),
+                ""));
         return "index";
     }
 
@@ -46,9 +48,7 @@ public class HomeController {
         //TODO: if the number is too big, it cannot be converted to Integer nor Long, so it fails.
         // When calling index again, the field gets the null instead of the big number introduced, resulting in
         // a server error page.
-
-        // When receiving the form, check for errors
-        if (bindingResult.hasErrors()) { //if errors, display the home page again
+        if (bindingResult.hasErrors()) {
             getHomePage(model, pageable);
             return "index";
         }

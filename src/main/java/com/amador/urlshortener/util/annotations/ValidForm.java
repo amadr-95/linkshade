@@ -1,6 +1,6 @@
 package com.amador.urlshortener.util.annotations;
 
-import com.amador.urlshortener.util.UrlValidatorAdvance;
+import com.amador.urlshortener.util.FormValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -10,12 +10,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.FIELD)
-@Constraint(validatedBy = {UrlValidatorAdvance.class})
-public @interface ValidUrl {
+@Target(ElementType.TYPE)
+@Constraint(validatedBy = {FormValidator.class})
+public @interface ValidForm {
     Class<?>[] groups() default { };
 
     Class<? extends Payload>[] payload() default { };
 
-    String message() default "{validation.urlForm.invalidUrl}";
+    String message() default "{validation.urlForm.default}";
 }

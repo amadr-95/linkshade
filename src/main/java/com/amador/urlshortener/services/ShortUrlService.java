@@ -11,6 +11,7 @@ import com.amador.urlshortener.exceptions.UrlNotFoundException;
 import com.amador.urlshortener.repositories.ShortUrlRepository;
 import com.amador.urlshortener.security.AuthenticationService;
 import com.amador.urlshortener.services.mapper.ShortUrlMapper;
+import com.amador.urlshortener.util.ValidationConstants;
 import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class ShortUrlService {
     public PagedResult<ShortUrlDTO> findAllPublicUrls(Pageable pageableRequest) {
         Pageable validPage = paginationService.createValidPage(pageableRequest, shortUrlRepository::countAllPublicUrls);
 
-        //We need some wrapper object that allows us to store all the data coming from Page so we can show it in the frontend
+        // Wrapper object that allows us to store all the data coming from Page so we can show it in the frontend
         return PagedResult.from(shortUrlRepository.findAllPublicUrls(validPage)
                 .map(shortUrlMapper::toShortUrlDTO));
     }
@@ -53,7 +54,7 @@ public class ShortUrlService {
 
         ShortUrl shortUrl = ShortUrl.builder()
                 .originalUrl(shortUrlForm.originalUrl())
-                .shortenedUrl(shortenUrl(shortUrlForm.urlLength()))
+                .shortenedUrl(shortenUrl(shortUrlForm))
                 .createdByUser(currentUser) //either null or real user
                 .isPrivate(shortUrlForm.isPrivate() != null && shortUrlForm.isPrivate()) //false by default if the user is not logged in
                 .numberOfClicks(0L)
@@ -67,24 +68,35 @@ public class ShortUrlService {
         return shortUrlMapper.toShortUrlDTO(shortUrl);
     }
 
-    private String shortenUrl(Integer length) throws UrlException {
-        Random random = new Random();
-        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-        int shortUrlLength = length == null ?
-                appProperties.shortUrlProperties().urlLength() : length;
-        int maxAttempts = 5;
-        StringBuilder shortUrl = new StringBuilder(shortUrlLength);
+    private String shortenUrl(ShortUrlForm shortUrlForm) throws UrlException {
+        if (shortUrlForm.isCustom() != null && shortUrlForm.isCustom()) {
+            String customUrl = shortUrlForm.customShortUrlName();
+            verifyUrlDoesNotExist(customUrl);
+            return customUrl;
+        }
+        return generateRandomShortUrl(shortUrlForm.urlLength());
+    }
 
-        for (int attempt = 0; attempt < maxAttempts; attempt++) {
-            for (int i = 0; i < shortUrlLength; i++) {
+    private void verifyUrlDoesNotExist(String url) throws UrlException {
+        if (shortUrlRepository.existsByShortenedUrl(url))
+            throw new UrlException(String.format("Duplicate key: shortenedUrl '%s' already exists", url));
+    }
+
+    private String generateRandomShortUrl(Integer urlLength) throws UrlException {
+        Random random = new Random();
+        String characters = ValidationConstants.VALID_CHARACTERS;
+        urlLength = urlLength == null ?
+                appProperties.shortUrlProperties().defaultUrlLength() : urlLength;
+        StringBuilder shortUrl = new StringBuilder(urlLength);
+        int maxAttempts = 5;
+        for (int attemps = 0; attemps < maxAttempts; attemps++) {
+            for (int i = 0; i < urlLength; i++) {
                 shortUrl.append(characters.charAt(random.nextInt(characters.length())));
             }
-
-            //check if that combination of characters already exists in database
             if (!shortUrlRepository.existsByShortenedUrl(shortUrl.toString()))
                 return shortUrl.toString();
         }
-        throw new UrlException("URL cannot be created because it exceeds the number of allowed attempts");
+        throw new UrlException("ShortenedUrl could not be created: too many attempts");
     }
 
     @Transactional

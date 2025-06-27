@@ -1,9 +1,9 @@
 package com.amador.urlshortener.util;
 
-import com.amador.urlshortener.util.annotations.ValidUrl;
-import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 
 import java.net.HttpURLConnection;
 import java.net.URI;
@@ -11,17 +11,20 @@ import java.net.URL;
 import java.util.regex.Pattern;
 
 @Slf4j
-public class UrlValidatorAdvance implements ConstraintValidator<ValidUrl, String> {
+@Component
+@RequiredArgsConstructor
+public class UrlValidator {
 
+    private final ValidationContextBuilder contextBuilder;
     private static final Pattern URL_PATTERN = Pattern.compile(
             "^(https?|ftp)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
 
-    @Override
-    public boolean isValid(String formUrl, ConstraintValidatorContext context) {
+    public boolean isValid(ConstraintValidatorContext context, String formUrl) {
         log.debug("Checking url: '{}'", formUrl);
         // first layer (mandatory): syntax validation
         if (!isValidSyntax(formUrl)) {
             log.error("URL '{}' has syntax error", formUrl);
+            contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", "originalUrl");
             return false;
         }
         // second layer (optional): validate http response code (slow)

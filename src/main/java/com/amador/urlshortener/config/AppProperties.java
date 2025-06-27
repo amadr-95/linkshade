@@ -35,7 +35,9 @@ public record AppProperties(
             @Max(
                     value = ValidationConstants.MAX_URL_LENGTH,
                     message = "{validation.urlLength.range}")
-            int urlLength
+            int defaultUrlLength,
+
+            boolean isCustom
     ) {
     }
 }
