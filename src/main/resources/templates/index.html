@@ -4,7 +4,6 @@
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       xmlns:sec="http://www.thymeleaf.org/extras/spring-security"
       layout:decorate="~{layout}">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,47 +17,100 @@
     </div>
 
     <div class="card mt-4">
-        <div class="card-header">
+        <div class="card-header p-3">
             <h5 class="card-title mb-0">Insert your loooong URL here to get it shortened</h5>
         </div>
         <div class="card-body">
             <form th:action="@{/short-urls}" method="POST" th:object="${shortUrlForm}">
-                <div class="mb-3">
-                    <label for="originalUrl" class="form-label">Original URL</label>
-                    <input type="text" class="form-control" id="originalUrl"
-                           th:field="*{originalUrl}"
-                           placeholder="https://example.com/my-long-url">
+                <div class="mb-3 input-group"
+                     th:classappend="${#fields.hasErrors('originalUrl')} ? 'has-validation' : ''">
+                    <span class="input-group-text fs-4"><i class="bi bi-link-45deg"></i></span>
+                    <div class="form-floating"
+                         th:classappend="${#fields.hasErrors('originalUrl')} ? 'is-invalid' : ''">
+                        <input type="text" class="form-control" id="originalUrl"
+                               th:field="*{originalUrl}"
+                               th:classappend="${#fields.hasErrors('originalUrl')} ? 'is-invalid' : ''"
+                               placeholder="">
+                        <label for="originalUrl" class="form-label">https://example.com/my-long-url</label>
+                    </div>
                     <!-- Print errors if any (based on the validation annotations) -->
-                    <div class="text-danger mt-2"
+                    <div class="invalid-feedback"
                          th:if="${#fields.hasErrors('originalUrl')}"
-                         th:errors="*{originalUrl}"></div>
-                </div>
-                <!-- When the user is not authenticated these values will not be sent resulting null in the backend -->
-                <div class="mb-3" sec:authorize="isAuthenticated()">
-                    <label for="expirationInDays" class="form-label">Expiration (days)</label>
-                    <input type="number" class="form-control" id="expirationInDays"
-                           th:field="*{expirationInDays}"
-                    >
-                    <div class="form-text">Leave empty to never expire</div>
-                    <!-- Print errors if any (based on the validation annotations) -->
-                    <div class="text-danger mt-2"
-                         th:if="${#fields.hasErrors('expirationInDays')}"
-                         th:errors="*{expirationInDays}"></div>
-                </div>
-                <div class="mb-3 form-check" sec:authorize="isAuthenticated()">
-                    <input type="checkbox" class="form-check-input" id="isPrivate" th:field="*{isPrivate}">
-                    <label class="form-check-label" for="isPrivate">Private (only you can access)</label>
-                </div>
-                <div class="mb-3" sec:authorize="isAuthenticated()">
-                    <label class="form-label" for="urlLength">Pick the length you want</label>
-                    <div class="d-flex align-items-center gap-2">
-                        <input type="range" class="form-range" id="urlLength"
-                               th:field="*{urlLength}"
-                               min="5" max="20" step="1">
-                        <span id="urlLengthValue" class="badge bg-primary"></span>
+                         th:errors="*{originalUrl}">
                     </div>
                 </div>
-                <button type="submit" class="btn btn-primary">Shorten!</button>
+
+                <!-- When the user is not authenticated these values will not be sent resulting null in the backend -->
+                <div sec:authorize="isAuthenticated()">
+                    <div class="mb-3">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" id="isPrivate" th:field="*{isPrivate}">
+                            <label class="form-check-label" for="isPrivate">Private</label>
+                        </div>
+                        <div class="form-text">Only you can access</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="input-group"
+                             th:classappend="${#fields.hasErrors('expirationInDays')} ? 'has-validation' : ''">
+                            <span class="input-group-text"><i class="bi bi-calendar"></i></span>
+                            <div class="form-floating"
+                                 th:classappend="${#fields.hasErrors('expirationInDays')} ? 'is-invalid' : ''">
+                                <input type="number" class="form-control" id="expirationInDays"
+                                       th:field="*{expirationInDays}"
+                                       th:classappend="${#fields.hasErrors('expirationInDays')} ? 'is-invalid' : ''"
+                                       placeholder="">
+                                <label for="expirationInDays" class="form-label">Expiration in days</label>
+                            </div>
+                            <!-- Print errors if any (based on the validation annotations) -->
+                            <div class="invalid-feedback"
+                                 th:if="${#fields.hasErrors('expirationInDays')}"
+                                 th:errors="*{expirationInDays}">
+                            </div>
+                        </div>
+                        <div class="form-text">Leave empty to never expire</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" th:field="*{isCustom}" type="checkbox" role="switch"
+                                   id="customModeSwitch">
+                            <label class="form-check-label" for="customModeSwitch">Custom</label>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="d-flex align-items-center gap-2">
+                            <input type="range" class="form-range" id="urlLength"
+                                   th:field="*{urlLength}" min="5" max="20">
+                            <output id="urlLengthValue" class="badge bg-primary"></output>
+                        </div>
+                        <label for="urlLength" class="d-none"></label>
+                        <div class="form-text">Pick the length you want</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <div class="input-group"
+                             th:classappend="${#fields.hasErrors('customShortUrlName')} ? 'has-validation' : ''">
+                            <span class="input-group-text" th:text="${baseUrl} + '/s/'"></span>
+                            <div class="form-floating"
+                                 th:classappend="${#fields.hasErrors('customShortUrlName')} ? 'has-validation' : ''">
+                                <input type="text" class="form-control" id="customUrl"
+                                       th:classappend="${#fields.hasErrors('customShortUrlName')} ? 'is-invalid' : ''"
+                                       th:field="*{customShortUrlName}"
+                                       placeholder="">
+                                <label for="customUrl" class="form-label">Introduce your custom url here</label>
+                                <!-- Print errors if any (based on the validation annotations) -->
+                                <div class="invalid-feedback"
+                                     th:if="${#fields.hasErrors('customShortUrlName')}"
+                                     th:errors="*{customShortUrlName}">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                <button type="submit" class="btn btn-primary mt-2">Shorten</button>
             </form>
         </div>
     </div>
@@ -74,6 +126,7 @@
             showCheckboxes=false,
             showCreatedBy=true,
             showPrivate=false,
+            userLogged=false,
             truncateLength=40)}">
         </div>
     </div>
