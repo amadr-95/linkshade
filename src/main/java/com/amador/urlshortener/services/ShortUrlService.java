@@ -22,9 +22,9 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.Random;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
-@Slf4j
 public class ShortUrlService {
 
     private final ShortUrlRepository shortUrlRepository;
@@ -88,13 +88,16 @@ public class ShortUrlService {
         urlLength = urlLength == null ?
                 appProperties.shortUrlProperties().defaultUrlLength() : urlLength;
         StringBuilder shortUrl = new StringBuilder(urlLength);
+        //TODO: move this to AppProperties?
         int maxAttempts = 5;
-        for (int attemps = 0; attemps < maxAttempts; attemps++) {
+        for (int attemps = 1; attemps <= maxAttempts; attemps++) {
             for (int i = 0; i < urlLength; i++) {
                 shortUrl.append(characters.charAt(random.nextInt(characters.length())));
             }
-            if (!shortUrlRepository.existsByShortenedUrl(shortUrl.toString()))
+            if (!shortUrlRepository.existsByShortenedUrl(shortUrl.toString())) {
+                log.info("ShortUrl '{}' created successfully in {} attempts", shortUrl, attemps);
                 return shortUrl.toString();
+            }
         }
         throw new UrlException("ShortenedUrl could not be created: too many attempts");
     }
@@ -118,7 +121,7 @@ public class ShortUrlService {
 
     private void validateUserPermissions(User currentUser, ShortUrl shortUrl) throws UrlException {
         if (!shortUrl.isPrivate()) {
-            log.debug("Accessing public url '{}'", shortUrl.getShortenedUrl());
+            log.info("Accessing public url '{}'", shortUrl.getShortenedUrl());
             return; //public urls are accessible by all
         }
         //TODO: create html page to display when the url is valid but it's private and user
