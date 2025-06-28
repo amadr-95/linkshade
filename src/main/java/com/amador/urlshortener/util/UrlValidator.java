@@ -28,7 +28,7 @@ public class UrlValidator {
             return false;
         }
         // second layer (optional): validate http response code (slow)
-        return isReachable(formUrl);
+        return isReachable(context, formUrl);
         // return true
     }
 
@@ -37,7 +37,7 @@ public class UrlValidator {
         return URL_PATTERN.matcher(url).matches();
     }
 
-    private boolean isReachable(String url) {
+    private boolean isReachable(ConstraintValidatorContext context, String url) {
         try {
             int responseCode = getResponseCode(url);
 
@@ -49,10 +49,12 @@ public class UrlValidator {
                 return true;
             } else {
                 log.error("URL '{}' not reachable with status code: {}", url, responseCode);
+                contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", "originalUrl");
                 return false;
             }
         } catch (Exception ex) {
             log.error("Url '{}' not valid", url, ex);
+            contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", "originalUrl");
             return false;
         }
     }
