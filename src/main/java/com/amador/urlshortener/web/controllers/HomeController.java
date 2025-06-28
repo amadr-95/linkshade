@@ -8,6 +8,7 @@ import com.amador.urlshortener.services.ShortUrlService;
 import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
@@ -16,6 +17,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+@Slf4j
 @Controller
 @RequestMapping("/")
 @RequiredArgsConstructor
@@ -56,9 +58,10 @@ public class HomeController {
             ShortUrlDTO shortUrlDTO = shortUrlService.createShortUrl(shortUrlForm);
             redirectAttributes.addFlashAttribute("successMessage",
                     String.format("URL created successfully: %s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortUrlDTO.shortenedUrl()));
-        } catch (UrlException e) {
+        } catch (UrlException ex) {
+            log.error("Shorturl problem, reason: {}", ex.getMessage(), ex);
             redirectAttributes.addFlashAttribute("errorMessage",
-                    "There was an error creating the URL, try again");
+                    "There was an error creating the URL, please try again");
         }
         return "redirect:/";
     }
