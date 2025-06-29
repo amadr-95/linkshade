@@ -8,6 +8,7 @@ import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
 import com.amador.urlshortener.exceptions.UrlException;
 import com.amador.urlshortener.exceptions.UrlExpiredException;
 import com.amador.urlshortener.exceptions.UrlNotFoundException;
+import com.amador.urlshortener.exceptions.UrlPrivateException;
 import com.amador.urlshortener.repositories.ShortUrlRepository;
 import com.amador.urlshortener.security.AuthenticationService;
 import com.amador.urlshortener.services.mapper.ShortUrlMapper;
@@ -113,20 +114,18 @@ public class ShortUrlService {
         return shortUrl.getOriginalUrl();
     }
 
-    private void validateUserPermissions(User currentUser, ShortUrl shortUrl) throws UrlException {
+    private void validateUserPermissions(User currentUser, ShortUrl shortUrl) throws UrlPrivateException {
         if (!shortUrl.isPrivate()) {
             log.info("Accessing public url '{}'", shortUrl.getShortenedUrl());
             return; //public urls are accessible by all
         }
-        //TODO: create html page to display when the url is valid but it's private and user
-        // has no rights to access
         if (currentUser == null) {
             log.warn("Accessing private url '{}' without logging in", shortUrl.getShortenedUrl());
-            throw new UrlException("Trying to access to private URL without logging in");
+            throw new UrlPrivateException("Trying to access to private URL without logging in");
         }
         if (!shortUrl.getCreatedByUser().getId().equals(currentUser.getId())) {
             log.warn("Accessing private url '{}' with wrong user", shortUrl.getShortenedUrl());
-            throw new UrlException("Trying to access to private URL with wrong user");
+            throw new UrlPrivateException("Trying to access to private URL with wrong user");
         }
     }
 }

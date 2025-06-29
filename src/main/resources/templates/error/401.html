@@ -7,15 +7,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server error</title>
+    <title>Unauthorized</title>
 </head>
 <body>
 <div layout:fragment="content">
     <div class="container text-center py-5">
         <div class="mb-4">
-            <img th:src="@{/images/server-error.webp}" alt="server broken" class="img-fluid" style="max-width: 400px;">
+            <img th:src="@{/images/unauthorized.webp}" alt="unauthorized" class="rounded-circle img-fluid"
+                 style="max-width: 500px;">
         </div>
-        <p class="lead mb-5">We're sorry! Something went wrong on our end!</p>
+        <p class="lead mb-5">The link you are trying to access is private, log in first!</p>
+        <a th:href="@{/login}" class="btn btn-primary mt-2">Login</a>
     </div>
 </div>
 </body>
