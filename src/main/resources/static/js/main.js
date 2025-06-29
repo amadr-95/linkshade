@@ -24,14 +24,58 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Only in my-urls html page when the user is logged in
     const lengthRange = document.getElementById('urlLength');
-    const span = document.getElementById('urlLengthValue');
-    if (lengthRange && span) { //check they're present (when the user is logged in)
+    const output = document.getElementById('urlLengthValue');
+    const switchElement = document.getElementById('customModeSwitch');
+    const rangeFormField = document.querySelector('.range-container');
+    const inputFormField = document.querySelector('.input-container');
+
+    if (lengthRange && output && switchElement) { //check they're present (when the user is logged in)
         let urlLength = lengthRange;
-        span.innerText = urlLength.value;
+        output.innerText = urlLength.value;
 
         lengthRange.addEventListener("input", (event) => {
             urlLength = event.target.value;
-            span.innerText = urlLength;
+            output.innerText = urlLength;
+        })
+
+        function checkInitialState() {
+            // check initial state when the page is loaded
+            if (switchElement.checked) {
+                rangeFormField.classList.add('d-none');
+                inputFormField.classList.remove('d-none');
+                inputFormField.style.opacity = '1';
+            } else {
+                inputFormField.classList.add('d-none');
+                rangeFormField.classList.remove('d-none');
+                rangeFormField.style.opacity = '1';
+            }
+        }
+
+        checkInitialState();
+
+        function transitionElements(elementToHide, elementToShow) {
+            // Hide first element with transition
+            elementToHide.style.opacity = '0';
+            elementToHide.style.transition = 'opacity 0.2s';
+
+            setTimeout(() => {
+                // change elements visibility
+                elementToHide.classList.add('d-none');
+                elementToShow.classList.remove('d-none');
+                elementToShow.style.opacity = '0';
+
+                // Show second element with transition
+                setTimeout(() => {
+                    elementToShow.style.opacity = '1';
+                    elementToShow.style.transition = 'opacity 0.2s';
+                }, 10);
+            }, 200);
+        }
+
+        switchElement.addEventListener('change', function () {
+            const showElement = this.checked ? inputFormField : rangeFormField;
+            const hideElement = this.checked ? rangeFormField : inputFormField;
+            transitionElements(hideElement, showElement);
         })
     }
 
@@ -63,5 +107,4 @@ document.addEventListener('DOMContentLoaded', function () {
             deleteButton.disabled = !anyChecked;
         }
     }
-
 });

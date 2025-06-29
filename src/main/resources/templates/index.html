@@ -79,27 +79,29 @@
                         </div>
                     </div>
 
-                    <div class="mb-3">
-                        <div class="d-flex align-items-center gap-2">
-                            <input type="range" class="form-range" id="urlLength"
-                                   th:field="*{urlLength}" min="5" max="20">
-                            <output id="urlLengthValue" class="badge bg-primary"></output>
+                    <div style="min-height: 85px">
+                        <div class="range-container">
+                            <div class="d-flex align-items-center gap-2">
+                                <input type="range" class="form-range" id="urlLength"
+                                       th:field="*{urlLength}" min="5" max="20">
+                                <output id="urlLengthValue" class="badge bg-primary"></output>
+                            </div>
+                            <label for="urlLength" class="d-none"></label>
+                            <div class="form-text">Pick the length you want</div>
                         </div>
-                        <label for="urlLength" class="d-none"></label>
-                        <div class="form-text">Pick the length you want</div>
-                    </div>
 
-                    <div class="mb-3">
-                        <div class="input-group"
-                             th:classappend="${#fields.hasErrors('customShortUrlName')} ? 'has-validation' : ''">
-                            <span class="input-group-text" th:text="${baseUrl} + '/s/'"></span>
-                            <div class="form-floating"
+                        <div class="input-container d-none">
+                            <div class="input-group"
                                  th:classappend="${#fields.hasErrors('customShortUrlName')} ? 'has-validation' : ''">
-                                <input type="text" class="form-control" id="customUrl"
-                                       th:classappend="${#fields.hasErrors('customShortUrlName')} ? 'is-invalid' : ''"
-                                       th:field="*{customShortUrlName}"
-                                       placeholder="">
-                                <label for="customUrl" class="form-label">Introduce your custom url here</label>
+                                <span class="input-group-text" th:text="${baseUrl} + '/s/'"></span>
+                                <div class="form-floating"
+                                     th:classappend="${#fields.hasErrors('customShortUrlName')} ? 'is-invalid' : ''">
+                                    <input type="text" class="form-control" id="customUrl"
+                                           th:classappend="${#fields.hasErrors('customShortUrlName')} ? 'is-invalid' : ''"
+                                           th:field="*{customShortUrlName}"
+                                           placeholder="">
+                                    <label for="customUrl" class="form-label">Introduce your custom url here</label>
+                                </div>
                                 <!-- Print errors if any (based on the validation annotations) -->
                                 <div class="invalid-feedback"
                                      th:if="${#fields.hasErrors('customShortUrlName')}"
