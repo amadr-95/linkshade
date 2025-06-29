@@ -8,16 +8,26 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>URL Shortener</title>
     <!-- Favicon -->
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230d6efd' class='bi bi-link-45deg' viewBox='0 0 16 16'><path d='M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z'/><path d='M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z'/></svg>" type="image/svg+xml">
+    <link rel="icon"
+          href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='%230d6efd' class='bi bi-link-45deg' viewBox='0 0 16 16'><path d='M4.715 6.542 3.343 7.914a3 3 0 1 0 4.243 4.243l1.828-1.829A3 3 0 0 0 8.586 5.5L8 6.086a1.002 1.002 0 0 0-.154.199 2 2 0 0 1 .861 3.337L6.88 11.45a2 2 0 1 1-2.83-2.83l.793-.792a4.018 4.018 0 0 1-.128-1.287z'/><path d='M6.586 4.672A3 3 0 0 0 7.414 9.5l.775-.776a2 2 0 0 1-.896-3.346L9.12 3.55a2 2 0 1 1 2.83 2.83l-.793.792c.112.42.155.855.128 1.287l1.372-1.372a3 3 0 1 0-4.243-4.243L6.586 4.672z'/></svg>"
+          type="image/svg+xml">
     <!-- Bootstrap CSS   -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap/5.3.5/css/bootstrap.min.css}">
     <!-- Bootstrap icons   -->
     <link rel="stylesheet" th:href="@{/webjars/bootstrap-icons/1.11.3/font/bootstrap-icons.css}">
+    <style>
+        /* Hide the spin buttons in WebKit browsers */
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+    </style>
 </head>
-<body class="d-flex flex-column pt-5 pb-4 min-vh-100">
+<body class="d-flex flex-column pt-5 min-vh-100">
 <nav class="navbar navbar-expand-xl navbar-dark bg-dark fixed-top">
     <div class="container">
-        <a class="navbar-brand fs-4 fw-bold" th:href="@{/}">URL Shortener</a>
+        <a class="navbar-brand fs-3 fw-bold" th:href="@{/}">linkshad<i class="bi bi-link-45deg"></i></a>
         <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
                 aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
@@ -71,10 +81,42 @@
     </div>
 
     <div layout:fragment="content">
-        <!-- Your Page Content Here -->
+        <!-- Page Content Here -->
     </div>
 
 </div>
+
+<footer class="bg-dark text-white py-5 mt-5">
+    <div class="container">
+        <div class="row mb-md-4 mb-0">
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5>linkshad<i class="bi bi-link-45deg"></i></h5>
+                <p class="small mb-0">Fast and secure URL shortening service.
+                    Create custom short links with just a few clicks.</p>
+            </div>
+            <div class="col-md-4 mb-4 mb-md-0">
+                <h5 class="text-md-center">Get In Touch</h5>
+                <div class="d-flex justify-content-md-center">
+                    <a href="#" class="text-white me-3"><i class="bi bi-linkedin fs-4"></i></a>
+                    <a href="#" class="text-white me-3"><i class="bi bi-github fs-4"></i></a>
+                </div>
+            </div>
+            <div class="col-md-4 text-md-end mb-4 mb-md-0">
+                <h5>Support Me</h5>
+                <a href="#" class="btn btn-primary" target="_blank">
+                    <i class="bi bi-paypal me-2"></i>Donate
+                </a>
+            </div>
+        </div>
+        <hr class="my-3 bg-secondary">
+        <div class="row">
+            <div class="col-lg-6 small text-center text-md-start">
+                <p class="mb-0">&copy; <script>document.write(new Date().getFullYear().toString())</script> linkshade. All rights reserved.
+                Made with <i style="color: #dc3545" class="bi bi-heart-fill"></i> by Amador S.</p>
+            </div>
+        </div>
+    </div>
+</footer>
 <!-- Bootstrap JS   -->
 <script th:src="@{/webjars/bootstrap/5.3.5/js/bootstrap.bundle.min.js}"></script>
 <!-- Custom JS -->
