@@ -70,16 +70,10 @@ public class ShortUrlService {
 
     private String shortenUrl(ShortUrlForm shortUrlForm) throws UrlException {
         if (shortUrlForm.isCustom() != null && shortUrlForm.isCustom()) {
-            String customUrl = shortUrlForm.customShortUrlName();
-            verifyUrlDoesNotExist(customUrl);
-            return customUrl;
+            // No need to verify if customURL already exists, it is handled in CustomUrlNameValidator
+            return shortUrlForm.customShortUrlName();
         }
         return generateRandomShortUrl(shortUrlForm.urlLength());
-    }
-
-    private void verifyUrlDoesNotExist(String url) throws UrlException {
-        if (shortUrlRepository.existsByShortenedUrl(url))
-            throw new UrlException(String.format("Duplicate key: shortenedUrl '%s' already exists", url));
     }
 
     private String generateRandomShortUrl(Integer urlLength) throws UrlException {

@@ -1,5 +1,6 @@
 package com.amador.urlshortener.util;
 
+import com.amador.urlshortener.repositories.ShortUrlRepository;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ public class CustomUrlNameValidator {
 
     private final ValidationContextBuilder contextBuilder;
     private final LengthValidator lengthValidator;
+    private final ShortUrlRepository shortUrlRepository;
 
     public boolean isValid(ConstraintValidatorContext context, String shortenedUrl) {
         log.info("Checking custom url name: '{}'", shortenedUrl);
@@ -34,6 +36,13 @@ public class CustomUrlNameValidator {
                 return false;
             }
         }
+
+        if (shortUrlRepository.existsByShortenedUrl(shortenedUrl)) {
+            log.error("Duplicate key: shortenedUrl '{}' already exists", shortenedUrl);
+            contextBuilder.buildContext(context, "{validation.urlForm.customUrlNameAlreadyExist}", "customShortUrlName");
+            return false;
+        }
+
         log.info("Custom url name: '{}' valid", shortenedUrl);
         return true;
     }
