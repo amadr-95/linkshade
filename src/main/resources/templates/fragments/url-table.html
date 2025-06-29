@@ -21,7 +21,7 @@
             <tbody>
             <tr th:each="url : ${urls.data()}">
                 <!-- checkboxes column (optional) -->
-                <td th:if="${showCheckboxes}">
+                <td class="text-center align-middle" th:if="${showCheckboxes}">
                     <label>
                         <input type="checkbox" name="urlIds" th:value="${url.id()}"
                                class="form-check-input url-checkbox">
