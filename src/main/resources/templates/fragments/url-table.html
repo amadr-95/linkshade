@@ -1,4 +1,4 @@
-<div th:fragment="url-table(urls, showCheckboxes, showCreatedBy, showPrivate, truncateLength)"
+<div th:fragment="url-table(urls, showCheckboxes, showCreatedBy, showPrivate, userLogged, truncateLength)"
      class="border rounded-3 overflow-hidden">
     <div class="overflow-x-auto">
         <table class="table table-striped table-hover mb-0">
@@ -9,13 +9,13 @@
                     <label><input type="checkbox" id="selectAll" class="form-check-input"/></label>
                 </th>
                 <th>Short URL</th>
-                <th>Original URL</th>
-                <th>Clicks</th>
+                <th th:if="${userLogged}">Original URL</th>
+                <th class="text-center">Clicks</th>
                 <!-- CreatedBy or Private -->
-                <th th:if="${showCreatedBy}">Created By</th>
-                <th th:if="${showPrivate}">Private</th>
-                <th>Created At</th>
-                <th>Expires At</th>
+                <th class="text-center" th:if="${showCreatedBy}">Created By</th>
+                <th class="text-center" th:if="${showPrivate}">Private</th>
+                <th class="text-center">Created At</th>
+                <th class="text-center">Expires At</th>
             </tr>
             </thead>
             <tbody>
@@ -36,31 +36,35 @@
                             <i class="bi bi-clipboard"></i>
                         </button>
                         <a th:href="@{'/s/' + ${url.shortenedUrl}}"
-                           th:text="${#strings.abbreviate(baseUrl + '/s/' + url.shortenedUrl, truncateLength)}"
                            target="_blank"
-                           class="me-2"></a>
+                           class="me-2 text-decoration-none link-primary link-opacity-75 link-opacity-100-hover">
+                            <span th:text="${#strings.abbreviate(baseUrl + '/s/' + url.shortenedUrl, truncateLength)}"></span>
+                            <i class="bi bi-box-arrow-up-right mx-1"></i>
+                        </a>
                     </div>
                 </td>
-                <td>
+                <td th:if="${userLogged}">
                     <a th:href="${url.originalUrl}" th:text="${#strings.abbreviate(url.originalUrl, truncateLength)}"
                        target="_blank"></a>
                 </td>
-                <td><span class="badge bg-light text-dark border" th:text="${url.numberOfClicks}"></span></td>
+                <td class="text-center"><span class="badge bg-light text-dark border"
+                                              th:text="${url.numberOfClicks}"></span></td>
                 <!-- CreatedBy column (optional) -->
-                <td th:if="${showCreatedBy}" th:text="${url.createdByUser.name()}"></td>
+                <td class="text-center" th:if="${showCreatedBy}" th:text="${url.createdByUser.name()}"></td>
                 <!-- Private column (optional) -->
-                <td th:if="${showPrivate}">
+                <td class="text-center"
+                    th:if="${showPrivate}">
                     <span th:if="${url.isPrivate()}" class="badge bg-primary-subtle text-dark-emphasis">Private</span>
                     <span th:unless="${url.isPrivate()}" class="badge bg-success">Public</span>
                 </td>
-                <td>
-            <span class="badge bg-light text-dark border"
-                  th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd')}"></span>
+                <td class="text-center">
+                        <span class="badge bg-light text-dark border"
+                              th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd')}"></span>
                 </td>
-                <td>
-            <span th:class="${url.expiresAt != null && url.expiresAt.isBefore(#temporals.createNow()) ? 'badge bg-danger' : 'badge bg-success'}"
-                  th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd') : 'Never'}">
-            </span>
+                <td class="text-center">
+                        <span th:class="${url.expiresAt != null && url.expiresAt.isBefore(#temporals.createNow()) ? 'badge bg-danger' : 'badge bg-success'}"
+                              th:text="${url.expiresAt != null ? #temporals.format(url.expiresAt, 'yyyy-MM-dd') : 'Never'}">
+                        </span>
                 </td>
             </tr>
             </tbody>
