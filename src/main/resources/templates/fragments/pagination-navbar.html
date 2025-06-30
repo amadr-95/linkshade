@@ -1,30 +1,30 @@
-<nav class="d-flex justify-content-lg-between" th:fragment="pagination(pagedResult)">
-    <nav th:if="${pagedResult.totalPages > 1}">
+<nav class="d-flex justify-content-lg-between" th:fragment="pagination">
+    <nav th:if="${shortUrls.totalPages > 1}">
         <ul class="pagination justify-content-center">
-            <li class="page-item" th:classappend="${pagedResult.isFirst ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{${path}(page=1, size=${pagedResult.size})}" aria-label="First">
+            <li class="page-item" th:classappend="${shortUrls.isFirst ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{${path}(page=1, size=${shortUrls.size})}" aria-label="First">
                     <span aria-hidden="true">First</span>
                 </a>
             </li>
-            <li class="page-item" th:classappend="${pagedResult.isFirst ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{${path}(page=${pagedResult.pageNumber}, size=${pagedResult.size}) }"
+            <li class="page-item" th:classappend="${shortUrls.isFirst ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{${path}(page=${shortUrls.pageNumber}, size=${shortUrls.size}) }"
                    aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
             </li>
             <li class="page-item d-none d-sm-block disabled">
                         <span class="page-link" aria-label="Current Page Number of Total Pages"
-                              th:text="${'Page '+ (pagedResult.pageNumber + 1) + ' of ' + (pagedResult.totalPages)}">
+                              th:text="${'Page '+ (shortUrls.pageNumber + 1) + ' of ' + (shortUrls.totalPages)}">
                         </span>
             </li>
-            <li class="page-item" th:classappend="${pagedResult.isLast ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{${path}(page=${pagedResult.pageNumber + 2}, size=${pagedResult.size})}"
+            <li class="page-item" th:classappend="${shortUrls.isLast ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{${path}(page=${shortUrls.pageNumber + 2}, size=${shortUrls.size})}"
                    aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>
-            <li class="page-item" th:classappend="${pagedResult.isLast ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{${path}(page=${pagedResult.totalPages}, size=${pagedResult.size})}"
+            <li class="page-item" th:classappend="${shortUrls.isLast ? 'disabled' : ''}">
+                <a class="page-link" th:href="@{${path}(page=${shortUrls.totalPages}, size=${shortUrls.size})}"
                    aria-label="Last">
                     <span aria-hidden="true">Last</span>
                 </a>
@@ -41,7 +41,7 @@
                         <option th:each="size : ${pageAvailableSizes}"
                                 th:value="${size}"
                                 th:text="${size}"
-                                th:selected="${pagedResult.size == size}">
+                                th:selected="${shortUrls.size == size}">
                         </option>
                     </select>
                 </label>

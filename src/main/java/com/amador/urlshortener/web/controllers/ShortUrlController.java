@@ -1,10 +1,12 @@
 package com.amador.urlshortener.web.controllers;
 
 import com.amador.urlshortener.config.AppProperties;
+import com.amador.urlshortener.domain.entities.PagedResult;
 import com.amador.urlshortener.domain.entities.dto.ShortUrlDTO;
 import com.amador.urlshortener.exceptions.UrlException;
 import com.amador.urlshortener.security.AuthenticationService;
 import com.amador.urlshortener.services.ShortUrlService;
+import com.amador.urlshortener.services.UserService;
 import com.amador.urlshortener.web.controllers.dto.ShortUrlForm;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -17,19 +19,23 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.List;
+import java.util.UUID;
+
 @Slf4j
 @Controller
 @RequestMapping("/")
 @RequiredArgsConstructor
-public class HomeController {
+public class ShortUrlController {
 
     private final ShortUrlService shortUrlService;
+    private final UserService userService;
     private final AppProperties appProperties;
     private final AuthenticationService authenticationService;
 
     @GetMapping
     public String home(Model model, @PageableDefault Pageable pageable) {
-        getHomePage(model, pageable);
+        loadUrlDataToModel(model, "/", shortUrlService.findAllPublicUrls(pageable));
         model.addAttribute("shortUrlForm", new ShortUrlForm(
                 "",
                 null,
@@ -51,7 +57,7 @@ public class HomeController {
         // When calling index again, the field gets the null instead of the big number introduced, resulting in
         // a server error page.
         if (bindingResult.hasErrors()) {
-            getHomePage(model, pageable);
+            loadUrlDataToModel(model, "/", shortUrlService.findAllPublicUrls(pageable));
             return "index";
         }
         try {
@@ -71,16 +77,35 @@ public class HomeController {
         return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl);
     }
 
-    @GetMapping("/login")
-    public String loginForm() {
-        return "login";
+    @GetMapping("/my-urls")
+    public String getUserShortUrls(Model model, @PageableDefault Pageable pageable) {
+        loadUrlDataToModel(model, "/my-urls", userService.getUserShortUrls(pageable));
+        return "user/my-urls";
     }
 
-    private void getHomePage(Model model, Pageable pageable) {
+    @PostMapping("/delete-urls")
+    public String deleteSelectedUrls(@RequestParam(name = "urlIds") List<UUID> shortUrlsIds,
+                                     RedirectAttributes redirectAttributes) {
+        if (shortUrlsIds == null || shortUrlsIds.isEmpty()) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "No URLs selected for deletion");
+            return "redirect:/my-urls";
+        }
+        try {
+            userService.deleteSelectedUrls(shortUrlsIds);
+            redirectAttributes.addFlashAttribute("successMessage",
+                    "Selected URLs have been successfully deleted");
+        } catch (Exception ex) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting URLs.Try again");
+        }
+        return "redirect:/my-urls";
+    }
+
+    private void loadUrlDataToModel(Model model, String path, PagedResult<ShortUrlDTO> shortUrls) {
         model.addAttribute("userName", authenticationService.getUserName());
         model.addAttribute("pageAvailableSizes", appProperties.pageAvailableSizes());
         model.addAttribute("baseUrl", appProperties.shortUrlProperties().baseUrl());
-        model.addAttribute("publicUrls", shortUrlService.findAllPublicUrls(pageable));
-        model.addAttribute("path", "/");
+        model.addAttribute("shortUrls", shortUrls);
+        model.addAttribute("path", path);
     }
 }

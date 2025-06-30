@@ -11,12 +11,12 @@
 <body>
 <div layout:fragment="content">
 
-    <div th:replace="~{fragments/section-header :: section-header(title='My URLs', pagedResult=${userShortUrls})}"></div>
+    <div th:replace="~{fragments/section-header :: section-header(title='My URLs')}"></div>
 
-    <div th:if="${userShortUrls.data().isEmpty()}" class="alert alert-info">
+    <div th:if="${shortUrls.data().isEmpty()}" class="alert alert-info">
         No URLs have been created by you yet.
     </div>
-    <div th:unless="${userShortUrls.data().isEmpty()}" class="table-responsive">
+    <div th:unless="${shortUrls.data().isEmpty()}" class="table-responsive">
         <form th:action="@{/delete-urls}" method="POST">
             <div class="mb-3">
                 <!-- Button trigger modal -->
@@ -47,7 +47,7 @@
                 </div>
             </div>
             <div th:replace="~{fragments/url-table :: url-table(
-                urls=${userShortUrls},
+                urls=${shortUrls},
                 showCheckboxes=true,
                 showCreatedBy=false,
                 showPrivate=true,

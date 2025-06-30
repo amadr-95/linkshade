@@ -13,6 +13,7 @@ import org.springframework.validation.annotation.Validated;
 public record AppProperties(
         int pageDefaultSize,
         int[] pageAvailableSizes,
+        int numberOfTries,
         @Valid
         ShortUrlProperties shortUrlProperties
 ) {

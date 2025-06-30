@@ -83,8 +83,7 @@ public class ShortUrlService {
         urlLength = urlLength == null ?
                 appProperties.shortUrlProperties().defaultUrlLength() : urlLength;
         StringBuilder shortUrl = new StringBuilder(urlLength);
-        //TODO: move this to AppProperties?
-        int maxAttempts = 5;
+        int maxAttempts = appProperties.numberOfTries();
         for (int attemps = 1; attemps <= maxAttempts; attemps++) {
             for (int i = 0; i < urlLength; i++) {
                 shortUrl.append(characters.charAt(random.nextInt(characters.length())));
