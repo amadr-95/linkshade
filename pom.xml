@@ -9,10 +9,10 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>com.amador</groupId>
-    <artifactId>url-shortener</artifactId>
+    <artifactId>linkshade</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>url-shortener</name>
-    <description>url-shortener</description>
+    <name>linkshade</name>
+    <description>linkshade</description>
 
     <properties>
         <java.version>21</java.version>
@@ -75,7 +75,7 @@
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <scope>annotationProcessor</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>

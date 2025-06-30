@@ -1,6 +1,6 @@
 spring:
   application:
-    name: url-shortener
+    name: linkshade
   messages:
     basename: messages
   # Database config
