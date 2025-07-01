@@ -1,23 +1,23 @@
 services:
-  url-shortener-db:
-    container_name: postgres
+  linkshade-db:
+    container_name: linkshade-db
     image: postgres
     environment:
       POSTGRES_USER: asabido
       POSTGRES_PASSWORD: asabido
-      POSTGRES_DB: url-shortener-db # creates database by default (psql -U asabido -d db_name)
+      POSTGRES_DB: linkshade-db # creates database by default (psql -U asabido -d db_name)
       PGDATA: /data/postgres
     volumes:
-      - url-shortener-db:/data/postgres
+      - linkshade-db:/data/postgres
     ports:
       - "5432:5432"
     networks:
-      - url-shortener-db-network
+      - linkshade-db-network
     restart: unless-stopped
 
 networks:
-  url-shortener-db-network:
+  linkshade-db-network:
     driver: bridge
 
 volumes:
-  url-shortener-db:
+  linkshade-db:

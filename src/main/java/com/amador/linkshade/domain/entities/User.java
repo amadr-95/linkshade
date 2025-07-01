@@ -20,7 +20,9 @@ import java.util.List;
 import static jakarta.persistence.GenerationType.SEQUENCE;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", uniqueConstraints =
+    @UniqueConstraint(name = "emailUnique", columnNames = {"email"})
+)
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter

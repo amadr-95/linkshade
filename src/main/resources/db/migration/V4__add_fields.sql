@@ -1,7 +1,0 @@
-DROP SEQUENCE user_seq CASCADE;
-
-ALTER TABLE short_urls
-    ALTER COLUMN created_at SET NOT NULL;
-
-ALTER TABLE users
-    ADD last_modified_date TIMESTAMP WITHOUT TIME ZONE;

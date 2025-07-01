@@ -7,14 +7,16 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "short_urls", uniqueConstraints = {@UniqueConstraint(
-        name = "shortUrlUnique", columnNames = {"shortened_url"})})
+@Table(name = "short_urls", uniqueConstraints =
+        @UniqueConstraint(name = "shortUrlUnique", columnNames = {"shortened_url"})
+)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
@@ -43,7 +45,12 @@ public class ShortUrl {
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @LastModifiedDate
+    @Column(insertable = false)
+    private LocalDateTime lastModifiedDate;
+
     private LocalDateTime expiresAt;
 
+    @Column(nullable = false)
     private Long numberOfClicks;
 }
