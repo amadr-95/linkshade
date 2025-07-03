@@ -66,7 +66,13 @@
     <div th:if="${successMessage}"
          class="alert alert-success alert-dismissible fade show mt-5"
          role="alert">
-        <span th:text="${successMessage}"></span>
+        <span class="me-2" th:text="${successMessage}"></span>
+        <button class="btn btn-sm btn-outline-secondary clipboard-button"
+                th:data-url="${shortUrlCreated}"
+                title="Copy link"
+                type="button">
+            <i class="bi bi-clipboard"></i>
+        </button>
         <button type="button" class="btn-close"
                 data-bs-dismiss="alert" aria-label="Close">
         </button>

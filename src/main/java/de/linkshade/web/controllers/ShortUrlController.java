@@ -62,8 +62,11 @@ public class ShortUrlController {
         }
         try {
             ShortUrlDTO shortUrlDTO = shortUrlService.createShortUrl(shortUrlForm);
+            String shortUrlCreated =
+                    String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortUrlDTO.shortenedUrl());
             redirectAttributes.addFlashAttribute("successMessage",
-                    String.format("URL created successfully: %s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortUrlDTO.shortenedUrl()));
+                    String.format("URL created successfully: %s", shortUrlCreated));
+            redirectAttributes.addFlashAttribute("shortUrlCreated", shortUrlCreated);
         } catch (UrlException ex) {
             log.error("Shorturl problem, reason: {}", ex.getMessage(), ex);
             redirectAttributes.addFlashAttribute("errorMessage",
