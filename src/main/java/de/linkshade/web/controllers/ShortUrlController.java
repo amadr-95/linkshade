@@ -47,7 +47,7 @@ public class ShortUrlController {
     }
 
     @PostMapping("/short-urls")
-    public String createShortUrl(@ModelAttribute("shortUrlForm") @Valid ShortUrlForm shortUrlForm,
+    public String createShortUrl(@ModelAttribute @Valid ShortUrlForm shortUrlForm,
                                  BindingResult bindingResult, //for errors (important! right after the ModelAttribute)
                                  RedirectAttributes redirectAttributes,
                                  Model model,
@@ -64,12 +64,12 @@ public class ShortUrlController {
             ShortUrlDTO shortUrlDTO = shortUrlService.createShortUrl(shortUrlForm);
             String shortUrlCreated =
                     String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortUrlDTO.shortenedUrl());
-            redirectAttributes.addFlashAttribute("successMessage",
+            redirectAttributes.addFlashAttribute("shortUrlSuccessful",
                     String.format("URL created successfully: %s", shortUrlCreated));
             redirectAttributes.addFlashAttribute("shortUrlCreated", shortUrlCreated);
         } catch (UrlException ex) {
             log.error("Shorturl problem, reason: {}", ex.getMessage(), ex);
-            redirectAttributes.addFlashAttribute("errorMessage",
+            redirectAttributes.addFlashAttribute("shortUrlError",
                     "There was an error creating the URL, please try again");
         }
         return "redirect:/";
