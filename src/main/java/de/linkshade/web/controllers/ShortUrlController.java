@@ -35,7 +35,7 @@ public class ShortUrlController {
 
     @GetMapping
     public String home(Model model, @PageableDefault Pageable pageable) {
-        loadUrlDataToModel(model, "/", shortUrlService.findAllPublicUrls(pageable));
+        addDataToModel(model, "/", shortUrlService.findAllPublicUrls(pageable));
         model.addAttribute("shortUrlForm", new ShortUrlForm(
                 "",
                 null,
@@ -57,13 +57,13 @@ public class ShortUrlController {
         // When calling index again, the field gets the null instead of the big number introduced, resulting in
         // a server error page.
         if (bindingResult.hasErrors()) {
-            loadUrlDataToModel(model, "/", shortUrlService.findAllPublicUrls(pageable));
+            addDataToModel(model, "/", shortUrlService.findAllPublicUrls(pageable));
             return "index";
         }
         try {
-            ShortUrlDTO shortUrlDTO = shortUrlService.createShortUrl(shortUrlForm);
+            String shortenedUrl = shortUrlService.createShortUrl(shortUrlForm);
             String shortUrlCreated =
-                    String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortUrlDTO.shortenedUrl());
+                    String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortenedUrl);
             redirectAttributes.addFlashAttribute("shortUrlSuccessful",
                     String.format("URL created successfully: %s", shortUrlCreated));
             redirectAttributes.addFlashAttribute("shortUrlCreated", shortUrlCreated);
@@ -82,7 +82,7 @@ public class ShortUrlController {
 
     @GetMapping("/my-urls")
     public String getUserShortUrls(Model model, @PageableDefault Pageable pageable) {
-        loadUrlDataToModel(model, "/my-urls", userService.getUserShortUrls(pageable));
+        addDataToModel(model, "/my-urls", userService.getUserShortUrls(pageable));
         return "user/my-urls";
     }
 
@@ -104,7 +104,7 @@ public class ShortUrlController {
         return "redirect:/my-urls";
     }
 
-    private void loadUrlDataToModel(Model model, String path, PagedResult<ShortUrlDTO> shortUrls) {
+    private void addDataToModel(Model model, String path, PagedResult<ShortUrlDTO> shortUrls) {
         model.addAttribute("userName", authenticationService.getUserName());
         model.addAttribute("pageAvailableSizes", appProperties.pageAvailableSizes());
         model.addAttribute("baseUrl", appProperties.shortUrlProperties().baseUrl());
