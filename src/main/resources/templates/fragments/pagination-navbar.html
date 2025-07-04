@@ -32,7 +32,8 @@
         </ul>
     </nav>
     <!-- this has to be always visible, regardless the if-clause at the beginning -->
-    <ul class="pagination">
+    <ul class="pagination"
+        th:classappend="${shortUrls.data().isEmpty() ? 'd-none' : ''}">
         <li class="page-item ms-3">
             <form th:action="@{${path}}" method="GET" class="d-flex align-items-center">
                 <input type="hidden" name="page" value="1"/>
