@@ -63,10 +63,10 @@
 
 <div class="container d-flex flex-column flex-grow-1">
 
-    <div th:if="${successMessage}"
+    <div th:if="${shortUrlSuccessful}"
          class="alert alert-success alert-dismissible fade show mt-5"
          role="alert">
-        <span class="me-2" th:text="${successMessage}"></span>
+        <span class="me-2" th:text="${shortUrlSuccessful}"></span>
         <button class="btn btn-sm btn-outline-secondary clipboard-button"
                 th:data-url="${shortUrlCreated}"
                 title="Copy link"
@@ -77,10 +77,27 @@
                 data-bs-dismiss="alert" aria-label="Close">
         </button>
     </div>
-    <div th:if="${errorMessage}"
+    <div th:if="${shortUrlError}"
          class="alert alert-danger alert-dismissible fade show mt-5"
          role="alert">
-        <span th:text="${errorMessage}"></span>
+        <span th:text="${shortUrlError}"></span>
+        <button type="button" class="btn-close"
+                data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+
+    <div th:if="${registrationSuccessful}"
+         class="alert alert-success alert-dismissible fade show mt-5"
+         role="alert">
+        <span class="me-2" th:text="${registrationSuccessful}"></span>
+        <button type="button" class="btn-close"
+                data-bs-dismiss="alert" aria-label="Close">
+        </button>
+    </div>
+    <div th:if="${registrationError}"
+         class="alert alert-danger alert-dismissible fade show mt-5"
+         role="alert">
+        <span th:text="${registrationError}"></span>
         <button type="button" class="btn-close"
                 data-bs-dismiss="alert" aria-label="Close">
         </button>

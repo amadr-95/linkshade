@@ -1,6 +1,6 @@
 package de.linkshade.util.annotations;
 
-import de.linkshade.util.FormValidator;
+import de.linkshade.util.PasswordValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -10,12 +10,12 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
-@Target(ElementType.TYPE)
-@Constraint(validatedBy = {FormValidator.class})
-public @interface ValidForm {
+@Target(ElementType.FIELD)
+@Constraint(validatedBy = {PasswordValidator.class})
+public @interface ValidPassword {
     Class<?>[] groups() default { };
 
     Class<? extends Payload>[] payload() default { };
 
-    String message() default "{validation.urlForm.default}";
+    String message() default "{validation.user.invalidPassword}";
 }
