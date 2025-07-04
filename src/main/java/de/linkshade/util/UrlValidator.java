@@ -1,5 +1,6 @@
 package de.linkshade.util;
 
+import de.linkshade.config.AppProperties;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,7 +9,6 @@ import org.springframework.stereotype.Component;
 import java.net.HttpURLConnection;
 import java.net.URI;
 import java.net.URL;
-import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -16,8 +16,7 @@ import java.util.regex.Pattern;
 public class UrlValidator {
 
     private final ValidationContextBuilder contextBuilder;
-    private static final Pattern URL_PATTERN = Pattern.compile(
-            "^(https?|ftp)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
+    private final AppProperties appProperties;
 
     public boolean isValid(ConstraintValidatorContext context, String formUrl) {
         log.debug("Checking url: '{}'", formUrl);
@@ -27,14 +26,13 @@ public class UrlValidator {
             contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", "originalUrl");
             return false;
         }
-        // second layer (optional): validate http response code (slow)
-        return isReachable(context, formUrl);
-        // return true
+        //(optional): validate http response code (slow)
+         return !appProperties.checkHttpStatusCode() || isReachable(context, formUrl);
     }
 
     private boolean isValidSyntax(String url) {
         if (url == null || url.isBlank()) return false;
-        return URL_PATTERN.matcher(url).matches();
+        return ValidationConstants.URL_PATTERN.matcher(url).matches();
     }
 
     private boolean isReachable(ConstraintValidatorContext context, String url) {
