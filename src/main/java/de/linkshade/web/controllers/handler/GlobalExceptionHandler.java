@@ -5,6 +5,7 @@ import de.linkshade.exceptions.UrlExpiredException;
 import de.linkshade.exceptions.UrlNotFoundException;
 import de.linkshade.exceptions.UrlPrivateException;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -21,6 +22,13 @@ public class GlobalExceptionHandler {
             return "error/401"; //unauthorized
         }
         return "error/500"; //server error
+    }
+
+    //TODO: Personalize 404 page with different images based on the exception thrown (add model)
+    @ExceptionHandler(UsernameNotFoundException.class)
+    public String usernameNotFoundExceptionHandler(UsernameNotFoundException ex) {
+        log.error("User problem, reason: {}", ex.getMessage(), ex);
+        return "error/404";
     }
 
 }
