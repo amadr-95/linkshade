@@ -1,8 +1,8 @@
 package de.linkshade.web.controllers.dto;
 
-import de.linkshade.util.annotations.ValidForm;
+import de.linkshade.util.annotations.ValidUrlForm;
 
-@ValidForm
+@ValidUrlForm
 public record ShortUrlForm(
         String originalUrl,
 

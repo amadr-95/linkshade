@@ -1,7 +1,7 @@
 package de.linkshade.util;
 
 import de.linkshade.security.AuthenticationService;
-import de.linkshade.util.annotations.ValidForm;
+import de.linkshade.util.annotations.ValidUrlForm;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;
@@ -10,7 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class FormValidator implements ConstraintValidator<ValidForm, ShortUrlForm> {
+public class UrlFormValidator implements ConstraintValidator<ValidUrlForm, ShortUrlForm> {
 
     private final UrlValidator urlValidator;
     private final ExpirationValidator expirationDaysValidator;
