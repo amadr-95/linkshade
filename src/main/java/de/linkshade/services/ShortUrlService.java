@@ -43,7 +43,7 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public ShortUrlDTO createShortUrl(ShortUrlForm shortUrlForm) throws UrlException {
+    public String createShortUrl(ShortUrlForm shortUrlForm) throws UrlException {
         User currentUser = authenticationService.getCurrentUserInfo();
         Integer expirationInDays;
         LocalDateTime createdAt = LocalDateTime.now();
@@ -66,7 +66,7 @@ public class ShortUrlService {
                 .build();
 
         shortUrlRepository.save(shortUrl);
-        return shortUrlMapper.toShortUrlDTO(shortUrl);
+        return shortUrl.getShortenedUrl();
     }
 
     private String shortenUrl(ShortUrlForm shortUrlForm) throws UrlException {
