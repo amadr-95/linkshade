@@ -1,3 +1,11 @@
+# TODO
+
+- [] Display how many urls have been created for each user in admin dashboard html page (check how db relations are made)
+- [] Go over the controllers and refactor/reorganize the different endpoints to comply with Responsibility Principle.
+- [] Allow the user to recover their password (difficult)
+
+
+
 # URL Shortener App
 
 A URL shortening service built with Spring Boot, Java 21, and PostgreSQL.

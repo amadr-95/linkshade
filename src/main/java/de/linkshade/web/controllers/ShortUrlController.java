@@ -1,13 +1,11 @@
 package de.linkshade.web.controllers;
 
 import de.linkshade.config.AppProperties;
-import de.linkshade.domain.entities.PagedResult;
-import de.linkshade.domain.entities.dto.ShortUrlDTO;
 import de.linkshade.exceptions.UrlException;
-import de.linkshade.security.AuthenticationService;
 import de.linkshade.services.ShortUrlService;
 import de.linkshade.services.UserService;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
+import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -31,11 +29,11 @@ public class ShortUrlController {
     private final ShortUrlService shortUrlService;
     private final UserService userService;
     private final AppProperties appProperties;
-    private final AuthenticationService authenticationService;
+    private final ModelAttributeHelper helper;
 
     @GetMapping
     public String home(Model model, @PageableDefault Pageable pageable) {
-        addDataToModel(model, "/", shortUrlService.findAllPublicUrls(pageable));
+        helper.addAttributes(model, "/", shortUrlService.findAllPublicUrls(pageable));
         model.addAttribute("shortUrlForm", new ShortUrlForm(
                 "",
                 null,
@@ -57,7 +55,7 @@ public class ShortUrlController {
         // When calling index again, the field gets the null instead of the big number introduced, resulting in
         // a server error page.
         if (bindingResult.hasErrors()) {
-            addDataToModel(model, "/", shortUrlService.findAllPublicUrls(pageable));
+            helper.addAttributes(model, "/", shortUrlService.findAllPublicUrls(pageable));
             return "index";
         }
         try {
@@ -82,7 +80,7 @@ public class ShortUrlController {
 
     @GetMapping("/my-urls")
     public String getUserShortUrls(Model model, @PageableDefault Pageable pageable) {
-        addDataToModel(model, "/my-urls", userService.getUserShortUrls(pageable));
+        helper.addAttributes(model, "/my-urls", userService.getUserShortUrls(pageable));
         return "user/my-urls";
     }
 
@@ -102,13 +100,5 @@ public class ShortUrlController {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting URLs.Try again");
         }
         return "redirect:/my-urls";
-    }
-
-    private void addDataToModel(Model model, String path, PagedResult<ShortUrlDTO> shortUrls) {
-        model.addAttribute("userName", authenticationService.getUserName());
-        model.addAttribute("pageAvailableSizes", appProperties.pageAvailableSizes());
-        model.addAttribute("baseUrl", appProperties.shortUrlProperties().baseUrl());
-        model.addAttribute("shortUrls", shortUrls);
-        model.addAttribute("path", path);
     }
 }

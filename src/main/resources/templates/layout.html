@@ -38,7 +38,7 @@
                     <a class="nav-link" th:href="@{/my-urls}">My URLs</a>
                 </li>
                 <li class="nav-item" sec:authorize="hasRole('ADMIN')">
-                    <a class="nav-link" th:href="@{/admin/dashboard}">Admin Dashboard</a>
+                    <a class="nav-link" th:href="@{/admin/dashboard/urls}">Admin Dashboard</a>
                 </li>
             </ul>
             <ul class="navbar-nav">
@@ -142,7 +142,9 @@
 </footer>
 <!-- Bootstrap JS   -->
 <script th:src="@{/webjars/bootstrap/5.3.5/js/bootstrap.bundle.min.js}"></script>
-<!-- Custom JS -->
-<script th:src="@{/js/main.js}"></script>
+<!-- Common JS -->
+<script th:src="@{/js/main.js}" defer></script>
+<!-- Specific JS -->
+<th:block layout:fragment="pageScripts"></th:block>
 </body>
 </html>

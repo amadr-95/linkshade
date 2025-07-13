@@ -17,12 +17,19 @@ public interface ShortUrlRepository extends JpaRepository<ShortUrl, UUID> {
     @EntityGraph(attributePaths = {"createdByUser"})
     Page<ShortUrl> findAllPublicUrls(Pageable pageable);
 
+    @Query("select su from ShortUrl su")
+    @EntityGraph(attributePaths = {"createdByUser"})
+    Page<ShortUrl> findAllUrls(Pageable pageable);
+
     boolean existsByShortenedUrl(String shortenedUrl);
 
     Optional<ShortUrl> findByShortenedUrl(String shortenedUrl);
 
     @Query("select count(su) from ShortUrl su where su.isPrivate=false")
     Long countAllPublicUrls();
+
+    @Query("select count(*) from ShortUrl")
+    Long countAll();
 
     @Query("select su from ShortUrl su where su.createdByUser.id=:userId")
     @EntityGraph(attributePaths = {"createdByUser"})

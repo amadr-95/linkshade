@@ -121,19 +121,22 @@
 
     <div th:replace="~{fragments/section-header :: section-header(title='Public Shortened URLs')}"></div>
 
-    <div th:if="${shortUrls.data().isEmpty()}" class="alert alert-info">
+    <div th:if="${entities.data().isEmpty()}" class="alert alert-info">
         No public URLs have been created yet.
     </div>
-    <div th:unless="${shortUrls.data().isEmpty()}" class="table-responsive">
-        <div th:replace="~{fragments/url-table :: url-table(
-            urls=${shortUrls},
+    <div th:unless="${entities.data().isEmpty()}" class="table-responsive">
+        <div th:replace="~{fragments/entity-table :: entity-table(
+            isUrlEntity=true,
+            entities=${entities},
             showCheckboxes=false,
             showCreatedBy=true,
             showPrivate=false,
-            userLogged=false,
-            truncateLength=40)}">
+            showOriginalUrl=false)}">
         </div>
     </div>
 </div>
+<th:block layout:fragment="pageScripts">
+    <script sec:authorize="isAuthenticated()" th:src="@{/js/urlFormManager.js}" defer></script>
+</th:block>
 </body>
 </html>

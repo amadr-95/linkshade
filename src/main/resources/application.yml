@@ -20,6 +20,9 @@ app:
   page-default-size: 10
   page-available-sizes: [5, 10, 20, 50]
   number-of-tries: 3 # number of tries for creating a random shorturl
+  # decides whether the app should check a URL is reachable or not
+  # false: only check the url syntax
+  # true: check the url syntax plus whether the url is reachable or not (slow)
   check-http-status-code: false
   short-url-properties:
     base-url: "http://localhost:8080"
