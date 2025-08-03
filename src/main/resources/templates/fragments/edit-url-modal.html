@@ -1,0 +1,91 @@
+<!--suppress HtmlUnknownAttribute, HtmlFormInputWithoutLabel -->
+<div th:fragment="edit-url-modal(url)">
+    <!-- Button trigger modal -->
+    <button type="button"
+            th:id="'editUrlButton-' + ${url.id}"
+            class="btn btn-sm btn-outline-primary"
+            data-bs-toggle="modal"
+            th:data-bs-target="'#editUrlModal-' + ${url.id}"
+            title="Edit URL">
+        <i class="bi bi-pencil-square"></i>
+    </button>
+    <!-- Modal -->
+    <div class="modal fade" th:id="'editUrlModal-' + ${url.id}" tabindex="-1"
+         th:aria-labelledby="'editUrlModalLabel-' + ${url.id}"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fs-5" th:id="'editUrlModalLabel-' + ${url.id}">Edit the URL</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <div class="input-group">
+                            <span class="input-group-text fs-4"><i class="bi bi-link-45deg"></i></span>
+                            <div class="form-floating">
+                                <input type="text" class="form-control" th:id="'originalUrl-' + ${url.id}"
+                                       th:value="${url.originalUrl}"
+                                       disabled>
+                                <label th:for="'originalUrl-' + ${url.id}" class="form-label">Original URL</label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <input type="hidden" th:id="'isExpired-' + ${url.id}" name="isExpired"
+                           th:value="${url.isExpired}"/>
+
+                    <div th:if="${!url.isExpired}">
+                        <div class="mb-3">
+                            <div class="form-check">
+                                <input type="checkbox" class="form-check-input" th:id="'isPrivate-' + ${url.id}"
+                                       th:checked="${url.isPrivate}" value="true" name="isPrivate"/>
+                                <input type="hidden" name="isPrivate" value="false"/>
+                                <label class="form-check-label" th:for="'isPrivate-' + ${url.id}">Private</label>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text fs-4"><i class="bi bi-calendar"></i></span>
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" th:id="'daysToExpire-' + ${url.id}"
+                                           name="daysToExpire" th:value="${url.daysToExpire == 0 ? 1 : url.daysToExpire}">
+                                    <label th:for="'daysToExpire-' + ${url.id}" class="form-label">Days to
+                                        expire</label>
+                                </div>
+                            </div>
+                            <div class="form-text">Leave empty to never expire</div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="input-group">
+                                <span class="input-group-text" th:text="${baseUrl} + '/s/'"></span>
+                                <div class="form-floating">
+                                    <input type="text" class="form-control" th:id="'shortenedUrl-' + ${url.id}"
+                                           name="shortenedUrl" th:value="${url.shortenedUrl}">
+                                    <label th:for="'shortenedUrl-' + ${url.id}" class="form-label">Shortened URL</label>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="mb-3">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" th:field="*{isRandom}" type="checkbox" role="switch"
+                                       th:id="'randomSwitch-' + ${url.id}">
+                                <label class="form-check-label" th:for="'randomSwitch-' + ${url.id}">Make it
+                                    random</label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="submit"
+                            th:text="${url.isExpired ? 'Reactivate' : 'Save changes'}"
+                            th:form="'editForm-' + ${url.id}" class="btn btn-primary">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

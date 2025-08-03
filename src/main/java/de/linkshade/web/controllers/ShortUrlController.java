@@ -4,6 +4,7 @@ import de.linkshade.config.AppProperties;
 import de.linkshade.exceptions.UrlException;
 import de.linkshade.services.ShortUrlService;
 import de.linkshade.services.UserService;
+import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
 import jakarta.validation.Valid;
@@ -64,10 +65,10 @@ public class ShortUrlController {
                     String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortenedUrl);
             redirectAttributes.addFlashAttribute("shortUrlSuccessful",
                     String.format("URL created successfully: %s", shortUrlCreated));
-            redirectAttributes.addFlashAttribute("shortUrlCreated", shortUrlCreated);
+            redirectAttributes.addFlashAttribute("shortUrlCopyToClipboard", shortUrlCreated);
         } catch (UrlException ex) {
             log.error("Shorturl problem, reason: {}", ex.getMessage(), ex);
-            redirectAttributes.addFlashAttribute("shortUrlError",
+            redirectAttributes.addFlashAttribute("errorMessage",
                     "There was an error creating the URL, please try again");
         }
         return "redirect:/";
@@ -81,24 +82,49 @@ public class ShortUrlController {
     @GetMapping("/my-urls")
     public String getUserShortUrls(Model model, @PageableDefault Pageable pageable) {
         helper.addAttributes(model, "/my-urls", userService.getUserShortUrls(pageable));
+        model.addAttribute("shortUrlEditForm", new ShortUrlEditForm(null,
+                null,
+                null,
+                false,
+                false));
         return "user/my-urls";
     }
 
     @PostMapping("/delete-urls")
     public String deleteSelectedUrls(@RequestParam(name = "urlIds") List<UUID> shortUrlsIds,
-                                     RedirectAttributes redirectAttributes) {
+                                     RedirectAttributes redirectAttributes,
+                                     @RequestParam("returnUrl") String returnUrl) {
         if (shortUrlsIds == null || shortUrlsIds.isEmpty()) {
             redirectAttributes.addFlashAttribute("errorMessage",
                     "No URLs selected for deletion");
-            return "redirect:/my-urls";
+            return "redirect:" + returnUrl;
         }
         try {
             userService.deleteSelectedUrls(shortUrlsIds);
             redirectAttributes.addFlashAttribute("successMessage",
                     "Selected URLs have been successfully deleted");
         } catch (Exception ex) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting URLs.Try again");
+            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting URLs. Try again");
         }
-        return "redirect:/my-urls";
+        return "redirect:" + returnUrl;
+    }
+
+    @PostMapping("/edit-urls/{urlId}")
+    public String editUrl(@PathVariable("urlId") UUID urlId,
+                          @RequestParam("returnUrl") String returnUrl,
+                          @ModelAttribute ShortUrlEditForm shortUrlEditForm,
+                          RedirectAttributes redirectAttributes) {
+        try {
+            String shortenedUrl = shortUrlService.updateUrl(urlId, shortUrlEditForm);
+            String shortUrlUpdated =
+                    String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortenedUrl);
+            redirectAttributes.addFlashAttribute("shortUrlSuccessful",
+                    String.format("URL updated successfully: %s", shortUrlUpdated));
+            redirectAttributes.addFlashAttribute("shortUrlCopyToClipboard", shortUrlUpdated);
+        } catch (UrlException ex) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "There was an error editing the URL. Insert valid values and try again");
+        }
+        return "redirect:" + returnUrl;
     }
 }

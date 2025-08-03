@@ -2,17 +2,16 @@ package de.linkshade.services;
 
 import de.linkshade.config.AppProperties;
 import de.linkshade.domain.entities.PagedResult;
+import de.linkshade.domain.entities.Role;
 import de.linkshade.domain.entities.ShortUrl;
 import de.linkshade.domain.entities.User;
 import de.linkshade.domain.entities.dto.ShortUrlDTO;
-import de.linkshade.exceptions.UrlException;
-import de.linkshade.exceptions.UrlExpiredException;
-import de.linkshade.exceptions.UrlNotFoundException;
-import de.linkshade.exceptions.UrlPrivateException;
+import de.linkshade.exceptions.*;
 import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.security.AuthenticationService;
 import de.linkshade.services.mapper.ShortUrlMapper;
 import de.linkshade.util.ValidationConstants;
+import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -20,8 +19,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.Period;
 import java.util.Random;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -72,6 +74,7 @@ public class ShortUrlService {
     private String shortenUrl(ShortUrlForm shortUrlForm) throws UrlException {
         if (shortUrlForm.isCustom() != null && shortUrlForm.isCustom()) {
             // No need to verify if customURL already exists, it is handled in CustomUrlNameValidator
+            // (so the errorMessage can be shown under the field)
             return shortUrlForm.customShortUrlName();
         }
         return generateRandomShortUrl(shortUrlForm.urlLength());
@@ -84,12 +87,12 @@ public class ShortUrlService {
                 appProperties.shortUrlProperties().defaultUrlLength() : urlLength;
         StringBuilder shortUrl = new StringBuilder(urlLength);
         int maxAttempts = appProperties.numberOfTries();
-        for (int attemps = 1; attemps <= maxAttempts; attemps++) {
+        for (int attempts = 1; attempts <= maxAttempts; attempts++) {
             for (int i = 0; i < urlLength; i++) {
                 shortUrl.append(characters.charAt(random.nextInt(characters.length())));
             }
             if (!shortUrlRepository.existsByShortenedUrl(shortUrl.toString())) {
-                log.info("ShortUrl '{}' created successfully in {} attempts", shortUrl, attemps);
+                log.info("ShortUrl '{}' created successfully in {} attempts", shortUrl, attempts);
                 return shortUrl.toString();
             }
         }
@@ -102,15 +105,21 @@ public class ShortUrlService {
         ShortUrl shortUrl = shortUrlRepository.findByShortenedUrl(url)
                 .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", url)));
 
-        LocalDateTime expiresAt = shortUrl.getExpiresAt();
-        if (expiresAt != null && expiresAt.isBefore(LocalDateTime.now()))
-            throw new UrlExpiredException(String.format("URL '%s' is expired", url));
+        isExpired(url, shortUrl);
 
         validateUserPermissions(authenticationService.getCurrentUserInfo(), shortUrl);
 
         shortUrl.setNumberOfClicks(shortUrl.getNumberOfClicks() + 1);
         shortUrlRepository.save(shortUrl);
         return shortUrl.getOriginalUrl();
+    }
+
+    private void isExpired(String url, ShortUrl shortUrl) throws UrlExpiredException {
+        if (shortUrl.getExpiresAt() != null) {
+            int days = Period.between(LocalDate.now(), shortUrl.getExpiresAt().toLocalDate()).getDays();
+            if (days < 0) // considering valid the same day
+                throw new UrlExpiredException(String.format("URL '%s' is expired", url));
+        }
     }
 
     private void validateUserPermissions(User currentUser, ShortUrl shortUrl) throws UrlPrivateException {
@@ -122,9 +131,50 @@ public class ShortUrlService {
             log.warn("Accessing private url '{}' without logging in", shortUrl.getShortenedUrl());
             throw new UrlPrivateException("Trying to access to private URL without logging in");
         }
-        if (!shortUrl.getCreatedByUser().getId().equals(currentUser.getId())) {
-            log.warn("Accessing private url '{}' with wrong user", shortUrl.getShortenedUrl());
+        if (shortUrl.getCreatedByUser() != null && !shortUrl.getCreatedByUser().getId().equals(currentUser.getId()) &&
+                !currentUser.getRole().equals(Role.ADMIN)) {
+            log.warn("Accessing private url '{}' with wrong user: '{}', expected: '{}'", shortUrl.getShortenedUrl(),
+                    currentUser.getEmail(), shortUrl.getCreatedByUser().getEmail());
             throw new UrlPrivateException("Trying to access to private URL with wrong user");
         }
+    }
+
+    @Transactional
+    public String updateUrl(UUID urlId, ShortUrlEditForm shortUrlEditForm) throws UrlException {
+        if (authenticationService.getCurrentUserInfo() == null)
+            throw new UrlUpdateException("Trying to edit an URL without logging in");
+
+        ShortUrl shortUrl = shortUrlRepository.findById(urlId)
+                .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", urlId)));
+
+        // check whether is expired, reactivate and exit the method
+        LocalDateTime now = LocalDateTime.now();
+        if (shortUrlEditForm.isExpired()) {
+            shortUrl.setExpiresAt(now.plusDays(appProperties.shortUrlProperties().defaultExpiryDays()));
+            shortUrlRepository.save(shortUrl);
+            return shortUrl.getShortenedUrl();
+        }
+
+        if (shortUrlEditForm.daysToExpire() != null && (shortUrlEditForm.daysToExpire() < ValidationConstants.MIN_URL_EXPIRATION_DAYS ||
+                shortUrlEditForm.daysToExpire() > ValidationConstants.MAX_URL_EXPIRATION_DAYS)) {
+            throw new UrlUpdateException(String.format("Expiration in days '%s' exceeds the limits", shortUrlEditForm.daysToExpire()));
+        }
+
+        shortUrl.setExpiresAt(shortUrlEditForm.daysToExpire() == null ?
+                null :
+                now.plusDays(shortUrlEditForm.daysToExpire()));
+
+        if (shortUrlRepository.findByShortenedUrl(shortUrlEditForm.shortenedUrl()).isPresent()
+                && !shortUrl.getShortenedUrl().equals(shortUrlEditForm.shortenedUrl())) {
+            throw new UrlUpdateException(String.format("ShortUrl '%s' already exists", shortUrlEditForm.shortenedUrl()));
+        }
+
+        shortUrl.setShortenedUrl(shortUrlEditForm.isRandom() ?
+                generateRandomShortUrl(null)
+                : shortUrlEditForm.shortenedUrl());
+        shortUrl.setPrivate(shortUrlEditForm.isPrivate());
+
+        shortUrlRepository.save(shortUrl);
+        return shortUrl.getShortenedUrl();
     }
 }

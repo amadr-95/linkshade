@@ -25,4 +25,25 @@ document.addEventListener('DOMContentLoaded', function () {
             selectAllCheckboxButton.checked = Array.from(presentCheckboxes).every(checkbox => checkbox.checked);
         })
     })
+
+    // manage edit-url-modal random switch
+    const randomSwitches = document.querySelectorAll('[id^="randomSwitch-"]');
+
+    function toggleShortenedUrlField(randomSwitch) {
+        const id = randomSwitch.id.replace('randomSwitch-', ''); // Extract url id
+        const shortenedUrlField = document.getElementById(`shortenedUrl-${id}`);
+
+        if (shortenedUrlField) {
+            shortenedUrlField.disabled = randomSwitch.checked;
+        }
+    }
+
+    randomSwitches.forEach(randomSwitch => {
+        // initial state
+        toggleShortenedUrlField(randomSwitch);
+
+        randomSwitch.addEventListener('change', function() {
+            toggleShortenedUrlField(this);
+        });
+    });
 });
