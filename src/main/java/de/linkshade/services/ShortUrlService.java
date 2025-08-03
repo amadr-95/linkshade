@@ -19,9 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
 import java.util.Random;
 import java.util.UUID;
 
@@ -105,21 +103,13 @@ public class ShortUrlService {
         ShortUrl shortUrl = shortUrlRepository.findByShortenedUrl(url)
                 .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", url)));
 
-        isExpired(url, shortUrl);
+        if (shortUrl.isExpired()) throw new UrlExpiredException(String.format("URL '%s' is expired", url));
 
         validateUserPermissions(authenticationService.getCurrentUserInfo(), shortUrl);
 
         shortUrl.setNumberOfClicks(shortUrl.getNumberOfClicks() + 1);
         shortUrlRepository.save(shortUrl);
         return shortUrl.getOriginalUrl();
-    }
-
-    private void isExpired(String url, ShortUrl shortUrl) throws UrlExpiredException {
-        if (shortUrl.getExpiresAt() != null) {
-            int days = Period.between(LocalDate.now(), shortUrl.getExpiresAt().toLocalDate()).getDays();
-            if (days < 0) // considering valid the same day
-                throw new UrlExpiredException(String.format("URL '%s' is expired", url));
-        }
     }
 
     private void validateUserPermissions(User currentUser, ShortUrl shortUrl) throws UrlPrivateException {
