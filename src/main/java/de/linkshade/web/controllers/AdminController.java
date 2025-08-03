@@ -1,6 +1,7 @@
 package de.linkshade.web.controllers;
 
 import de.linkshade.services.AdminService;
+import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -21,16 +22,21 @@ public class AdminController {
     @GetMapping("/urls")
     public String getAllShortUrls(@PageableDefault Pageable pageableRequest, Model model) {
         helper.addAttributes(model, "/admin/dashboard/urls", adminService.findAllShortUrls(pageableRequest));
-        model.addAttribute("isUrlEntity", true);
         model.addAttribute("managedEntity", "URLs");
+        model.addAttribute("shortUrlEditForm", new ShortUrlEditForm(null,
+                null,
+                null,
+                false,
+                false));
+        model.addAttribute("deleteEndpoint", "/delete-urls");
         return "admin/admin-dashboard";
     }
 
     @GetMapping("/users")
     public String getAllUsers(@PageableDefault Pageable pageableRequest, Model model) {
         helper.addAttributes(model, "/admin/dashboard/users", adminService.findAllUsers(pageableRequest));
-        model.addAttribute("isUrlEntity", false);
         model.addAttribute("managedEntity", "Users");
+        model.addAttribute("deleteEndpoint", "/delete-users");
         return "admin/admin-dashboard";
     }
 }

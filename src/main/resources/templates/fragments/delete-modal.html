@@ -1,7 +1,10 @@
-<div th:fragment="delete-modal">
+<div th:fragment="delete-modal(confirmationMessage)">
     <!-- Button trigger modal -->
-    <button type="button" id="deleteSelectedBtn" class="btn btn-danger" data-bs-toggle="modal"
-            data-bs-target="#deleteConfirmation" disabled>
+    <button type="button" id="deleteSelectedBtn"
+            class="btn btn-danger"
+            data-bs-toggle="modal"
+            data-bs-target="#deleteConfirmation"
+            disabled>
         Delete Selected
     </button>
     <!-- Modal -->
@@ -15,12 +18,12 @@
                             aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <p>Are you sure you want to delete the selected items?</p>
+                    <p th:text="${confirmationMessage}"></p>
                     <span class="text-danger">This action cannot be undone</span>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-danger">Delete</button>
+                    <button type="submit" th:form="'deleteForm'" class="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>

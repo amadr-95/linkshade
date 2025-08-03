@@ -1,0 +1,52 @@
+<div th:fragment="user-table(users)"
+     class="border rounded-3 overflow-hidden">
+    <div class="overflow-x-auto">
+        <table class="table table-striped table-hover mb-0">
+            <thead>
+            <tr>
+                <th class="text-center align-middle">
+                    <label><input type="checkbox" id="selectAll" class="form-check-input"/></label>
+                </th>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th class="text-center">Number of Urls</th>
+                <th class="text-center">Created At</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            <tr th:each="user : ${users.data}">
+                <td class="text-center align-middle">
+                    <label>
+                        <input type="checkbox" name="userIds" th:value="${user.id}"
+                               th:form="'deleteForm'" class="form-check-input user-checkbox">
+                    </label>
+                </td>
+                <td th:text="${user.id}"></td>
+                <td th:text="${user.name}"></td>
+                <td th:text="${user.email}"></td>
+<!--                th:text="${user.numberOfUrls()}-->
+                <td class="text-center">
+                    <span class="badge bg-light text-dark border">0</span>
+                </td>
+                <td class="text-center">
+                    <span class="badge bg-light text-dark border"
+                          th:text="${#temporals.format(user.createdAt, 'yyyy-MM-dd')}"></span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+
+    <div>
+        <ul class="pagination justify-content-center mt-3">
+            <li class="page-item disabled">
+                <span class="page-link" aria-label="Total elements"
+                      th:text="${'Total users: ' + users.totalElements}">
+                </span>
+            </li>
+        </ul>
+    </div>
+</div>
+

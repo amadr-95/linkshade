@@ -26,20 +26,30 @@
     <div th:if="${entities.data().isEmpty()}" class="alert alert-info">
         No URLs have been created by you yet.
     </div>
+
     <div th:unless="${entities.data().isEmpty()}" class="table-responsive">
-        <form th:action="@{/delete-urls}" method="POST">
+        <form th:action="@{${deleteEndpoint}}" method="POST" th:id="'deleteForm'">
             <div class="mb-3">
-                <div th:replace="~{fragments/delete-modal :: delete-modal}"></div>
+                <div th:replace="~{fragments/delete-modal :: delete-modal(confirmationMessage='Are you sure you want to delete the selected elements?')}"></div>
             </div>
-            <div th:replace="~{fragments/entity-table :: entity-table(
-                isUrlEntity=${isUrlEntity},
-                entities=${entities},
+            <input type="hidden" th:name="'returnUrl'" id="returnUrlInput" />
+            <script>
+                document.getElementById('returnUrlInput').value = window.location.href;
+            </script>
+        </form>
+        <div th:if="${managedEntity.equalsIgnoreCase('urls')}">
+            <div th:replace="~{fragments/url-table :: url-table(
+                urls=${entities},
                 showCheckboxes=true,
                 showCreatedBy=true,
                 showPrivate=true,
-                showOriginalUrl=true)}">
+                showOriginalUrl=true,
+                showEditButton=true)}">
             </div>
-        </form>
+        </div>
+        <div th:if="${managedEntity.equalsIgnoreCase('users')}">
+            <div th:replace="~{fragments/user-table :: user-table(users=${entities})}"></div>
+        </div>
     </div>
 </div>
 <th:block layout:fragment="pageScripts">

@@ -68,7 +68,7 @@
          role="alert">
         <span class="me-2" th:text="${shortUrlSuccessful}"></span>
         <button class="btn btn-sm btn-outline-secondary clipboard-button"
-                th:data-url="${shortUrlCreated}"
+                th:data-url="${shortUrlCopyToClipboard}"
                 title="Copy link"
                 type="button">
             <i class="bi bi-clipboard"></i>
@@ -77,27 +77,19 @@
                 data-bs-dismiss="alert" aria-label="Close">
         </button>
     </div>
-    <div th:if="${shortUrlError}"
+    <div th:if="${errorMessage}"
          class="alert alert-danger alert-dismissible fade show mt-5"
          role="alert">
-        <span th:text="${shortUrlError}"></span>
+        <span th:text="${errorMessage}"></span>
         <button type="button" class="btn-close"
                 data-bs-dismiss="alert" aria-label="Close">
         </button>
     </div>
 
-    <div th:if="${registrationSuccessful}"
+    <div th:if="${successMessage}"
          class="alert alert-success alert-dismissible fade show mt-5"
          role="alert">
-        <span class="me-2" th:text="${registrationSuccessful}"></span>
-        <button type="button" class="btn-close"
-                data-bs-dismiss="alert" aria-label="Close">
-        </button>
-    </div>
-    <div th:if="${registrationError}"
-         class="alert alert-danger alert-dismissible fade show mt-5"
-         role="alert">
-        <span th:text="${registrationError}"></span>
+        <span class="me-2" th:text="${successMessage}"></span>
         <button type="button" class="btn-close"
                 data-bs-dismiss="alert" aria-label="Close">
         </button>

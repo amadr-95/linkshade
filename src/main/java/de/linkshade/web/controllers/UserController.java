@@ -44,11 +44,11 @@ public class UserController {
 
         try {
             userService.registerUser(userRequest);
-            redirectAttributes.addFlashAttribute("registrationSuccessful",
+            redirectAttributes.addFlashAttribute("successMessage",
                     "Registration successful! 🎉 Please log in");
             return "redirect:/login";
         } catch (UserEmailDuplicateException ex) {
-            redirectAttributes.addFlashAttribute("registrationError",
+            redirectAttributes.addFlashAttribute("errorMessage",
                     "This email is already in use");
             return "redirect:/register";
         }
