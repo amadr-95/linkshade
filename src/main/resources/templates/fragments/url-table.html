@@ -22,7 +22,7 @@
                 <td class="text-center align-middle" th:if="${showCheckboxes}">
                     <label>
                         <input type="checkbox" name="urlIds" th:value="${url.id}"
-                               th:form="'deleteForm'" class="form-check-input url-checkbox">
+                               th:form="deleteUrlsForm" class="form-check-input url-checkbox">
                     </label>
                 </td>
                 <td>
@@ -35,8 +35,18 @@
                         </button>
 
                         <!-- insert modal form for editing the url-->
+
                         <form th:if="${showEditButton}" th:action="@{/edit-urls/{id}(id=${url.id})}" method="POST"
                               th:id="'editForm-' + ${url.id}" th:object="${shortUrlEditForm}">
+                            <!-- Button trigger modal -->
+                            <button type="button"
+                                    th:id="'editUrlButton-' + ${url.id}"
+                                    class="btn btn-sm btn-outline-primary"
+                                    data-bs-toggle="modal"
+                                    th:data-bs-target="'#editUrlModal-' + ${url.id}"
+                                    title="Edit URL">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
                             <div th:replace="~{fragments/edit-url-modal :: edit-url-modal(url=${url})}"></div>
                             <input type="hidden" name="returnUrl" th:id="'returnUrlInput-' + ${url.id}"/>
                             <script th:inline="javascript">

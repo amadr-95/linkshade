@@ -1,14 +1,5 @@
 <!--suppress HtmlUnknownAttribute, HtmlFormInputWithoutLabel -->
 <div th:fragment="edit-url-modal(url)">
-    <!-- Button trigger modal -->
-    <button type="button"
-            th:id="'editUrlButton-' + ${url.id}"
-            class="btn btn-sm btn-outline-primary"
-            data-bs-toggle="modal"
-            th:data-bs-target="'#editUrlModal-' + ${url.id}"
-            title="Edit URL">
-        <i class="bi bi-pencil-square"></i>
-    </button>
     <!-- Modal -->
     <div class="modal fade" th:id="'editUrlModal-' + ${url.id}" tabindex="-1"
          th:aria-labelledby="'editUrlModalLabel-' + ${url.id}"
