@@ -1,10 +1,10 @@
 # TODO
 
-- [] Display how many urls have been created for each user in admin dashboard html page (check how db relations are made)
-- [] Go over the controllers and refactor/reorganize the different endpoints to comply with Responsibility Principle.
-- [] Allow the user to recover their password (difficult)
-
-
+- [ ] Improve logging and errorMessages
+- [ ] Fix discrepancy between days of expiration
+- [x] Delete user account and remove all URLs linked to it
+- [x] Delete all URLs when removing a user from Admin Dashboard
+- [ ] Implement Google Oauth
 
 # URL Shortener App
 

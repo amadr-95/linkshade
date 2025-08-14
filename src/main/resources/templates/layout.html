@@ -56,10 +56,27 @@
                         <button type="submit" class="nav-link">Logout</button>
                     </form>
                 </li>
+                <li class="nav-item" sec:authorize="hasRole('USER')">
+                    <form th:action="@{/delete/{id}(id=${userId})}" id="deleteAccountForm" method="POST"></form>
+                        <!-- Button trigger modal -->
+                        <button type="button"
+                                class="btn btn-danger"
+                                data-bs-toggle="modal"
+                                data-bs-target="#deleteAccountConfirmation">
+                            Delete account
+                        </button>
+                </li>
             </ul>
         </div>
     </div>
 </nav>
+
+<div th:replace="~{fragments/delete-modal :: delete-modal(
+    confirmationMessage='Are you sure you want to delete your account and all the associated URLs?',
+    modalId='deleteAccountConfirmation',
+    formId='deleteAccountForm')}">
+</div>
+
 
 <div class="container d-flex flex-column flex-grow-1">
 
@@ -126,8 +143,11 @@
         <hr class="my-3 bg-secondary">
         <div class="row">
             <div class="col-lg-6 small text-center text-md-start">
-                <p class="mb-0">&copy; <script>document.write(new Date().getFullYear().toString())</script> linkshade. All rights reserved.
-                Made with <i style="color: #dc3545" class="bi bi-heart-fill"></i> by Amador S.</p>
+                <p class="mb-0">&copy;
+                    <script>document.write(new Date().getFullYear().toString())</script>
+                    linkshade. All rights reserved.
+                    Made with <i style="color: #dc3545" class="bi bi-heart-fill"></i> by Amador S.
+                </p>
             </div>
         </div>
     </div>

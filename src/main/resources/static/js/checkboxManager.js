@@ -10,13 +10,15 @@ document.addEventListener('DOMContentLoaded', function () {
         deleteButton.disabled = !anyChecked;
     }
 
-    selectAllCheckboxButton.addEventListener('change', (event) => {
-        const isChecked = event.target.checked;
-        presentCheckboxes.forEach(checkbox => {
-            checkbox.checked = isChecked;
-        });
-        updateDeleteButtonState();
-    })
+    if (selectAllCheckboxButton) {
+        selectAllCheckboxButton.addEventListener('change', (event) => {
+            const isChecked = event.target.checked;
+            presentCheckboxes.forEach(checkbox => {
+                checkbox.checked = isChecked;
+            });
+            updateDeleteButtonState();
+        })
+    }
 
     presentCheckboxes.forEach(checkbox => {
         checkbox.addEventListener('change', () => {
@@ -42,7 +44,7 @@ document.addEventListener('DOMContentLoaded', function () {
         // initial state
         toggleShortenedUrlField(randomSwitch);
 
-        randomSwitch.addEventListener('change', function() {
+        randomSwitch.addEventListener('change', function () {
             toggleShortenedUrlField(this);
         });
     });

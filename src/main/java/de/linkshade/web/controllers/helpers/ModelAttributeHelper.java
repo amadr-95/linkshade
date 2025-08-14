@@ -17,6 +17,7 @@ public class ModelAttributeHelper {
     public void addAttributes(Model model, String path, PagedResult<?> entities) {
         addCommonDataToModel(model, path);
         model.addAttribute("userName", authenticationService.getUserName());
+        model.addAttribute("userId", authenticationService.getUserId());
         model.addAttribute("entities", entities);
     }
 

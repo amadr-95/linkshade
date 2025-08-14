@@ -2,10 +2,15 @@ package de.linkshade.services.mapper;
 
 import de.linkshade.domain.entities.User;
 import de.linkshade.domain.entities.dto.UserDTO;
+import de.linkshade.repositories.ShortUrlRepository;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class UserMapper {
+
+    private final ShortUrlRepository shortUrlRepository;
 
     public UserDTO toUserDTO(User user) {
         return UserDTO.builder()
@@ -13,7 +18,8 @@ public class UserMapper {
                 .name(user.getName())
                 .email(user.getEmail())
                 .createdAt(user.getCreatedAt())
-//                .numberOfUrlsCreated(user)
+                .numberOfUrlsCreated(shortUrlRepository.countByCreatedByUser(user.getId()))
+                .role(user.getRole())
                 .build();
     }
 }

@@ -2,10 +2,12 @@ package de.linkshade.services;
 
 import de.linkshade.domain.entities.PagedResult;
 import de.linkshade.domain.entities.Role;
+import de.linkshade.domain.entities.ShortUrl;
 import de.linkshade.domain.entities.User;
 import de.linkshade.domain.entities.dto.ShortUrlDTO;
 import de.linkshade.exceptions.UrlNotFoundException;
 import de.linkshade.exceptions.UserEmailDuplicateException;
+import de.linkshade.exceptions.UserException;
 import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.repositories.UserRepository;
 import de.linkshade.security.AuthenticationService;
@@ -74,5 +76,21 @@ public class UserService {
                 .createdAt(LocalDateTime.now())
                 .build();
         userRepository.save(user);
+    }
+
+    @Transactional
+    public int deleteUser(Long userId) throws UserException {
+        User user = userRepository.findUserById(userId).orElseThrow(
+                () -> new UsernameNotFoundException("Username not found")
+        );
+        Long loggedUserId = authenticationService.getUserId();
+        if (!loggedUserId.equals(userId)) throw new UserException(String.format(
+                "User logged in with id '%s' does not match user delete request id '%s'", loggedUserId, userId
+        ));
+        List<UUID> urlsIds = shortUrlRepository.findAllByCreatedByUser(user)
+                .stream().map(ShortUrl::getId).toList();
+        shortUrlRepository.deleteByIdIn(urlsIds);
+        userRepository.deleteById(userId);
+        return urlsIds.size();
     }
 }

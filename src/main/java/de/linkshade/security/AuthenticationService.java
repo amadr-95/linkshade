@@ -8,28 +8,25 @@ import org.springframework.stereotype.Service;
 @Service
 public class AuthenticationService {
 
+    public Authentication getAuthentication() {
+        return SecurityContextHolder.getContext().getAuthentication();
+    }
+
     public User getCurrentUserInfo() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        // authentication cannot be null in any case because even if the user is anonymous, Spring creates an
-        // authenticated object with anonymousUser as principal. That's why isAuthenticated() method will always be true
+        Authentication authentication = getAuthentication();
+        if (authentication == null) return null;
         return authentication.getPrincipal().equals("anonymousUser") ?
                 null :
                 (User) authentication.getPrincipal();
     }
 
-    public String getUserName () {
+    public String getUserName() {
         User user = getCurrentUserInfo();
         return user == null ? "Guest" : user.getName();
     }
 
-    @Deprecated
-    public User getCurrentUserInfoAlternative() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication != null && authentication.isAuthenticated()) {
-            if (authentication.getPrincipal() instanceof User) {
-                return (User) authentication.getPrincipal();
-            }
-        }
-        return null;
+    public Long getUserId() {
+        User user = getCurrentUserInfo();
+        return user == null ? null : user.getId();
     }
 }

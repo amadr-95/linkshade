@@ -1,19 +1,11 @@
-<div th:fragment="delete-modal(confirmationMessage)">
-    <!-- Button trigger modal -->
-    <button type="button" id="deleteSelectedBtn"
-            class="btn btn-danger"
-            data-bs-toggle="modal"
-            data-bs-target="#deleteConfirmation"
-            disabled>
-        Delete Selected
-    </button>
+<div th:fragment="delete-modal(confirmationMessage, modalId, formId)">
     <!-- Modal -->
-    <div class="modal fade" id="deleteConfirmation" tabindex="-1" aria-labelledby="deleteConfirmationLabel"
+    <div class="modal fade" th:id="${modalId}" tabindex="-1" th:aria-labelledby="${modalId + 'Label'}"
          aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fs-5" id="deleteConfirmationLabel">Delete confirmation</h5>
+                    <h5 class="modal-title fs-5" th:id="${modalId + 'Label'}">Delete confirmation</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"
                             aria-label="Close"></button>
                 </div>
@@ -23,7 +15,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" th:form="'deleteForm'" class="btn btn-danger">Delete</button>
+                    <button type="submit" th:form="${formId}" class="btn btn-danger">Delete</button>
                 </div>
             </div>
         </div>

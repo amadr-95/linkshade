@@ -31,4 +31,10 @@ public class GlobalExceptionHandler {
         return "error/404";
     }
 
+    @ExceptionHandler(Exception.class)
+    public String UnknownExceptionHandler(Exception ex) {
+        log.error("General problem, reason: {}", ex.getMessage(), ex);
+        return "error/500";
+    }
+
 }

@@ -145,17 +145,19 @@ public class ShortUrlService {
             return shortUrl.getShortenedUrl();
         }
 
-        if (shortUrlEditForm.daysToExpire() != null && (shortUrlEditForm.daysToExpire() < ValidationConstants.MIN_URL_EXPIRATION_DAYS ||
+        if (shortUrlEditForm.daysToExpire() != null &&
+                (shortUrlEditForm.daysToExpire() < ValidationConstants.MIN_URL_EXPIRATION_DAYS ||
                 shortUrlEditForm.daysToExpire() > ValidationConstants.MAX_URL_EXPIRATION_DAYS)) {
-            throw new UrlUpdateException(String.format("Expiration in days '%s' exceeds the limits", shortUrlEditForm.daysToExpire()));
+            throw new UrlUpdateException(
+                    String.format("Expiration in days '%s' exceeds the limits", shortUrlEditForm.daysToExpire()));
         }
 
         shortUrl.setExpiresAt(shortUrlEditForm.daysToExpire() == null ?
                 null :
                 now.plusDays(shortUrlEditForm.daysToExpire()));
 
-        if (shortUrlRepository.findByShortenedUrl(shortUrlEditForm.shortenedUrl()).isPresent()
-                && !shortUrl.getShortenedUrl().equals(shortUrlEditForm.shortenedUrl())) {
+        if (!shortUrl.getShortenedUrl().equals(shortUrlEditForm.shortenedUrl())
+                && shortUrlRepository.findByShortenedUrl(shortUrlEditForm.shortenedUrl()).isPresent()) {
             throw new UrlUpdateException(String.format("ShortUrl '%s' already exists", shortUrlEditForm.shortenedUrl()));
         }
 

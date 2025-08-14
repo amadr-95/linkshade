@@ -18,17 +18,19 @@
             <tbody>
             <tr th:each="user : ${users.data}">
                 <td class="text-center align-middle">
-                    <label>
+                    <label th:if="${!user.role.name.equals('ADMIN')}">
                         <input type="checkbox" name="userIds" th:value="${user.id}"
-                               th:form="'deleteForm'" class="form-check-input user-checkbox">
+                               th:form="'deleteUsersForm'" class="form-check-input user-checkbox">
                     </label>
+                    <span th:if="${user.role.name.equals('ADMIN')}" class="text-muted">
+                        <i class="bi bi-shield-lock"></i>
+                    </span>
                 </td>
                 <td th:text="${user.id}"></td>
                 <td th:text="${user.name}"></td>
                 <td th:text="${user.email}"></td>
-<!--                th:text="${user.numberOfUrls()}-->
                 <td class="text-center">
-                    <span class="badge bg-light text-dark border">0</span>
+                    <span class="badge bg-light text-dark border" th:text="${user.numberOfUrlsCreated}"></span>
                 </td>
                 <td class="text-center">
                     <span class="badge bg-light text-dark border"

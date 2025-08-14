@@ -28,15 +28,28 @@
     </div>
 
     <div th:unless="${entities.data().isEmpty()}" class="table-responsive">
-        <form th:action="@{${deleteEndpoint}}" method="POST" th:id="'deleteForm'">
+        <form th:action="@{${deleteEndpoint}}" th:id="${formId}" method="POST">
             <div class="mb-3">
-                <div th:replace="~{fragments/delete-modal :: delete-modal(confirmationMessage='Are you sure you want to delete the selected elements?')}"></div>
+                <!-- Button trigger modal -->
+                <button type="button" id="deleteSelectedBtn"
+                        class="btn btn-danger"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteConfirmation"
+                        disabled>
+                    Delete Selected
+                </button>
+                <div th:replace="~{fragments/delete-modal :: delete-modal(
+                    confirmationMessage='Are you sure you want to delete the selected ' + ${managedEntity} + '?',
+                    modalId='deleteConfirmation',
+                    formId=${formId})}">
+                </div>
             </div>
-            <input type="hidden" th:name="'returnUrl'" id="returnUrlInput" />
+            <input type="hidden" th:name="'returnUrl'" id="returnUrlInput"/>
             <script>
                 document.getElementById('returnUrlInput').value = window.location.href;
             </script>
         </form>
+
         <div th:if="${managedEntity.equalsIgnoreCase('urls')}">
             <div th:replace="~{fragments/url-table :: url-table(
                 urls=${entities},
