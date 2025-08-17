@@ -54,20 +54,22 @@
 
                     <div class="mb-3">
                         <div class="input-group"
-                             th:classappend="${#fields.hasErrors('expirationInDays')} ? 'has-validation' : ''">
-                            <span class="input-group-text fs-4"><i class="bi bi-calendar"></i></span>
+                             th:classappend="${#fields.hasErrors('expirationDate')} ? 'has-validation' : ''">
+                            <button class="input-group-text fs-4" id="openExpirationDatePicker" type="button" aria-label="Open calendar">
+                                <i class="bi bi-calendar"></i>
+                            </button>
                             <div class="form-floating"
-                                 th:classappend="${#fields.hasErrors('expirationInDays')} ? 'is-invalid' : ''">
-                                <input type="number" class="form-control" id="expirationInDays"
-                                       th:field="*{expirationInDays}"
-                                       th:classappend="${#fields.hasErrors('expirationInDays')} ? 'is-invalid' : ''"
+                                 th:classappend="${#fields.hasErrors('expirationDate')} ? 'is-invalid' : ''">
+                                <input type="date" class="form-control" id="expirationDate"
+                                       th:field="*{expirationDate}"
+                                       th:classappend="${#fields.hasErrors('expirationDate')} ? 'is-invalid' : ''"
                                        placeholder="">
-                                <label for="expirationInDays" class="form-label">Expiration in days</label>
+                                <label for="expirationDate" class="form-label">Expiring date</label>
                             </div>
                             <!-- Print errors if any (based on the validation annotations) -->
                             <div class="invalid-feedback"
-                                 th:if="${#fields.hasErrors('expirationInDays')}"
-                                 th:errors="*{expirationInDays}">
+                                 th:if="${#fields.hasErrors('expirationDate')}"
+                                 th:errors="*{expirationDate}">
                             </div>
                         </div>
                         <div class="form-text">Leave empty to never expire</div>
@@ -138,6 +140,7 @@
 </div>
 <th:block layout:fragment="pageScripts">
     <script sec:authorize="isAuthenticated()" th:src="@{/js/urlFormManager.js}" defer></script>
+    <script sec:authorize="isAuthenticated()" th:src="@{/js/datePickerManager.js}" defer></script>
 </th:block>
 </body>
 </html>

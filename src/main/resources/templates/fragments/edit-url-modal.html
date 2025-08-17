@@ -38,12 +38,13 @@
                         </div>
                         <div class="mb-3">
                             <div class="input-group">
-                                <span class="input-group-text fs-4"><i class="bi bi-calendar"></i></span>
+                                <button class="input-group-text fs-4" th:id="'openExpirationDatePicker-' + ${url.id}" type="button" aria-label="Open calendar">
+                                    <i class="bi bi-calendar"></i>
+                                </button>
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" th:id="'daysToExpire-' + ${url.id}"
-                                           name="daysToExpire" th:value="${url.daysToExpire == 0 ? 1 : url.daysToExpire}">
-                                    <label th:for="'daysToExpire-' + ${url.id}" class="form-label">Days to
-                                        expire</label>
+                                    <input type="date" class="form-control" th:id="'expirationDate-' + ${url.id}"
+                                           name="expirationDate" th:value="${url.expiresAt}">
+                                    <label th:for="'expirationDate-' + ${url.id}" class="form-label">Expiring date</label>
                                 </div>
                             </div>
                             <div class="form-text">Leave empty to never expire</div>

@@ -13,7 +13,7 @@ import lombok.extern.slf4j.Slf4j;
 public class UrlFormValidator implements ConstraintValidator<ValidUrlForm, ShortUrlForm> {
 
     private final UrlValidator urlValidator;
-    private final ExpirationValidator expirationDaysValidator;
+    private final ExpirationValidator expirationDateValidator;
     private final LengthValidator lengthValidator;
     private final CustomUrlNameValidator customUrlNameValidator;
     private final AuthenticationService authenticationService;
@@ -26,7 +26,7 @@ public class UrlFormValidator implements ConstraintValidator<ValidUrlForm, Short
             return false;
         }
         if (authenticationService.getCurrentUserInfo() != null) {
-            if (shortUrlForm.expirationInDays() != null && !expirationDaysValidator.isValid(context, shortUrlForm.expirationInDays())) {
+            if (shortUrlForm.expirationDate() != null && !expirationDateValidator.isValid(context, shortUrlForm.expirationDate())) {
                 return false;
             }
             if (shortUrlForm.isCustom()) {

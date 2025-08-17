@@ -12,7 +12,7 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Period;
+import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
 @Entity
@@ -45,20 +45,20 @@ public class ShortUrl {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private LocalDate createdAt;
 
     @LastModifiedDate
     @Column(insertable = false)
     private LocalDateTime lastModifiedDate;
 
-    private LocalDateTime expiresAt;
+    private LocalDate expiresAt;
 
     @Column(nullable = false)
     private Long numberOfClicks;
 
     public Integer daysToExpire() {
         if (this.expiresAt == null) return null;
-        return Period.between(LocalDate.now(), this.expiresAt.toLocalDate()).getDays(); //might be 0 (same day)
+        return (int) ChronoUnit.DAYS.between(LocalDate.now(), this.expiresAt);//might be 0 (same day)
     }
 
     public boolean isExpired() {

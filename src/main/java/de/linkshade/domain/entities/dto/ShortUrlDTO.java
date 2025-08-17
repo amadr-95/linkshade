@@ -2,7 +2,7 @@ package de.linkshade.domain.entities.dto;
 
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Builder
@@ -12,8 +12,8 @@ public record ShortUrlDTO(
         String originalUrl,
         UserDTO createdByUser,
         boolean isPrivate,
-        LocalDateTime createdAt,
-        LocalDateTime expiresAt,
+        LocalDate createdAt,
+        LocalDate expiresAt,
         boolean isExpired,
         Integer daysToExpire,
         Long numberOfClicks

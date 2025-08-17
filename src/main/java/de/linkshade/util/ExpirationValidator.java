@@ -4,16 +4,19 @@ import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDate;
+
 @Component
 @RequiredArgsConstructor
 public class ExpirationValidator {
 
     private final ValidationContextBuilder contextBuilder;
 
-    public boolean isValid(ConstraintValidatorContext context, Integer expirationInDays) {
-        if (expirationInDays < ValidationConstants.MIN_URL_EXPIRATION_DAYS ||
-                expirationInDays > ValidationConstants.MAX_URL_EXPIRATION_DAYS) {
-            contextBuilder.buildContext(context, "{validation.defaultExpiryDays.range}", "expirationInDays");
+    public boolean isValid(ConstraintValidatorContext context, LocalDate expirationDate) {
+        LocalDate now = LocalDate.now();
+        if (expirationDate.isBefore(now) ||
+                expirationDate.isAfter(now.plusDays(ValidationConstants.MAX_URL_EXPIRATION_DAYS))) {
+            contextBuilder.buildContext(context, "{validation.urlForm.expirationDate}", "expirationDate");
             return false;
         }
         return true;

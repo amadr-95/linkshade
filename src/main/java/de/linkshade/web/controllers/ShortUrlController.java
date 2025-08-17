@@ -52,9 +52,6 @@ public class ShortUrlController {
                                  Model model,
                                  @PageableDefault Pageable pageable
     ) {
-        //TODO: if the number is too big, it cannot be converted to Integer nor Long, so it fails.
-        // When calling index again, the field gets the null instead of the big number introduced, resulting in
-        // a server error page.
         if (bindingResult.hasErrors()) {
             helper.addAttributes(model, "/", shortUrlService.findAllPublicUrls(pageable));
             return "index";
@@ -122,6 +119,8 @@ public class ShortUrlController {
                     String.format("URL updated successfully: %s", shortUrlUpdated));
             redirectAttributes.addFlashAttribute("shortUrlCopyToClipboard", shortUrlUpdated);
         } catch (UrlException ex) {
+            //TODO: provide better error messages to the user (message exception from the service)
+            log.error("Edit URL problem, reason: '{}'", ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage",
                     "There was an error editing the URL. Insert valid values and try again");
         }

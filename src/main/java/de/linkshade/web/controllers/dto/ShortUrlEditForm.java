@@ -1,9 +1,11 @@
 package de.linkshade.web.controllers.dto;
 
+import java.time.LocalDate;
+
 public record ShortUrlEditForm(
         Boolean isPrivate,
         String shortenedUrl,
-        Integer daysToExpire,
+        LocalDate expirationDate,
         Boolean isRandom,
         Boolean isExpired
 ) {

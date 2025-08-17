@@ -22,6 +22,15 @@
             -webkit-appearance: none;
             margin: 0;
         }
+        /* Hide the native calendar icon in WebKit browsers */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            display: none;
+        }
+
+        input[type="date"]::-webkit-datetime-edit-text {
+            margin: 0 2px;
+        }
+
     </style>
 </head>
 <body class="d-flex flex-column pt-5 min-vh-100">
