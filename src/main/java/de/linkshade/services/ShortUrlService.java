@@ -45,7 +45,7 @@ public class ShortUrlService {
 
     @Transactional
     public String createShortUrl(ShortUrlForm shortUrlForm) throws UrlException {
-        User currentUser = authenticationService.getCurrentUserInfo();
+        User currentUser = authenticationService.getCurrentUserInfo().user();
         LocalDate expirationDate;
         LocalDate createdAt = LocalDate.now();
 
@@ -107,7 +107,7 @@ public class ShortUrlService {
 
         if (shortUrl.isExpired()) throw new UrlExpiredException(String.format("URL '%s' is expired", url));
 
-        validateUserPermissions(authenticationService.getCurrentUserInfo(), shortUrl);
+        validateUserPermissions(authenticationService.getCurrentUserInfo().user(), shortUrl);
 
         shortUrl.setNumberOfClicks(shortUrl.getNumberOfClicks() + 1);
         shortUrlRepository.save(shortUrl);
@@ -139,7 +139,7 @@ public class ShortUrlService {
         ShortUrl shortUrl = shortUrlRepository.findById(urlId)
                 .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", urlId)));
 
-        User currentUserInfo = authenticationService.getCurrentUserInfo();
+        User currentUserInfo = authenticationService.getCurrentUserInfo().user();
         if (!currentUserInfo.getRole().toString().equals("ADMIN") &&
                 !currentUserInfo.getId().equals(shortUrl.getCreatedByUser().getId()))
             throw new UrlUpdateException(String.format("Trying to remove an URL with wrong user. Expected userId: '%s', got: '%s'",

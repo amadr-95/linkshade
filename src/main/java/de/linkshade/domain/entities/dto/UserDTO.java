@@ -1,5 +1,6 @@
 package de.linkshade.domain.entities.dto;
 
+import de.linkshade.domain.entities.AuthProvider;
 import de.linkshade.domain.entities.Role;
 import lombok.Builder;
 
@@ -10,7 +11,9 @@ public record UserDTO(
         Long id,
         String name,
         String email,
-        String password,
+        String avatarUrl,
+        String userProviderId,
+        AuthProvider authProvider,
         LocalDateTime createdAt,
         Long numberOfUrlsCreated,
         Role role) {

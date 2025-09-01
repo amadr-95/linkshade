@@ -17,10 +17,11 @@ CREATE TABLE short_urls
 CREATE TABLE users
 (
     id                 BIGINT                      NOT NULL,
-    name               VARCHAR(255)                NOT NULL,
+    name               VARCHAR(50)                 NOT NULL,
     email              VARCHAR(255)                NOT NULL,
-    password           VARCHAR(255)                NOT NULL,
-    role               VARCHAR(255)                NOT NULL,
+    auth_provider      VARCHAR(50)                 NOT NULL,
+    user_provider_id   VARCHAR(50)                 NOT NULL,
+    role               VARCHAR(50)                 NOT NULL,
     created_at         TIMESTAMP WITHOUT TIME ZONE NOT NULL,
     last_modified_date TIMESTAMP WITHOUT TIME ZONE,
     CONSTRAINT pk_users PRIMARY KEY (id)
@@ -28,6 +29,9 @@ CREATE TABLE users
 
 ALTER TABLE users
     ADD CONSTRAINT emailUnique UNIQUE (email);
+
+ALTER TABLE users
+    ADD CONSTRAINT providerIdUnique UNIQUE (user_provider_id);
 
 ALTER TABLE short_urls
     ADD CONSTRAINT shortUrlUnique UNIQUE (shortened_url);

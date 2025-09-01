@@ -1,20 +1,24 @@
 package de.linkshade.security;
 
+import de.linkshade.security.oauth.OAuth2UserService;
+import de.linkshade.security.oauth.OAuth2LoginSuccessHandler;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 
-@EnableWebSecurity
 @Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class WebSecurityConfig {
 
-    private final String[] WHITE_LIST = {"/", "/short-urls", "/s/**", "/login", "/register", "/error",
+    private final String[] WHITE_LIST = {"/", "/short-urls", "/s/**", "/login/**", "/error",
             "/webjars/**", "/css/**", "/js/**", "/images/**"};
+    private final OAuth2UserService oAuth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -28,23 +32,16 @@ public class WebSecurityConfig {
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
-                // login config
-                .formLogin(form -> form
+                .oauth2Login(oauth2login -> oauth2login
                         .loginPage("/login")
-                        .defaultSuccessUrl("/")
-                        .permitAll()
+                        .userInfoEndpoint(info -> info.userService(oAuth2UserService))
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
                 //logout config
                 .logout(logout -> logout
                                 .logoutUrl("/logout")
                                 .logoutSuccessUrl("/")
-                                .permitAll()
                 );
         return http.build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
     }
 }

@@ -12,8 +12,6 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findUserByEmail(String email);
 
-    boolean existsByEmail(String email);
-
     @Query("select count(*) from User")
     Long countAll();
 
@@ -23,4 +21,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     Optional<User> findUserById(Long userId);
 
     int deleteByIdIn(Collection<Long> ids);
+
+    Optional<User> findByUserProviderId(String userProviderId);
 }

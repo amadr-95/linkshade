@@ -14,27 +14,10 @@
     <div class="row justify-content-center mt-5">
         <div class="col-md-6">
             <div class="card">
-                <div class="card-header">
-                    <h5 class="card-title mb-0">Login</h5>
-                </div>
-                <div class="card-body">
-                    <div th:if="${param.error}" class="alert alert-danger">
-                        Invalid username or password.
-                    </div>
-                    <form th:action="@{/login}" method="POST">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Email</label>
-                            <input type="text" class="form-control" id="username" name="username" required autofocus>
-                        </div>
-                        <div class="mb-3">
-                            <label for="password" class="form-label">Password</label>
-                            <input type="password" class="form-control" id="password" name="password" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary">Login</button>
-                    </form>
-                    <div class="mt-3">
-                        <p>Don't have an account? <a th:href="@{/register}">Register</a></p>
-                    </div>
+                <div class="card-header"><h5 class="mb-0">Login</h5></div>
+                <div class="card-body d-grid gap-2">
+                    <a class="btn btn-dark" th:href="@{/oauth2/authorization/github}">Log in with GitHub</a>
+<!--                    <a class="btn btn-dark" th:href="@{/oauth2/authorization/google}">Log in with Google</a>-->
                 </div>
             </div>
         </div>

@@ -18,6 +18,7 @@ public class ModelAttributeHelper {
         addCommonDataToModel(model, path);
         model.addAttribute("userName", authenticationService.getUserName());
         model.addAttribute("userId", authenticationService.getUserId());
+        model.addAttribute("avatarUrl", authenticationService.getAvatarUrl());
         model.addAttribute("entities", entities);
     }
 

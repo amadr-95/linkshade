@@ -10,6 +10,8 @@
                 <th>ID</th>
                 <th>Name</th>
                 <th>Email</th>
+                <th class="text-center">Provider</th>
+                <th class="text-center">Provider User ID</th>
                 <th class="text-center">Number of Urls</th>
                 <th class="text-center">Created At</th>
             </tr>
@@ -28,7 +30,18 @@
                 </td>
                 <td th:text="${user.id}"></td>
                 <td th:text="${user.name}"></td>
-                <td th:text="${user.email}"></td>
+                <td th:text="${user.email == null? 'No email provided': user.email}"></td>
+                <td class="text-center">
+                    <span th:switch="${user.authProvider.name}">
+                        <span th:case="'GOOGLE'">
+                            <i class="bi bi-google"></i>
+                        </span>
+                        <span th:case="'GITHUB'">
+                            <i class="bi bi-github"></i>
+                        </span>
+                    </span>
+                </td>
+                <td class="text-center" th:text="${user.userProviderId}"></td>
                 <td class="text-center">
                     <span class="badge bg-light text-dark border" th:text="${user.numberOfUrlsCreated}"></span>
                 </td>

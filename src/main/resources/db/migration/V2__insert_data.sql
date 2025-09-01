@@ -1,9 +1,7 @@
 -- INSERT USER AND ADMIN
-INSERT INTO users (id, name, email, password, role, created_at, last_modified_date)
-VALUES (1, 'dummy_admin', 'dummy_admin@email.com', '$2a$10$uL8JpHojRvMfQ0qtTBSnm.epa/KDplDe9NyxYVpP6CO.oUysfLZci',
-        'ADMIN', '2025-05-05 10:00:00', NULL),
-       (2, 'dummy_user', 'dummy_user@email.com', '$2a$10$GRbm7OyLQdCOmJRc4OsGHe0sCJTZvh3vNyVJ54PenA7AKjyAwOEsG', 'USER',
-        '2025-05-05 14:30:00', NULL);
+INSERT INTO users (id, name, email, auth_provider, user_provider_id, role, created_at, last_modified_date)
+VALUES (1, 'dummy_admin', 'dummy_admin@email.com', 'GITHUB', '123456', 'ADMIN', '2025-05-05 10:00:00', NULL),
+       (2, 'dummy_user', 'dummy_user@email.com', 'GITHUB', '654321', 'USER','2025-05-05 14:30:00', NULL);
 
 -- INSERT URLS
 INSERT INTO short_urls (id, shortened_url, original_url, created_by_user, is_private, created_at, expires_at,

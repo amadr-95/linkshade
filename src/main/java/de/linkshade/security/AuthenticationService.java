@@ -1,6 +1,6 @@
 package de.linkshade.security;
 
-import de.linkshade.domain.entities.User;
+import de.linkshade.security.oauth.OAuth2UserImpl;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -12,21 +12,26 @@ public class AuthenticationService {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    public User getCurrentUserInfo() {
+    public OAuth2UserImpl getCurrentUserInfo() {
         Authentication authentication = getAuthentication();
         if (authentication == null) return null;
         return authentication.getPrincipal().equals("anonymousUser") ?
                 null :
-                (User) authentication.getPrincipal();
+                ((OAuth2UserImpl) authentication.getPrincipal());
     }
 
     public String getUserName() {
-        User user = getCurrentUserInfo();
-        return user == null ? "Guest" : user.getName();
+        OAuth2UserImpl currentUserInfo = getCurrentUserInfo();
+        return currentUserInfo == null ? "Guest" : currentUserInfo.user().getName();
     }
 
     public Long getUserId() {
-        User user = getCurrentUserInfo();
-        return user == null ? null : user.getId();
+        OAuth2UserImpl currentUserInfo = getCurrentUserInfo();
+        return currentUserInfo == null ? null : currentUserInfo.user().getId();
+    }
+
+    public String getAvatarUrl() {
+        OAuth2UserImpl currentUserInfo = getCurrentUserInfo();
+        return currentUserInfo == null ? null : currentUserInfo.getAvatarUrl();
     }
 }

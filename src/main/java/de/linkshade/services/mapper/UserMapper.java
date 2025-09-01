@@ -17,6 +17,8 @@ public class UserMapper {
                 .id(user.getId())
                 .name(user.getName())
                 .email(user.getEmail())
+                .authProvider(user.getAuthProvider())
+                .userProviderId(user.getUserProviderId())
                 .createdAt(user.getCreatedAt())
                 .numberOfUrlsCreated(shortUrlRepository.countByCreatedByUser(user.getId()))
                 .role(user.getRole())
