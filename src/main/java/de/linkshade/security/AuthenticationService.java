@@ -1,6 +1,8 @@
 package de.linkshade.security;
 
+import de.linkshade.domain.entities.User;
 import de.linkshade.security.oauth.OAuth2UserImpl;
+import de.linkshade.util.Constants;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
@@ -12,26 +14,28 @@ public class AuthenticationService {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    public OAuth2UserImpl getCurrentUserInfo() {
+    public OAuth2UserImpl getOAuth2User() {
         Authentication authentication = getAuthentication();
         if (authentication == null) return null;
-        return authentication.getPrincipal().equals("anonymousUser") ?
+        return authentication.getPrincipal().equals(Constants.ANONYMOUS_USER_NAME) ?
                 null :
                 ((OAuth2UserImpl) authentication.getPrincipal());
     }
 
+    public User getUserInfo() {
+        OAuth2UserImpl oAuth2User = getOAuth2User();
+        return oAuth2User == null ? null : oAuth2User.user();
+    }
+
     public String getUserName() {
-        OAuth2UserImpl currentUserInfo = getCurrentUserInfo();
-        return currentUserInfo == null ? "Guest" : currentUserInfo.user().getName();
+        return getUserInfo() == null ? Constants.DEFAULT_USER_NAME : getUserInfo().getName();
     }
 
     public Long getUserId() {
-        OAuth2UserImpl currentUserInfo = getCurrentUserInfo();
-        return currentUserInfo == null ? null : currentUserInfo.user().getId();
+        return getUserInfo() == null ? null : getUserInfo().getId();
     }
 
     public String getAvatarUrl() {
-        OAuth2UserImpl currentUserInfo = getCurrentUserInfo();
-        return currentUserInfo == null ? null : currentUserInfo.getAvatarUrl();
+        return getOAuth2User() == null ? null : getOAuth2User().getAvatarUrl();
     }
 }

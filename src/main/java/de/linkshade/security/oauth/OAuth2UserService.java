@@ -70,7 +70,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                 attributes.put("userProviderId", oAuth2User.getAttribute("sub"));
                 // UserInfo endpoint includes picture attribute
                 // Google generates a default image if the user did not upload any, so it can also be rendered under tha img html tag
-                oAuth2User.getAttribute("picture");
+                attributes.put("avatarUrl", oAuth2User.getAttribute("picture"));
             }
             default -> attributes.put("userProviderId", "Not supported");
         }

@@ -10,7 +10,7 @@ public record ShortUrlDTO(
         UUID id,
         String shortenedUrl,
         String originalUrl,
-        UserDTO createdByUser,
+        String createdByUser,
         boolean isPrivate,
         LocalDate createdAt,
         LocalDate expiresAt,

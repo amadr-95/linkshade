@@ -10,7 +10,7 @@ import de.linkshade.exceptions.*;
 import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.security.AuthenticationService;
 import de.linkshade.services.mapper.ShortUrlMapper;
-import de.linkshade.util.ValidationConstants;
+import de.linkshade.util.Constants;
 import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
 import jakarta.transaction.Transactional;
@@ -38,14 +38,14 @@ public class ShortUrlService {
     public PagedResult<ShortUrlDTO> findAllPublicUrls(Pageable pageableRequest) {
         Pageable validPage = paginationService.createValidPage(pageableRequest, shortUrlRepository::countAllPublicUrls);
 
-        // Wrapper object that allows us to store all the data coming from Page so we can show it in the frontend
+        // Wrapper object that allows to store all the data coming from Page so it can be shown in the html
         return PagedResult.from(shortUrlRepository.findAllPublicUrls(validPage)
                 .map(shortUrlMapper::toShortUrlDTO));
     }
 
     @Transactional
     public String createShortUrl(ShortUrlForm shortUrlForm) throws UrlException {
-        User currentUser = authenticationService.getCurrentUserInfo().user();
+        User currentUser = authenticationService.getUserInfo();
         LocalDate expirationDate;
         LocalDate createdAt = LocalDate.now();
 
@@ -80,7 +80,7 @@ public class ShortUrlService {
 
     private String generateRandomShortUrl(Integer urlLength) throws UrlException {
         Random random = new Random();
-        String characters = ValidationConstants.VALID_CHARACTERS;
+        String characters = Constants.VALID_CHARACTERS;
         urlLength = urlLength == null ?
                 appProperties.shortUrlProperties().defaultUrlLength() : urlLength;
         StringBuilder shortUrl = new StringBuilder(urlLength);
@@ -96,7 +96,7 @@ public class ShortUrlService {
             //clean stringBuilder for subsequent tries
 //            shortUrl = new StringBuilder();
         }
-        throw new UrlException("ShortenedUrl could not be created: too many attempts");
+        throw new UrlException("ShortenedUrl could not be created: max attempts reached");
     }
 
     @Transactional
@@ -107,39 +107,39 @@ public class ShortUrlService {
 
         if (shortUrl.isExpired()) throw new UrlExpiredException(String.format("URL '%s' is expired", url));
 
-        validateUserPermissions(authenticationService.getCurrentUserInfo().user(), shortUrl);
+        validateUserPermissions(authenticationService.getUserInfo(), shortUrl);
 
         shortUrl.setNumberOfClicks(shortUrl.getNumberOfClicks() + 1);
         shortUrlRepository.save(shortUrl);
         return shortUrl.getOriginalUrl();
     }
 
-    private void validateUserPermissions(User currentUser, ShortUrl shortUrl) throws UrlPrivateException {
+    private void validateUserPermissions(User user, ShortUrl shortUrl) throws UrlPrivateException {
         if (!shortUrl.isPrivate()) {
             log.info("Accessing public url '{}'", shortUrl.getShortenedUrl());
             return; //public urls are accessible by all
         }
-        if (currentUser == null) {
+        if (user == null) {
             log.warn("Accessing private url '{}' without logging in", shortUrl.getShortenedUrl());
             throw new UrlPrivateException("Trying to access to private URL without logging in");
         }
-        if (shortUrl.getCreatedByUser() != null && !shortUrl.getCreatedByUser().getId().equals(currentUser.getId()) &&
-                !currentUser.getRole().equals(Role.ADMIN)) {
+        if (shortUrl.getCreatedByUser() != null && !shortUrl.getCreatedByUser().getId().equals(user.getId()) &&
+                !user.getRole().equals(Role.ADMIN)) {
             log.warn("Accessing private url '{}' with wrong user: '{}', expected: '{}'", shortUrl.getShortenedUrl(),
-                    currentUser.getEmail(), shortUrl.getCreatedByUser().getEmail());
+                    user.getEmail(), shortUrl.getCreatedByUser().getEmail());
             throw new UrlPrivateException("Trying to access to private URL with wrong user");
         }
     }
 
     @Transactional
     public String updateUrl(UUID urlId, ShortUrlEditForm shortUrlEditForm) throws UrlException {
-        if (authenticationService.getCurrentUserInfo() == null)
+        User currentUserInfo = authenticationService.getUserInfo();
+        if (currentUserInfo == null)
             throw new UrlUpdateException("Trying to edit an URL without logging in");
 
         ShortUrl shortUrl = shortUrlRepository.findById(urlId)
                 .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", urlId)));
 
-        User currentUserInfo = authenticationService.getCurrentUserInfo().user();
         if (!currentUserInfo.getRole().toString().equals("ADMIN") &&
                 !currentUserInfo.getId().equals(shortUrl.getCreatedByUser().getId()))
             throw new UrlUpdateException(String.format("Trying to remove an URL with wrong user. Expected userId: '%s', got: '%s'",
@@ -169,7 +169,7 @@ public class ShortUrlService {
             // Validate expirationDate
             if (expirationDateForm != null &&
                     (expirationDateForm.isBefore(now) || expirationDateForm.isAfter(
-                                    now.plusDays(ValidationConstants.MAX_URL_EXPIRATION_DAYS)))) {
+                                    now.plusDays(Constants.MAX_URL_EXPIRATION_DAYS)))) {
                 throw new UrlUpdateException(
                         String.format("Expiration date '%s' is before today or exceeds the limits", expirationDateForm));
             }
@@ -184,8 +184,8 @@ public class ShortUrlService {
                 // Validate shortened value if not random
                 if (shortenedUrlForm == null || shortenedUrlForm.isBlank())
                     throw new UrlUpdateException("Shortened value cannot be blank");
-                if (shortenedUrlForm.length() < ValidationConstants.MIN_URL_LENGTH ||
-                        shortenedUrlForm.length() > ValidationConstants.MAX_URL_LENGTH)
+                if (shortenedUrlForm.length() < Constants.MIN_URL_LENGTH ||
+                        shortenedUrlForm.length() > Constants.MAX_URL_LENGTH)
                     throw new UrlUpdateException(String.format("Shortened length '%s' exceeds the limits",
                             shortenedUrlForm.length()));
                 // check that it's not existing already

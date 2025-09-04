@@ -8,16 +8,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login</title>
+    <style>
+        .animate-fade { animation: fadeIn .6s ease-out; }
+        @keyframes fadeIn { from {opacity:0; transform: translateY(12px);} to {opacity:1; transform: translateY(0);} }
+        .btn-raise { transition: transform .2s ease, box-shadow .2s ease; }
+        .btn-raise:hover, .btn-raise:focus { transform: translateY(-1px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.15); }
+    </style>
 </head>
 <body>
-<div layout:fragment="content">
-    <div class="row justify-content-center mt-5">
-        <div class="col-md-6">
-            <div class="card">
-                <div class="card-header"><h5 class="mb-0">Login</h5></div>
-                <div class="card-body d-grid gap-2">
-                    <a class="btn btn-dark" th:href="@{/oauth2/authorization/github}">Log in with GitHub</a>
-<!--                    <a class="btn btn-dark" th:href="@{/oauth2/authorization/google}">Log in with Google</a>-->
+<div layout:fragment="content" class="py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-5">
+            <div class="card shadow border-0 animate-fade">
+                <div class="card-body p-4">
+                    <div class="text-center mb-4">
+                        <div class="display-6 mb-2 fs-2">Welcome</div>
+                        <p class="text-muted mb-0">Log into your account</p>
+                    </div>
+                    <div class="d-grid gap-3">
+                        <a class="btn btn-dark btn-lg d-flex align-items-center justify-content-center gap-2 btn-raise"
+                           th:href="@{/oauth2/authorization/github}">
+                            <i class="bi bi-github fs-4"></i>
+                            <span>Continue with GitHub</span>
+                        </a>
+                        <a class="btn btn-light btn-lg border d-flex align-items-center justify-content-center gap-2 btn-raise"
+                           th:href="@{/oauth2/authorization/google}">
+                            <i class="bi bi-google text-danger fs-4"></i>
+                            <span>Continue with Google</span>
+                        </a>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent text-center small text-muted">
+                    <i class="bi bi-shield-lock me-1"></i>Protected by OAuth 2.0
                 </div>
             </div>
         </div>

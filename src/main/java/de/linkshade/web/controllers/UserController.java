@@ -8,7 +8,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -43,7 +42,7 @@ public class UserController {
             log.info("User with userId {} and {} urls associated was deleted", userId, numberOfUrls);
             redirectAttributes.addFlashAttribute("successMessage",
                     String.format("User has been successfully deleted along with %s urls", numberOfUrls));
-        } catch (UsernameNotFoundException | UserException ex) {
+        } catch (UserException ex) {
             log.error("There was an error deleting user with userId {}. {}", userId, ex.getMessage(), ex);
             redirectAttributes.addFlashAttribute("errorMessage",
                     "There was an error deleting your account. Please try again.");

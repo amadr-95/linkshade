@@ -11,8 +11,8 @@ public class LengthValidator {
     private final ValidationContextBuilder contextBuilder;
 
     public boolean isValid(ConstraintValidatorContext context, Integer length, String field) {
-        if (length < ValidationConstants.MIN_URL_LENGTH ||
-                length > ValidationConstants.MAX_URL_LENGTH) {
+        if (length < Constants.MIN_URL_LENGTH ||
+                length > Constants.MAX_URL_LENGTH) {
             contextBuilder.buildContext(context, "{validation.urlLength.range}", field);
             return false;
         }

@@ -32,7 +32,7 @@ public class UrlValidator {
 
     private boolean isValidSyntax(String url) {
         if (url == null || url.isBlank()) return false;
-        return ValidationConstants.URL_PATTERN.matcher(url).matches();
+        return Constants.URL_PATTERN.matcher(url).matches();
     }
 
     private boolean isReachable(ConstraintValidatorContext context, String url) {

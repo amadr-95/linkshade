@@ -2,6 +2,7 @@ package de.linkshade.web.controllers;
 
 import de.linkshade.config.AppProperties;
 import de.linkshade.exceptions.UrlException;
+import de.linkshade.exceptions.UrlNotFoundException;
 import de.linkshade.services.ShortUrlService;
 import de.linkshade.services.UserService;
 import de.linkshade.web.controllers.dto.ShortUrlEditForm;
@@ -100,7 +101,7 @@ public class ShortUrlController {
             userService.deleteSelectedUrls(shortUrlsIds);
             redirectAttributes.addFlashAttribute("successMessage",
                     "Selected URLs have been successfully deleted");
-        } catch (Exception ex) {
+        } catch (UrlNotFoundException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting URLs. Try again");
         }
         return "redirect:" + returnUrl;

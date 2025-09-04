@@ -1,5 +1,6 @@
 package de.linkshade.web.controllers;
 
+import de.linkshade.exceptions.UserException;
 import de.linkshade.services.AdminService;
 import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
@@ -62,7 +63,7 @@ public class AdminController {
                     String.format("Selected users have been successfully deleted [%s users, %s urls]",
                             usersAndUrlsDeleted[0],
                             usersAndUrlsDeleted[1]));
-        } catch (Exception ex) {
+        } catch (UserException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting Users. Try again");
         }
         return "redirect:" + returnUrl;

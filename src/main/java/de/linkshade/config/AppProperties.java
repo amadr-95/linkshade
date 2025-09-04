@@ -1,6 +1,6 @@
 package de.linkshade.config;
 
-import de.linkshade.util.ValidationConstants;
+import de.linkshade.util.Constants;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -22,20 +22,20 @@ public record AppProperties(
             @NotBlank(message = "{validation.baseUrl.notBlank}")
             String baseUrl,
             @Min(
-                    value = ValidationConstants.MIN_URL_EXPIRATION_DAYS,
+                    value = Constants.MIN_URL_EXPIRATION_DAYS,
                     message = "{validation.defaultExpiryDays.range}")
             @Max(
-                    value = ValidationConstants.MAX_URL_EXPIRATION_DAYS,
+                    value = Constants.MAX_URL_EXPIRATION_DAYS,
                     message = "{validation.defaultExpiryDays.range}")
             int defaultExpiryDays,
 
             boolean isPrivate,
 
             @Min(
-                    value = ValidationConstants.MIN_URL_LENGTH,
+                    value = Constants.MIN_URL_LENGTH,
                     message = "{validation.urlLength.range}")
             @Max(
-                    value = ValidationConstants.MAX_URL_LENGTH,
+                    value = Constants.MAX_URL_LENGTH,
                     message = "{validation.urlLength.range}")
             int defaultUrlLength,
 

@@ -71,7 +71,7 @@
                           th:text="${url.numberOfClicks}">
                     </span>
                 </td>
-                <td th:if="${showCreatedBy}" class="text-center" th:text="${url.createdByUser.name}"></td>
+                <td th:if="${showCreatedBy}" class="text-center" th:text="${url.createdByUser}"></td>
                 <td th:if="${showPrivate}" class="text-center">
                     <span th:if="${url.isPrivate}" class="badge bg-primary-subtle text-dark-emphasis">Private</span>
                     <span th:unless="${url.isPrivate}" class="badge bg-success">Public</span>

@@ -4,6 +4,7 @@ import de.linkshade.domain.entities.*;
 import de.linkshade.domain.entities.dto.ShortUrlDTO;
 import de.linkshade.exceptions.UrlNotFoundException;
 import de.linkshade.exceptions.UserException;
+import de.linkshade.exceptions.UserNotFoundException;
 import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.repositories.UserRepository;
 import de.linkshade.security.AuthenticationService;
@@ -12,7 +13,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -32,7 +32,7 @@ public class UserService {
     private final PaginationService paginationService;
 
     public PagedResult<ShortUrlDTO> getUserShortUrls(Pageable pageableRequest) {
-        User currentUser = getCurrentUser();
+        User currentUser = authenticationService.getUserInfo();
         Pageable validPage = paginationService.createValidPage(pageableRequest,
                 () -> shortUrlRepository.countByCreatedByUser(currentUser.getId()));
         Page<ShortUrlDTO> shortUrlDTOS =
@@ -43,18 +43,9 @@ public class UserService {
 
     @Transactional
     public void deleteSelectedUrls(List<UUID> shortUrlsIds) throws UrlNotFoundException {
-        getCurrentUser();
         if (shortUrlsIds.stream().anyMatch(Objects::isNull))
             throw new UrlNotFoundException("One or more URLs were null");
         shortUrlRepository.deleteByIdIn(shortUrlsIds);
-    }
-
-    //TODO: provide a custom exception
-    private User getCurrentUser() {
-        User currentUser = authenticationService.getCurrentUserInfo().user();
-        if (currentUser == null)
-            throw new UsernameNotFoundException("Username not found");
-        return currentUser;
     }
 
     @Transactional
@@ -74,7 +65,7 @@ public class UserService {
     @Transactional
     public int deleteUser(Long userId) throws UserException {
         User user = userRepository.findUserById(userId).orElseThrow(
-                () -> new UsernameNotFoundException("Username not found")
+                () -> new UserNotFoundException(String.format("User with id %s not found", userId))
         );
         Long loggedUserId = authenticationService.getUserId();
         if (!loggedUserId.equals(userId)) throw new UserException(String.format(
