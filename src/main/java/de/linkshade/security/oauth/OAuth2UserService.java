@@ -55,18 +55,19 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private Map<String, Object> extractAttributes(AuthProvider oAuthProvider, OAuth2User oAuth2User) {
         Map<String, Object> attributes = new HashMap<>();
-        // default provider attributes
-        attributes.put("name", oAuth2User.getAttribute("name"));
+        // common provider attributes
         attributes.put("email", oAuth2User.getAttribute("email"));
 
         switch (oAuthProvider) {
             case GITHUB -> {
+                attributes.put("name", oAuth2User.getAttribute("name"));
                 attributes.put("userProviderId", oAuth2User.getAttribute("id"));
                 // GitHub always sends avatar_url as a string (url). In case the user does not have an image,
                 // GitHub generates an icon by default that can be rendered in img html tag
                 attributes.put("avatarUrl", oAuth2User.getAttribute("avatar_url"));
             }
             case GOOGLE -> {
+                attributes.put("name", oAuth2User.getAttribute("given_name"));
                 attributes.put("userProviderId", oAuth2User.getAttribute("sub"));
                 // UserInfo endpoint includes picture attribute
                 // Google generates a default image if the user did not upload any, so it can also be rendered under tha img html tag

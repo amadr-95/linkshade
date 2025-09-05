@@ -14,7 +14,7 @@ public class AuthenticationService {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    public OAuth2UserImpl getOAuth2User() {
+    private OAuth2UserImpl getOAuth2User() {
         Authentication authentication = getAuthentication();
         if (authentication == null) return null;
         return authentication.getPrincipal().equals(Constants.ANONYMOUS_USER_NAME) ?

@@ -54,7 +54,7 @@ public class UserService {
         User user = User.builder()
                 .name(userAttributes.get("name").toString())
                 .email(userAttributes.get("email") == null ? "Not provided" : userAttributes.get("email").toString())
-                .userProviderId(userAttributes.get("id").toString())
+                .userProviderId(userAttributes.get("userProviderId").toString())
                 .authProvider(oAuthProvider)
                 .role(Role.USER)
                 .createdAt(LocalDateTime.now())
