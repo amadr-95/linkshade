@@ -9,7 +9,6 @@ spring:
     username: asabido
     password: asabido
   jpa:
-    show_sql: true
     open-in-view: false
   security:
     oauth2:
@@ -29,7 +28,7 @@ spring:
               - profile
 logging:
   level:
-    com.amador.linkshade: DEBUG
+    de.linkshade: DEBUG
 
 # App properties by default
 app:
