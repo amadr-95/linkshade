@@ -2,6 +2,7 @@ package de.linkshade.web.controllers;
 
 import de.linkshade.exceptions.UserException;
 import de.linkshade.services.AdminService;
+import de.linkshade.services.ShortUrlService;
 import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +24,12 @@ import java.util.List;
 public class AdminController {
 
     private final AdminService adminService;
+    private final ShortUrlService shortUrlService;
     private final ModelAttributeHelper helper;
 
     @GetMapping("/urls")
     public String getAllShortUrls(@PageableDefault Pageable pageableRequest, Model model) {
-        helper.addAttributes(model, "/admin/dashboard/urls", adminService.findAllShortUrls(pageableRequest));
+        helper.addAttributes(model, "/admin/dashboard/urls", shortUrlService.findAllShortUrls(pageableRequest));
         model.addAttribute("managedEntity", "URLs");
         model.addAttribute("formId", "deleteUrlsForm");
         model.addAttribute("shortUrlEditForm", new ShortUrlEditForm(null,

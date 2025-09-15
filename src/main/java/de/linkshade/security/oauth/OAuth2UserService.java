@@ -28,15 +28,21 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         OAuth2User oAuth2User = super.loadUser(userRequest);
         AuthProvider oAuthProviderName = AuthProvider.from(userRequest.getClientRegistration().getRegistrationId());
         Map<String, Object> attributes = extractAttributes(oAuthProviderName, oAuth2User);
+
         //caution: in GitHub might be null if the user did not select any by default on their account
         String email = attributes.get("email") == null ? null : attributes.get("email").toString();
         String userProviderId = attributes.get("userProviderId").toString();
 
-        // check whether the user exists or not
-        // It might exist by userProviderId, but it also worth searching by email, in case the user has accounts from different providers but the same
-        // email in all of them
-        User user = userRepository.findByUserProviderId(userProviderId)
+        User user = findOrCreatedUser(userProviderId, email, attributes, oAuthProviderName);
+        return new OAuth2UserImpl(user, attributes);
+    }
+
+    private User findOrCreatedUser(String userProviderId, String email, Map<String, Object> attributes, AuthProvider oAuthProviderName) {
+        return userRepository.findByUserProviderId(userProviderId)
                 .orElseGet(() -> {
+                    // It might exist by userProviderId, but it also worth searching by email,
+                    // in case the user has accounts from different providers but the same
+                    // email in all of them
                     if (email != null) {
                         return userRepository.findUserByEmail(email)
                                 .orElseGet(() -> {
@@ -49,8 +55,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     log.info("User not found in database (email is null), registered from provider {}", registeredUser.getAuthProvider());
                     return registeredUser;
                 });
-
-        return new OAuth2UserImpl(user, attributes);
     }
 
     private Map<String, Object> extractAttributes(AuthProvider oAuthProvider, OAuth2User oAuth2User) {

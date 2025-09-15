@@ -25,7 +25,7 @@ public class UrlFormValidator implements ConstraintValidator<ValidUrlForm, Short
         if (!urlValidator.isValid(context, shortUrlForm.originalUrl())) {
             return false;
         }
-        if (authenticationService.getUserInfo() != null) {
+        if (authenticationService.getUserInfo().isPresent()) {
             if (shortUrlForm.expirationDate() != null && !expirationDateValidator.isValid(context, shortUrlForm.expirationDate())) {
                 return false;
             }

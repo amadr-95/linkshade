@@ -7,6 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class AuthenticationService {
 
@@ -14,28 +16,29 @@ public class AuthenticationService {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    private OAuth2UserImpl getOAuth2User() {
-        Authentication authentication = getAuthentication();
-        if (authentication == null) return null;
-        return authentication.getPrincipal().equals(Constants.ANONYMOUS_USER_NAME) ?
-                null :
-                ((OAuth2UserImpl) authentication.getPrincipal());
+    private Optional<OAuth2UserImpl> getOAuth2User() {
+        return Optional.ofNullable(getAuthentication())
+                .filter(auth -> !auth.getPrincipal().equals(Constants.ANONYMOUS_USER_NAME))
+                .map(auth -> (OAuth2UserImpl) auth.getPrincipal());
     }
 
-    public User getUserInfo() {
-        OAuth2UserImpl oAuth2User = getOAuth2User();
-        return oAuth2User == null ? null : oAuth2User.user();
+    public Optional<User> getUserInfo() {
+        return getOAuth2User().map(OAuth2UserImpl::user);
     }
 
     public String getUserName() {
-        return getUserInfo() == null ? Constants.DEFAULT_USER_NAME : getUserInfo().getName();
+        return getUserInfo()
+                .map(User::getName)
+                .orElse(Constants.DEFAULT_USER_NAME);
     }
 
-    public Long getUserId() {
-        return getUserInfo() == null ? null : getUserInfo().getId();
+    public Optional<Long> getUserId() {
+        return getUserInfo()
+                .map(User::getId);
     }
 
-    public String getAvatarUrl() {
-        return getOAuth2User() == null ? null : getOAuth2User().getAvatarUrl();
+    public Optional<String> getAvatarUrl() {
+        return getOAuth2User()
+                .map(OAuth2UserImpl::getAvatarUrl);
     }
 }

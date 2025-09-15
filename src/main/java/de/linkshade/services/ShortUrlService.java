@@ -16,11 +16,14 @@ import de.linkshade.web.controllers.dto.ShortUrlForm;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
 
@@ -43,13 +46,31 @@ public class ShortUrlService {
                 .map(shortUrlMapper::toShortUrlDTO));
     }
 
+    public PagedResult<ShortUrlDTO> findAllShortUrls(Pageable pageableRequest) {
+        Pageable validPage = paginationService.createValidPage(pageableRequest, shortUrlRepository::countAll);
+
+        return PagedResult.from(shortUrlRepository.findAllUrls(validPage)
+                .map(shortUrlMapper::toShortUrlDTO));
+    }
+
+    public PagedResult<ShortUrlDTO> getUserShortUrls(Pageable pageableRequest) throws UserException {
+        Long loggedUserId = authenticationService.getUserId()
+                .orElseThrow(() -> new UserException("User not logged in"));
+        Pageable validPage = paginationService.createValidPage(pageableRequest,
+                () -> shortUrlRepository.countByCreatedByUser(loggedUserId));
+        Page<ShortUrlDTO> shortUrlDTOS =
+                shortUrlRepository.findAllByCreatedByUser(validPage, loggedUserId)
+                        .map(shortUrlMapper::toShortUrlDTO);
+        return PagedResult.from(shortUrlDTOS);
+    }
+
     @Transactional
     public String createShortUrl(ShortUrlForm shortUrlForm) throws UrlException {
-        User currentUser = authenticationService.getUserInfo();
+        Optional<User> currentUser = authenticationService.getUserInfo();
         LocalDate expirationDate;
         LocalDate createdAt = LocalDate.now();
 
-        if (currentUser == null)
+        if (currentUser.isEmpty())
             expirationDate = createdAt.plusDays(appProperties.shortUrlProperties().defaultExpiryDays());
         else if (shortUrlForm.expirationDate() == null) expirationDate = null;
         else expirationDate = shortUrlForm.expirationDate();
@@ -57,7 +78,7 @@ public class ShortUrlService {
         ShortUrl shortUrl = ShortUrl.builder()
                 .originalUrl(shortUrlForm.originalUrl())
                 .shortenedUrl(shortenUrl(shortUrlForm))
-                .createdByUser(currentUser) //either null or real user
+                .createdByUser(currentUser.orElse(null))
                 .isPrivate(shortUrlForm.isPrivate() != null && shortUrlForm.isPrivate()) //false by default if the user is not logged in
                 .numberOfClicks(0L)
                 .createdAt(createdAt)
@@ -114,15 +135,16 @@ public class ShortUrlService {
         return shortUrl.getOriginalUrl();
     }
 
-    private void validateUserPermissions(User user, ShortUrl shortUrl) throws UrlPrivateException {
+    private void validateUserPermissions(Optional<User> OptionalUser, ShortUrl shortUrl) throws UrlPrivateException {
         if (!shortUrl.isPrivate()) {
             log.info("Accessing public url '{}'", shortUrl.getShortenedUrl());
             return; //public urls are accessible by all
         }
-        if (user == null) {
+        User user = OptionalUser.orElseThrow(() -> {
             log.warn("Accessing private url '{}' without logging in", shortUrl.getShortenedUrl());
-            throw new UrlPrivateException("Trying to access to private URL without logging in");
-        }
+            return new UrlPrivateException("Trying to access to private URL without logging in");
+        });
+
         if (shortUrl.getCreatedByUser() != null && !shortUrl.getCreatedByUser().getId().equals(user.getId()) &&
                 !user.getRole().equals(Role.ADMIN)) {
             log.warn("Accessing private url '{}' with wrong user: '{}', expected: '{}'", shortUrl.getShortenedUrl(),
@@ -133,9 +155,8 @@ public class ShortUrlService {
 
     @Transactional
     public String updateUrl(UUID urlId, ShortUrlEditForm shortUrlEditForm) throws UrlException {
-        User currentUserInfo = authenticationService.getUserInfo();
-        if (currentUserInfo == null)
-            throw new UrlUpdateException("Trying to edit an URL without logging in");
+        User currentUserInfo = authenticationService.getUserInfo()
+                .orElseThrow(() -> new UrlUpdateException("Trying to edit an URL without logging in"));
 
         ShortUrl shortUrl = shortUrlRepository.findById(urlId)
                 .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", urlId)));
@@ -198,5 +219,12 @@ public class ShortUrlService {
         }
         shortUrlRepository.save(shortUrl);
         return shortUrl.getShortenedUrl();
+    }
+
+    @Transactional
+    public void deleteSelectedUrls(List<UUID> shortUrlsIds) throws UrlNotFoundException {
+        if (shortUrlsIds.stream().anyMatch(Objects::isNull))
+            throw new UrlNotFoundException("One or more URLs were null");
+        shortUrlRepository.deleteByIdIn(shortUrlsIds);
     }
 }

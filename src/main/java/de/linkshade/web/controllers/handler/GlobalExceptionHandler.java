@@ -1,9 +1,6 @@
 package de.linkshade.web.controllers.handler;
 
-import de.linkshade.exceptions.UrlException;
-import de.linkshade.exceptions.UrlExpiredException;
-import de.linkshade.exceptions.UrlNotFoundException;
-import de.linkshade.exceptions.UrlPrivateException;
+import de.linkshade.exceptions.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -21,5 +18,11 @@ public class GlobalExceptionHandler {
             return "error/401"; //unauthorized
         }
         return "error/500"; //server error
+    }
+
+    @ExceptionHandler(UserException.class)
+    public String userExceptionHandler(UserException ex) {
+        log.error("User problem, reason: {}", ex.getMessage(), ex);
+        return "error/500";
     }
 }

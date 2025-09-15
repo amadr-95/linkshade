@@ -17,9 +17,11 @@ public class ModelAttributeHelper {
     public void addAttributes(Model model, String path, PagedResult<?> entities) {
         addCommonDataToModel(model, path);
         model.addAttribute("userName", authenticationService.getUserName());
-        model.addAttribute("userId", authenticationService.getUserId());
-        model.addAttribute("avatarUrl", authenticationService.getAvatarUrl());
         model.addAttribute("entities", entities);
+        authenticationService.getUserId().ifPresent(
+                id -> model.addAttribute("userId", id));
+        authenticationService.getAvatarUrl().ifPresent(
+                avatarUrl -> model.addAttribute("avatarUrl", avatarUrl));
     }
 
     private void addCommonDataToModel(Model model, String path) {

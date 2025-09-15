@@ -1,24 +1,21 @@
 package de.linkshade.services;
 
-import de.linkshade.domain.entities.*;
-import de.linkshade.domain.entities.dto.ShortUrlDTO;
-import de.linkshade.exceptions.UrlNotFoundException;
+import de.linkshade.domain.entities.AuthProvider;
+import de.linkshade.domain.entities.Role;
+import de.linkshade.domain.entities.ShortUrl;
+import de.linkshade.domain.entities.User;
 import de.linkshade.exceptions.UserException;
 import de.linkshade.exceptions.UserNotFoundException;
 import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.repositories.UserRepository;
 import de.linkshade.security.AuthenticationService;
-import de.linkshade.services.mapper.ShortUrlMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -28,25 +25,6 @@ public class UserService {
     private final ShortUrlRepository shortUrlRepository;
     private final UserRepository userRepository;
     private final AuthenticationService authenticationService;
-    private final ShortUrlMapper shortUrlMapper;
-    private final PaginationService paginationService;
-
-    public PagedResult<ShortUrlDTO> getUserShortUrls(Pageable pageableRequest) {
-        User currentUser = authenticationService.getUserInfo();
-        Pageable validPage = paginationService.createValidPage(pageableRequest,
-                () -> shortUrlRepository.countByCreatedByUser(currentUser.getId()));
-        Page<ShortUrlDTO> shortUrlDTOS =
-                shortUrlRepository.findAllByCreatedByUser(validPage, currentUser.getId())
-                        .map(shortUrlMapper::toShortUrlDTO);
-        return PagedResult.from(shortUrlDTOS);
-    }
-
-    @Transactional
-    public void deleteSelectedUrls(List<UUID> shortUrlsIds) throws UrlNotFoundException {
-        if (shortUrlsIds.stream().anyMatch(Objects::isNull))
-            throw new UrlNotFoundException("One or more URLs were null");
-        shortUrlRepository.deleteByIdIn(shortUrlsIds);
-    }
 
     @Transactional
     public User registerUser(Map<String, Object> userAttributes, AuthProvider oAuthProvider) {
@@ -67,7 +45,9 @@ public class UserService {
         User user = userRepository.findUserById(userId).orElseThrow(
                 () -> new UserNotFoundException(String.format("User with id %s not found", userId))
         );
-        Long loggedUserId = authenticationService.getUserId();
+        Long loggedUserId = authenticationService.getUserId()
+                .orElseThrow(() -> new UserException("User not logged in"));
+
         if (!loggedUserId.equals(userId)) throw new UserException(String.format(
                 "User logged in with id '%s' does not match user delete request id '%s'", loggedUserId, userId
         ));
