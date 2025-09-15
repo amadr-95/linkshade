@@ -1,10 +1,16 @@
 # TODO
 
+- [x] Implement Google/GitHub Oauth
+- [ ] Avoid unlogged users to use the /short-urls endpoint after X times
+- [ ] Cronjob Postgres to delete expired urls
 - [ ] Improve logging and errorMessages
-- [ ] Fix discrepancy between days of expiration
+- [x] Fix discrepancy between days of expiration
 - [x] Delete user account and remove all URLs linked to it
 - [x] Delete all URLs when removing a user from Admin Dashboard
-- [ ] Implement Google Oauth
+- [ ] Create Unit Tests
+- OPTIONAL:
+- [ ] Button for deleting all expired urls in my-urls/admin html page
+- [ ] Button for reactivating all expired urls in my-urls/admin page 
 
 # URL Shortener App
 
