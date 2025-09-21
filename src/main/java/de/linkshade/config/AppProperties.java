@@ -15,6 +15,7 @@ public record AppProperties(
         int[] pageAvailableSizes,
         int numberOfTries,
         boolean checkHttpStatusCode,
+        int maxRequestPerHour,
         @Valid
         ShortUrlProperties shortUrlProperties
 ) {

@@ -39,6 +39,7 @@ app:
   # false: only check the url syntax
   # true: check the url syntax plus whether the url is reachable or not (slow)
   check-http-status-code: false
+  max-request-per-hour: 10
   short-url-properties:
     base-url: "http://localhost:8080"
     default-expiry-days: 30

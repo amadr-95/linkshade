@@ -117,36 +117,48 @@
 
 <div class="container d-flex flex-column flex-grow-1">
 
-    <div th:if="${shortUrlSuccessful}"
-         class="alert alert-success alert-dismissible fade show mt-5"
-         role="alert">
-        <span class="me-2" th:text="${shortUrlSuccessful}"></span>
-        <button class="btn btn-sm btn-outline-secondary clipboard-button"
-                th:data-url="${shortUrlCopyToClipboard}"
-                title="Copy link"
-                type="button">
-            <i class="bi bi-clipboard"></i>
-        </button>
-        <button type="button" class="btn-close"
-                data-bs-dismiss="alert" aria-label="Close">
-        </button>
-    </div>
-    <div th:if="${errorMessage}"
-         class="alert alert-danger alert-dismissible fade show mt-5"
-         role="alert">
-        <span th:text="${errorMessage}"></span>
-        <button type="button" class="btn-close"
-                data-bs-dismiss="alert" aria-label="Close">
-        </button>
-    </div>
+    <div class="mt-5">
+        <div th:if="${shortUrlSuccessful}"
+             class="alert alert-success alert-dismissible fade show"
+             role="alert">
+            <span class="me-2" th:text="${shortUrlSuccessful}"></span>
+            <button class="btn btn-sm btn-outline-secondary clipboard-button"
+                    th:data-url="${shortUrlCopyToClipboard}"
+                    title="Copy link"
+                    type="button">
+                <i class="bi bi-clipboard"></i>
+            </button>
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
 
-    <div th:if="${successMessage}"
-         class="alert alert-success alert-dismissible fade show mt-5"
-         role="alert">
-        <span class="me-2" th:text="${successMessage}"></span>
-        <button type="button" class="btn-close"
-                data-bs-dismiss="alert" aria-label="Close">
-        </button>
+        <div th:if="${errorMessage}"
+             class="alert alert-danger alert-dismissible fade show"
+             role="alert">
+            <span th:text="${errorMessage}"></span>
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+
+        <div th:if="${warningMessage}"
+             class="alert alert-warning alert-dismissible fade show"
+             role="alert">
+            <span th:text="${warningMessage}"></span>
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
+
+        <div th:if="${successMessage}"
+             class="alert alert-success alert-dismissible fade show"
+             role="alert">
+            <span class="me-2" th:text="${successMessage}"></span>
+            <button type="button" class="btn-close"
+                    data-bs-dismiss="alert" aria-label="Close">
+            </button>
+        </div>
     </div>
 
     <div layout:fragment="content">

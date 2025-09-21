@@ -2,9 +2,11 @@ package de.linkshade.web.controllers;
 
 import de.linkshade.config.AppProperties;
 import de.linkshade.exceptions.UrlException;
+import de.linkshade.services.RateLimitService;
 import de.linkshade.services.ShortUrlService;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +28,7 @@ public class ShortUrlController {
     private final ShortUrlService shortUrlService;
     private final AppProperties appProperties;
     private final ModelAttributeHelper helper;
+    private final RateLimitService rateLimitService;
 
     @GetMapping
     public String home(Model model, @PageableDefault Pageable pageable) {
@@ -45,12 +48,29 @@ public class ShortUrlController {
                                  BindingResult bindingResult, //for errors (important! right after the ModelAttribute)
                                  RedirectAttributes redirectAttributes,
                                  Model model,
-                                 @PageableDefault Pageable pageable
+                                 @PageableDefault Pageable pageable,
+                                 HttpServletRequest request
     ) {
+        Boolean rateLimitReached = (Boolean) request.getAttribute("rateLimitReached");
+        if (rateLimitReached != null && rateLimitReached) {
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    request.getAttribute("rateLimitMessage"));
+            return "redirect:/";
+        }
+
+        String rateLimitWarning = (String) request.getAttribute("rateLimitWarning");
+        if (rateLimitWarning != null)
+            redirectAttributes.addFlashAttribute("warningMessage", rateLimitWarning);
+
         if (bindingResult.hasErrors()) {
+            String clientIpAddress = rateLimitService.getClientIpAddress(request);
+            rateLimitService.incrementConsecutiveErrors(clientIpAddress);
+            rateLimitService.addExtraToken(clientIpAddress);
             helper.addAttributes(model, "/", shortUrlService.findAllPublicUrls(pageable));
+            if (rateLimitWarning != null) model.addAttribute("warningMessage", rateLimitWarning);
             return "index";
         }
+
         try {
             String shortenedUrl = shortUrlService.createShortUrl(shortUrlForm);
             String shortUrlCreated =
