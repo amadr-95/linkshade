@@ -11,7 +11,6 @@ public record UserDTO(
         Long id,
         String name,
         String email,
-        String avatarUrl,
         String userProviderId,
         AuthProvider authProvider,
         LocalDateTime createdAt,
