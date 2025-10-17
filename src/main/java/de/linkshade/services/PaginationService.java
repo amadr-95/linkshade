@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import java.util.Arrays;
 import java.util.function.Supplier;
 
+import static de.linkshade.domain.entities.Role.ADMIN;
+
 @Service
 @RequiredArgsConstructor
 public class PaginationService {
@@ -52,7 +54,8 @@ public class PaginationService {
         //if the direction is something different from ASC or DESC, @PageableDefault in the controller makes it ASC by default, no need for validation
         Sort.Order validSortProperty = sortRequest.stream()
                 .filter(sort -> appProperties.urlSortProperties().contains(sort.getProperty()) ||
-                        appProperties.userSortProperties().contains(sort.getProperty())
+                                (authenticationService.getUserInfo().get().getRole() == ADMIN &&
+                        appProperties.userSortProperties().contains(sort.getProperty()))
                 )
                 .findFirst()
                 .orElse(null);
