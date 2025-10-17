@@ -15,7 +15,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface ShortUrlRepository extends JpaRepository<ShortUrl, UUID> {
-//    @Query("select su from ShortUrl su left join fetch su.createdByUser where su.isPrivate=false order by su.createdAt desc")
     @Query("select su from ShortUrl su where su.isPrivate=false")
     @EntityGraph(attributePaths = {"createdByUser"})
     Page<ShortUrl> findAllPublicUrls(Pageable pageable);
