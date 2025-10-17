@@ -137,10 +137,16 @@
             showEditButton=false)}">
         </div>
     </div>
+
+    <div class="mt-3 d-flex flex-column flex-lg-row justify-content-end align-items-lg-center gap-3"
+         th:insert="~{fragments/pagination-navbar :: pagination}">
+    </div>
+
 </div>
 <th:block layout:fragment="pageScripts">
     <script sec:authorize="isAuthenticated()" th:src="@{/js/urlFormManager.js}" defer></script>
     <script sec:authorize="isAuthenticated()" th:src="@{/js/datePickerManager.js}" defer></script>
+    <script sec:authorize="isAuthenticated()" th:src="@{/js/sortableColumns.js}" defer></script>
 </th:block>
 </body>
 </html>

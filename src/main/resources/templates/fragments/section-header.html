@@ -1,4 +1,4 @@
-<div th:fragment="section-header(title)" class="mt-5 d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
+<div id="table" style="scroll-margin-top: 100px;" th:fragment="section-header(title)" class="mt-5 d-flex flex-column flex-lg-row justify-content-between align-items-lg-center gap-3">
     <h2 th:text="${title}"></h2>
     <div th:insert="~{fragments/pagination-navbar :: pagination}"></div>
 </div>

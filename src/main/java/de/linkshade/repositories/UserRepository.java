@@ -18,6 +18,23 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select u from User u")
     Page<User> findAllUsers(Pageable pageable);
 
+    @Query("""
+    select u from User u
+    left join ShortUrl s on s.createdByUser = u
+    group by u.id
+    order by count (s.id) asc
+    """)
+    Page<User> findAllUsersSortedByUrlCountAsc(Pageable pageable);
+
+    @Query("""
+    select u from User u
+    left join ShortUrl s on s.createdByUser = u
+    group by u.id
+    order by count (s.id) desc
+    """)
+    Page<User> findAllUsersSortedByUrlCountDesc(Pageable pageable);
+
+
     Optional<User> findUserById(Long userId);
 
     int deleteByIdIn(Collection<Long> ids);

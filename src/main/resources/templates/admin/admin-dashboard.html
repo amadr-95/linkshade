@@ -63,12 +63,16 @@
         <div th:if="${managedEntity.equalsIgnoreCase('users')}">
             <div th:replace="~{fragments/user-table :: user-table(users=${entities})}"></div>
         </div>
+        <div class="mt-3 d-flex flex-column flex-lg-row justify-content-end align-items-lg-center gap-3"
+             th:insert="~{fragments/pagination-navbar :: pagination}">
+        </div>
     </div>
 </div>
 <th:block layout:fragment="pageScripts">
     <script th:src="@{/js/adminTabManager.js}" defer></script>
     <script th:src="@{/js/checkboxManager.js}" defer></script>
     <script th:src="@{/js/datePickerManager.js}" defer></script>
+    <script th:src="@{/js/sortableColumns.js}" defer></script>
 </th:block>
 </body>
 </html>

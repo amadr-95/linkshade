@@ -1,6 +1,7 @@
 package de.linkshade.services;
 
 import de.linkshade.domain.entities.PagedResult;
+import de.linkshade.domain.entities.User;
 import de.linkshade.domain.entities.dto.UserDTO;
 import de.linkshade.exceptions.UserException;
 import de.linkshade.repositories.ShortUrlRepository;
@@ -9,7 +10,10 @@ import de.linkshade.services.mapper.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,8 +33,19 @@ public class AdminService {
     public PagedResult<UserDTO> findAllUsers(Pageable pageableRequest) {
         Pageable validPage = paginationService.createValidPage(pageableRequest, userRepository::countAll);
 
-        return PagedResult.from(userRepository.findAllUsers(validPage)
-                .map(userMapper::toUserDTO));
+        // Since numberOfUrlCreated it is not a field of User table, it needs to be treated with specific queries in the repository
+        Sort.Order orderForNumberOfUrlsCreated = validPage.getSort().getOrderFor("numberOfUrlsCreated");
+
+        if (orderForNumberOfUrlsCreated == null)
+            return PagedResult.from(userRepository.findAllUsers(validPage)
+                    .map(userMapper::toUserDTO));
+
+        Pageable pageWithoutSort = PageRequest.of(validPage.getPageNumber(), validPage.getPageSize());
+        Page<User> userPage = orderForNumberOfUrlsCreated.isAscending()
+                ? userRepository.findAllUsersSortedByUrlCountAsc(pageWithoutSort)
+                : userRepository.findAllUsersSortedByUrlCountDesc(pageWithoutSort);
+
+        return PagedResult.from(userPage.map(userMapper::toUserDTO));
     }
 
     @Transactional

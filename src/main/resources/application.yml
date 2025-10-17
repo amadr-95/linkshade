@@ -34,6 +34,8 @@ logging:
 app:
   page-default-size: 10
   page-available-sizes: [5, 10, 20, 50]
+  url-sort-properties: ["shortenedUrl", "originalUrl", "numberOfClicks", "createdByUser", "isPrivate", "createdAt", "expiresAt"]
+  user-sort-properties: ["id", "name", "email", "authProvider", "userProviderId", "numberOfUrlsCreated", "createdAt"]
   number-of-tries: 3 # number of tries for creating a random shorturl
   # decides whether the app should check a URL is reachable or not
   # false: only check the url syntax

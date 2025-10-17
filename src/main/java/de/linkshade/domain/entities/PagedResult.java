@@ -1,6 +1,7 @@
 package de.linkshade.domain.entities;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -10,6 +11,7 @@ public record PagedResult<T>(
         int pageNumber,
         int totalPages,
         int size,
+        Sort sort,
         boolean nextPage,
         boolean previousPage,
         boolean isFirst,
@@ -22,6 +24,7 @@ public record PagedResult<T>(
                 page.getNumber(),
                 page.getTotalPages(),
                 page.getSize(),
+                page.getSort(),
                 page.hasNext(),
                 page.hasPrevious(),
                 page.isFirst(),

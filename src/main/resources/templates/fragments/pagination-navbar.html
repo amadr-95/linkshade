@@ -2,12 +2,12 @@
     <nav th:if="${entities.totalPages > 1}">
         <ul class="pagination justify-content-center">
             <li class="page-item" th:classappend="${entities.isFirst ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{${path}(page=1, size=${entities.size})}" aria-label="First">
+                <a class="page-link" th:with="baseUrl=@{${path}(page=1, size=${entities.size}, sort=${param.sort != null ? param.sort : entities.sort})}" th:href="${baseUrl + '#table'}" aria-label="First">
                     <span aria-hidden="true">First</span>
                 </a>
             </li>
             <li class="page-item" th:classappend="${entities.isFirst ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{${path}(page=${entities.pageNumber}, size=${entities.size}) }"
+                <a class="page-link" th:with="baseUrl=@{${path}(page=${entities.pageNumber}, size=${entities.size}, sort=${param.sort != null ? param.sort : entities.sort})}" th:href="${baseUrl + '#table'}"
                    aria-label="Previous">
                     <span aria-hidden="true">&laquo;</span>
                 </a>
@@ -18,13 +18,13 @@
                         </span>
             </li>
             <li class="page-item" th:classappend="${entities.isLast ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{${path}(page=${entities.pageNumber + 2}, size=${entities.size})}"
+                <a class="page-link" th:with="baseUrl=@{${path}(page=${entities.pageNumber + 2}, size=${entities.size}, sort=${param.sort != null ? param.sort : entities.sort})}" th:href="${baseUrl + '#table'}"
                    aria-label="Next">
                     <span aria-hidden="true">&raquo;</span>
                 </a>
             </li>
             <li class="page-item" th:classappend="${entities.isLast ? 'disabled' : ''}">
-                <a class="page-link" th:href="@{${path}(page=${entities.totalPages}, size=${entities.size})}"
+                <a class="page-link" th:with="baseUrl=@{${path}(page=${entities.totalPages}, size=${entities.size}, sort=${param.sort != null ? param.sort : entities.sort})}" th:href="${baseUrl + '#table'}"
                    aria-label="Last">
                     <span aria-hidden="true">Last</span>
                 </a>
@@ -35,10 +35,10 @@
     <ul class="pagination"
         th:classappend="${entities.data().isEmpty() ? 'd-none' : ''}">
         <li class="page-item ms-3">
-            <form th:action="@{${path}}" method="GET" class="d-flex align-items-center">
+            <form th:action="@{${path} + '#table'}" method="GET" class="d-flex align-items-center">
                 <input type="hidden" name="page" value="1"/>
                 <label for="size">
-                    <select id="size" name="size" class="form-select form-select" onchange="this.form.submit()">
+                    <select id="size" name="size" class="form-select" onchange="this.form.submit()">
                         <option th:each="size : ${pageAvailableSizes}"
                                 th:value="${size}"
                                 th:text="${size}"
@@ -46,6 +46,7 @@
                         </option>
                     </select>
                 </label>
+                <input type="hidden" name="sort" th:value="${param.sort != null ? param.sort : entities.sort}"/>
             </form>
         </li>
     </ul>

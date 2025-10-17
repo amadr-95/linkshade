@@ -1,6 +1,7 @@
 package de.linkshade.services;
 
 import de.linkshade.config.AppProperties;
+import de.linkshade.security.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -15,20 +16,47 @@ import java.util.function.Supplier;
 public class PaginationService {
 
     private final AppProperties appProperties;
+    private final AuthenticationService authenticationService;
 
     public Pageable createValidPage(Pageable pageableRequest, Supplier<Long> countFunction) {
-        // only allow values that are predefined: [5, 10, 20, 50]
-        int pageSize = Arrays.stream(appProperties.pageAvailableSizes())
-                .anyMatch(size -> size == pageableRequest.getPageSize()) ?
-                pageableRequest.getPageSize() : appProperties.pageDefaultSize();
 
+        int pageSize = validatePageSize(pageableRequest.getPageSize());
+        int pageNumber = validatePageNumber(pageableRequest, countFunction, pageSize);
+        Sort sort = validateSort(pageableRequest.getSort());
+
+        return PageRequest.of(pageNumber, pageSize, sort);
+    }
+
+    private int validatePageSize(int pageSize) {
+        // only allow values that are predefined: [5, 10, 20, 50]
+        return Arrays.stream(appProperties.pageAvailableSizes())
+                .anyMatch(size -> size == pageSize) ?
+                pageSize : appProperties.pageDefaultSize();
+    }
+
+    private int validatePageNumber(Pageable pageableRequest, Supplier<Long> countFunction, int pageSize) {
         int pageNumber = Math.max(pageableRequest.getPageNumber() - 1, 0);
         // calculate the number of max pages to handle wrong pageNumber values coming from frontend (url)
         long totalElements = countFunction.get();
         int maxPages = totalElements == 0 ? 1 : (int) Math.ceil((double) totalElements / pageSize);
         if (pageNumber >= maxPages) pageNumber = maxPages - 1; //redirect to the last page available
+        return pageNumber;
+    }
 
-        return PageRequest
-                .of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+    private Sort validateSort(Sort sortRequest) {
+        Sort defaultSort = Sort.by(Sort.Direction.DESC, "createdAt");
+
+        if (sortRequest.isUnsorted() || authenticationService.getUserInfo().isEmpty())
+            return defaultSort;
+
+        //if the direction is something different from ASC or DESC, @PageableDefault in the controller makes it ASC by default, no need for validation
+        Sort.Order validSortProperty = sortRequest.stream()
+                .filter(sort -> appProperties.urlSortProperties().contains(sort.getProperty()) ||
+                        appProperties.userSortProperties().contains(sort.getProperty())
+                )
+                .findFirst()
+                .orElse(null);
+
+        return validSortProperty == null ? defaultSort : Sort.by(validSortProperty);
     }
 }
