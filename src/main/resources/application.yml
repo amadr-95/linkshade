@@ -46,5 +46,5 @@ app:
     base-url: "http://localhost:8080"
     default-expiry-days: 30
     is-private: false
-    default-url-length: 10
+    default-shorturl-length: 10
     is-custom: false

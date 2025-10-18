@@ -103,7 +103,7 @@ public class ShortUrlService {
         Random random = new Random();
         String characters = Constants.VALID_CHARACTERS;
         urlLength = urlLength == null ?
-                appProperties.shortUrlProperties().defaultUrlLength() : urlLength;
+                appProperties.shortUrlProperties().defaultShortUrlLength() : urlLength;
         StringBuilder shortUrl = new StringBuilder(urlLength);
         int maxAttempts = appProperties.numberOfTries();
         for (int attempts = 1; attempts <= maxAttempts; attempts++) {
@@ -190,7 +190,7 @@ public class ShortUrlService {
             // Validate expirationDate
             if (expirationDateForm != null &&
                     (expirationDateForm.isBefore(now) || expirationDateForm.isAfter(
-                                    now.plusDays(Constants.MAX_URL_EXPIRATION_DAYS)))) {
+                                    now.plusDays(Constants.MAX_SHORTURL_EXPIRATION_DAYS)))) {
                 throw new UrlUpdateException(
                         String.format("Expiration date '%s' is before today or exceeds the limits", expirationDateForm));
             }
@@ -205,8 +205,8 @@ public class ShortUrlService {
                 // Validate shortened value if not random
                 if (shortenedUrlForm == null || shortenedUrlForm.isBlank())
                     throw new UrlUpdateException("Shortened value cannot be blank");
-                if (shortenedUrlForm.length() < Constants.MIN_URL_LENGTH ||
-                        shortenedUrlForm.length() > Constants.MAX_URL_LENGTH)
+                if (shortenedUrlForm.length() < Constants.MIN_SHORTURL_LENGTH ||
+                        shortenedUrlForm.length() > Constants.MAX_SHORTURL_LENGTH)
                     throw new UrlUpdateException(String.format("Shortened length '%s' exceeds the limits",
                             shortenedUrlForm.length()));
                 // check that it's not existing already

@@ -37,7 +37,7 @@ public class ShortUrlController {
                 "",
                 null,
                 appProperties.shortUrlProperties().isPrivate(),
-                appProperties.shortUrlProperties().defaultUrlLength(),
+                appProperties.shortUrlProperties().defaultShortUrlLength(),
                 appProperties.shortUrlProperties().isCustom(),
                 ""));
         return "index";

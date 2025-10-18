@@ -22,6 +22,8 @@ public class UrlFormValidator implements ConstraintValidator<ValidUrlForm, Short
     public boolean isValid(ShortUrlForm shortUrlForm, ConstraintValidatorContext context) {
         //disable default error message because specific ones will be provided
         context.disableDefaultConstraintViolation();
+        if (!lengthValidator.isValid(context, shortUrlForm.originalUrl().length(), "originalUrl"))
+            return false;
         if (!urlValidator.isValid(context, shortUrlForm.originalUrl())) {
             return false;
         }

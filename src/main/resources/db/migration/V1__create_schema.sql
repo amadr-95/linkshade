@@ -2,15 +2,15 @@ CREATE SEQUENCE IF NOT EXISTS user_seq START WITH 1 INCREMENT BY 1;
 
 CREATE TABLE short_urls
 (
-    id                 UUID         NOT NULL,
-    shortened_url      VARCHAR(255) NOT NULL,
-    original_url       VARCHAR(255) NOT NULL,
+    id                 UUID          NOT NULL,
+    shortened_url      VARCHAR(255)  NOT NULL,
+    original_url       VARCHAR(1000) NOT NULL,
     created_by_user    BIGINT,
-    is_private         BOOLEAN      NOT NULL,
-    created_at         DATE         NOT NULL,
+    is_private         BOOLEAN       NOT NULL,
+    created_at         DATE          NOT NULL,
     last_modified_date TIMESTAMP WITHOUT TIME ZONE,
     expires_at         DATE,
-    number_of_clicks   BIGINT       NOT NULL,
+    number_of_clicks   BIGINT        NOT NULL,
     CONSTRAINT pk_short_urls PRIMARY KEY (id)
 );
 

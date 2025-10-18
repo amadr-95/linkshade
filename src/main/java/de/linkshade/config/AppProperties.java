@@ -24,25 +24,25 @@ public record AppProperties(
         ShortUrlProperties shortUrlProperties
 ) {
     public record ShortUrlProperties(
-            @NotBlank(message = "{validation.baseUrl.notBlank}")
+            @NotBlank(message = "{validation.properties.baseUrl.notBlank}")
             String baseUrl,
             @Min(
-                    value = Constants.MIN_URL_EXPIRATION_DAYS,
-                    message = "{validation.defaultExpiryDays.range}")
+                    value = Constants.SHORTURL_EXPIRY_DAYS_DEFAULT,
+                    message = "{validation.properties.defaultExpiryDays}")
             @Max(
-                    value = Constants.MAX_URL_EXPIRATION_DAYS,
-                    message = "{validation.defaultExpiryDays.range}")
+                    value = Constants.SHORTURL_EXPIRY_DAYS_DEFAULT,
+                    message = "{validation.properties.defaultExpiryDays}")
             int defaultExpiryDays,
 
             boolean isPrivate,
 
             @Min(
-                    value = Constants.MIN_URL_LENGTH,
-                    message = "{validation.urlLength.range}")
+                    value = Constants.SHORTURL_LENGTH_DEFAULT,
+                    message = "{validation.properties.shortUrlLength.default}")
             @Max(
-                    value = Constants.MAX_URL_LENGTH,
-                    message = "{validation.urlLength.range}")
-            int defaultUrlLength,
+                    value = Constants.SHORTURL_LENGTH_DEFAULT,
+                    message = "{validation.properties.shortUrlLength.default}")
+            int defaultShortUrlLength,
 
             boolean isCustom
     ) {

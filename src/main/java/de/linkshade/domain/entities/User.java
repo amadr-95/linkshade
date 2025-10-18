@@ -22,6 +22,7 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 @Getter
 @Setter
 @Builder
+@ToString
 @EntityListeners(AuditingEntityListener.class)
 public class User {
 
@@ -36,6 +37,7 @@ public class User {
     @Column(nullable = false)
     private String email;
 
+    @ToString.Exclude
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AuthProvider authProvider;
@@ -46,14 +48,17 @@ public class User {
     @Column(nullable = false)
     private String userProviderId;
 
+    @ToString.Exclude
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private Role role;
 
+    @ToString.Exclude
     @CreatedDate
     @Column(nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @ToString.Exclude
     @LastModifiedDate
     @Column(insertable = false)
     private LocalDateTime lastModifiedDate;

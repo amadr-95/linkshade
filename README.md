@@ -4,7 +4,8 @@
 - [x] Avoid unlogged users to use the /short-urls endpoint after X times (rate limit)
 - [ ] Postgres cronjob for removing expired public urls
 - [ ] Unit tests 
-- [ ] Integration tests 
+- [ ] Integration tests
+- [X] Increase number of characters to the original url (~1000)
 - [ ] Image carrousel explaining the product 
 - [ ] Add links to my accounts 
 - [ ] Add metadata in layout 
