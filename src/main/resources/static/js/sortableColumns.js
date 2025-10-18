@@ -23,6 +23,9 @@ document.addEventListener('DOMContentLoaded', function () {
             params.set('sort', `${propName},${newDirection}`);
             url.search = params.toString();
 
+            // scroll should be restored
+            sessionStorage.setItem('shouldRestoreScroll', 'true');
+
             // Go to the new URL
             window.location.href = url.toString();
         });
