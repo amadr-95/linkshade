@@ -1,12 +1,16 @@
 package de.linkshade.web.controllers.handler;
 
-import de.linkshade.exceptions.*;
+import de.linkshade.exceptions.UrlException;
+import de.linkshade.exceptions.UrlExpiredException;
+import de.linkshade.exceptions.UrlNotFoundException;
+import de.linkshade.exceptions.UrlPrivateException;
+import de.linkshade.exceptions.UserException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
-@ControllerAdvice
 @Slf4j
+@ControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(UrlException.class)

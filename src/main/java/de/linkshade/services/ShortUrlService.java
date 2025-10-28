@@ -2,11 +2,15 @@ package de.linkshade.services;
 
 import de.linkshade.config.AppProperties;
 import de.linkshade.domain.entities.PagedResult;
-import de.linkshade.domain.entities.Role;
 import de.linkshade.domain.entities.ShortUrl;
 import de.linkshade.domain.entities.User;
 import de.linkshade.domain.entities.dto.ShortUrlDTO;
-import de.linkshade.exceptions.*;
+import de.linkshade.exceptions.UrlException;
+import de.linkshade.exceptions.UrlExpiredException;
+import de.linkshade.exceptions.UrlNotFoundException;
+import de.linkshade.exceptions.UrlPrivateException;
+import de.linkshade.exceptions.UrlUpdateException;
+import de.linkshade.exceptions.UserException;
 import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.security.AuthenticationService;
 import de.linkshade.services.mapper.ShortUrlMapper;
@@ -26,6 +30,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Random;
 import java.util.UUID;
+
+import static de.linkshade.domain.entities.Role.ADMIN;
 
 @Slf4j
 @Service
@@ -53,7 +59,7 @@ public class ShortUrlService {
                 .map(shortUrlMapper::toShortUrlDTO));
     }
 
-    public PagedResult<ShortUrlDTO> getUserShortUrls(Pageable pageableRequest) throws UserException {
+    public PagedResult<ShortUrlDTO> listUserUrls(Pageable pageableRequest) throws UserException {
         Long loggedUserId = authenticationService.getUserId()
                 .orElseThrow(() -> new UserException("User not logged in"));
         Pageable validPage = paginationService.createValidPage(pageableRequest,
@@ -146,7 +152,7 @@ public class ShortUrlService {
         });
 
         if (shortUrl.getCreatedByUser() != null && !shortUrl.getCreatedByUser().getId().equals(user.getId()) &&
-                !user.getRole().equals(Role.ADMIN)) {
+                !user.getRole().equals(ADMIN)) {
             log.warn("Accessing private url '{}' with wrong user: '{}', expected: '{}'", shortUrl.getShortenedUrl(),
                     user.getEmail(), shortUrl.getCreatedByUser().getEmail());
             throw new UrlPrivateException("Trying to access to private URL with wrong user");
@@ -161,7 +167,7 @@ public class ShortUrlService {
         ShortUrl shortUrl = shortUrlRepository.findById(urlId)
                 .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", urlId)));
 
-        if (!currentUserInfo.getRole().toString().equals("ADMIN") &&
+        if (!currentUserInfo.getRole().equals(ADMIN) &&
                 !currentUserInfo.getId().equals(shortUrl.getCreatedByUser().getId()))
             throw new UrlUpdateException(String.format("Trying to remove an URL with wrong user. Expected userId: '%s', got: '%s'",
                     shortUrl.getCreatedByUser().getId(), currentUserInfo.getId()));
@@ -190,7 +196,7 @@ public class ShortUrlService {
             // Validate expirationDate
             if (expirationDateForm != null &&
                     (expirationDateForm.isBefore(now) || expirationDateForm.isAfter(
-                                    now.plusDays(Constants.MAX_SHORTURL_EXPIRATION_DAYS)))) {
+                            now.plusDays(Constants.MAX_SHORTURL_EXPIRATION_DAYS)))) {
                 throw new UrlUpdateException(
                         String.format("Expiration date '%s' is before today or exceeds the limits", expirationDateForm));
             }
@@ -222,9 +228,36 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public void deleteSelectedUrls(List<UUID> shortUrlsIds) throws UrlNotFoundException {
+    public int deleteSelectedUrls(List<UUID> shortUrlsIds) throws UrlNotFoundException {
         if (shortUrlsIds.stream().anyMatch(Objects::isNull))
             throw new UrlNotFoundException("One or more URLs were null");
-        shortUrlRepository.deleteByIdIn(shortUrlsIds);
+        return shortUrlRepository.deleteByIdIn(shortUrlsIds);
+    }
+
+    @Transactional
+    public int reactivateExpiredUrls() throws UserException {
+        Long userId = authenticationService.getUserId()
+                .orElseThrow(() -> new UserException("User not authenticated"));
+
+        List<UUID> expiredUrls = shortUrlRepository.findExpiredUrlIdsByUserId(userId);
+
+        if (expiredUrls.isEmpty()) return 0;
+
+        LocalDate newExpirationDate = LocalDate.now().plusDays(appProperties.shortUrlProperties().defaultExpiryDays());
+
+        return shortUrlRepository.updateExpirationDateByUrlIds(expiredUrls, newExpirationDate);
+    }
+
+    @Transactional
+    public int deleteExpiredUrls() throws UserException {
+        Long userId = authenticationService.getUserId()
+                .orElseThrow(() -> new UserException("User not authenticated"));
+
+        List<UUID> expiredUrls = shortUrlRepository.findExpiredUrlIdsByUserId(userId);
+
+        if (expiredUrls.isEmpty()) return 0;
+
+        return shortUrlRepository.deleteByIdIn(expiredUrls);
     }
 }
+

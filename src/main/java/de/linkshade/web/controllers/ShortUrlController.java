@@ -2,6 +2,7 @@ package de.linkshade.web.controllers;
 
 import de.linkshade.config.AppProperties;
 import de.linkshade.exceptions.UrlException;
+import de.linkshade.security.AuthenticationService;
 import de.linkshade.services.RateLimitService;
 import de.linkshade.services.ShortUrlService;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
@@ -18,6 +19,8 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.Objects;
+
 
 @Slf4j
 @Controller
@@ -29,6 +32,7 @@ public class ShortUrlController {
     private final AppProperties appProperties;
     private final ModelAttributeHelper helper;
     private final RateLimitService rateLimitService;
+    private final AuthenticationService authenticationService;
 
     @GetMapping
     public String home(Model model, @PageableDefault Pageable pageable) {
@@ -63,9 +67,15 @@ public class ShortUrlController {
             redirectAttributes.addFlashAttribute("warningMessage", rateLimitWarning);
 
         if (bindingResult.hasErrors()) {
-            String clientIpAddress = rateLimitService.getClientIpAddress(request);
-            rateLimitService.incrementConsecutiveErrors(clientIpAddress);
-            rateLimitService.addExtraToken(clientIpAddress);
+            if (bindingResult.getFieldError("expirationDate") != null) {
+                log.warn("User {} is introducing wrong values intentionally. Expected: date, got: {}", authenticationService.getUserInfo().orElse(null),
+                        Objects.requireNonNull(bindingResult.getFieldError("expirationDate")).getRejectedValue());
+            }
+            if (authenticationService.getUserInfo().isEmpty()) {
+                String clientIpAddress = rateLimitService.getClientIpAddress(request);
+                rateLimitService.incrementConsecutiveErrors(clientIpAddress);
+                rateLimitService.addExtraToken(clientIpAddress);
+            }
             helper.addAttributes(model, "/", shortUrlService.findAllPublicUrls(pageable));
             if (rateLimitWarning != null) model.addAttribute("warningMessage", rateLimitWarning);
             return "index";

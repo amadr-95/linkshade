@@ -17,7 +17,8 @@ document.addEventListener('DOMContentLoaded', function () {
             const newDirection = currentDirection === 'ASC' ? 'DESC' : 'ASC';
             this.closest('th').dataset.direction = newDirection;
 
-            // create URL
+            // create URL (TODO: clean the URL by removing parts not expected like /create-url
+            //  when sending wrong values for creating URLs)
             const url = new URL(window.location.href);
             const params = new URLSearchParams(url.search);
             params.set('sort', `${propName},${newDirection}`);

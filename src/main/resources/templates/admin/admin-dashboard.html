@@ -28,27 +28,59 @@
     </div>
 
     <div th:unless="${entities.data().isEmpty()}" class="table-responsive">
-        <form th:action="@{${deleteEndpoint}}" th:id="${formId}" method="POST">
-            <div class="mb-3">
+        <div class="mb-3 d-flex flex-nowrap gap-2 overflow-x-auto scrollbar-hidden">
+
+            <!-- Delete selected URLs -->
+            <form th:action="@{${deleteSelectedEndpoint}}" th:id="${deleteSelectedFormId}" method="POST">
                 <!-- Button trigger modal -->
                 <button type="button" id="deleteSelectedBtn"
-                        class="btn btn-danger"
+                        class="btn btn-danger text-nowrap"
                         data-bs-toggle="modal"
                         data-bs-target="#deleteConfirmation"
                         disabled>
                     Delete Selected
                 </button>
-                <div th:replace="~{fragments/delete-modal :: delete-modal(
-                    confirmationMessage='Are you sure you want to delete the selected ' + ${managedEntity} + '?',
+                <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
+                    title='Delete confirmation',
+                    message='Are you sure you want to delete the selected ' + ${managedEntity} + '?',
+                    warningMessage='This action cannot be undone. ' + ${managedEntity.equalsIgnoreCase('users') ? 'All the associated URLs will also be deleted' : ''},
                     modalId='deleteConfirmation',
-                    formId=${formId})}">
+                    formId=${deleteSelectedFormId},
+                    buttonText='Delete',
+                    buttonClass='btn-danger')}">
                 </div>
-            </div>
-            <input type="hidden" th:name="'returnUrl'" id="returnUrlInput"/>
-            <script>
-                document.getElementById('returnUrlInput').value = window.location.href;
-            </script>
-        </form>
+                <input type="hidden" th:name="'returnUrl'" id="returnUrlInput"/>
+                <script>
+                    document.getElementById('returnUrlInput').value = window.location.href;
+                </script>
+            </form>
+
+            <!-- Delete all expired URLs (only visible when needed) -->
+            <form th:if="${deleteExpiredUrlsEndpoint != null and existExpiredUrls}"
+                  th:action="@{${deleteExpiredUrlsEndpoint}}" method="POST" th:id="${deleteExpiredFormId}">
+                <!-- Button trigger modal -->
+                <button type="button"
+                        class="btn btn-warning text-nowrap"
+                        data-bs-toggle="modal"
+                        data-bs-target="#deleteExpiredUrlsConfirmation">
+                    Delete Expired
+                </button>
+                <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
+                        title='Delete confirmation',
+                        message='Are you sure you want to delete ' + ${numberOfUrlExpired} + ' expired URLs?',
+                        warningMessage='This action cannot be undone',
+                        modalId='deleteExpiredUrlsConfirmation',
+                        formId=${deleteExpiredFormId},
+                        buttonText='Delete',
+                        buttonClass='btn-warning')}">
+                </div>
+                <input type="hidden" th:name="'returnUrl'" id="deleteExpiredReturnUrlInput"/>
+                <script>
+                    document.getElementById('deleteExpiredReturnUrlInput').value = window.location.href;
+                </script>
+            </form>
+
+        </div>
 
         <div th:if="${managedEntity.equalsIgnoreCase('urls')}">
             <div th:replace="~{fragments/url-table :: url-table(

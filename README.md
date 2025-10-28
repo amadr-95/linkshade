@@ -3,20 +3,22 @@
 - [x] Implement Google/GitHub Oauth
 - [x] Avoid unlogged users to use the /short-urls endpoint after X times (rate limit)
 - [ ] Postgres cronjob for removing expired public urls
+- [ ] Check for unexpected changes in the backend. What happens if someone change the input type in the date field?, disabled buttons, etc
+- [x] Avoid sending the userId to the front-end (model). Get it from the authenticationService when deleting a user
 - [ ] Unit tests 
 - [ ] Integration tests
-- [X] Increase number of characters to the original url (~1000)
+- [x] Increase number of characters to the original url (~1000)
 - [ ] Image carrousel explaining the product 
 - [ ] Add links to my accounts 
 - [ ] Add metadata in layout 
 - [ ] Check responsiveness and styles
-- [x] Improve logging and errorMessages
+- [ ] Improve logging and errorMessages
 - [x] Fix discrepancy between days of expiration
 - [x] Delete user account and remove all URLs linked to it
 - [x] Delete all URLs when removing a user from Admin Dashboard
 - OPTIONAL:
-- [ ] Button for deleting all expired urls in my-urls/admin html page
-- [ ] Button for reactivating all expired urls in my-urls/admin page 
+- [x] Button for deleting all expired urls in my-urls/admin html page
+- [x] Button for reactivating all expired urls in my-urls page 
 
 # URL Shortener App
 
@@ -32,7 +34,7 @@ with user management capabilities.
 - Java 21
 - Maven
 - Docker (PostgreSQL)
-- Spring Boot 3.4.4
+- Spring Boot 3.5.5
 
 ## Architecture
 

@@ -4,6 +4,7 @@ import de.linkshade.domain.entities.User;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
@@ -37,6 +38,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findUserById(Long userId);
 
+    @Modifying
     int deleteByIdIn(Collection<Long> ids);
 
     Optional<User> findByUserProviderId(String userProviderId);

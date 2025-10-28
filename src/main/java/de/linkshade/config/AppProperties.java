@@ -20,6 +20,7 @@ public record AppProperties(
         int numberOfTries,
         boolean checkHttpStatusCode,
         int maxRequestPerHour,
+        boolean enableDeleteAccount,
         @Valid
         ShortUrlProperties shortUrlProperties
 ) {

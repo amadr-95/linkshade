@@ -1,7 +1,9 @@
 package de.linkshade.web.controllers;
 
 import de.linkshade.exceptions.UserException;
+import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.services.AdminService;
+import de.linkshade.services.DeletionResult;
 import de.linkshade.services.ShortUrlService;
 import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
@@ -25,19 +27,27 @@ public class AdminController {
 
     private final AdminService adminService;
     private final ShortUrlService shortUrlService;
+    private final ShortUrlRepository shortUrlRepository;
     private final ModelAttributeHelper helper;
 
     @GetMapping("/urls")
     public String getAllShortUrls(@PageableDefault Pageable pageableRequest, Model model) {
         helper.addAttributes(model, "/admin/dashboard/urls", shortUrlService.findAllShortUrls(pageableRequest));
         model.addAttribute("managedEntity", "URLs");
-        model.addAttribute("formId", "deleteUrlsForm");
+        model.addAttribute("deleteSelectedFormId", "deleteUrlsForm");
+        model.addAttribute("deleteSelectedEndpoint", "/delete-selected-urls");
+        int numberOfExpiredUrls = shortUrlRepository.numberOfExpiredUrls();
+        if (numberOfExpiredUrls > 0) {
+            model.addAttribute("deleteExpiredFormId", "deleteExpiredUrlsFormId");
+            model.addAttribute("deleteExpiredUrlsEndpoint", "/admin/dashboard/delete-expired-urls");
+            model.addAttribute("existExpiredUrls", true);
+            model.addAttribute("numberOfUrlExpired", numberOfExpiredUrls);
+        }
         model.addAttribute("shortUrlEditForm", new ShortUrlEditForm(null,
                 null,
                 null,
                 false,
                 false));
-        model.addAttribute("deleteEndpoint", "/delete-urls");
         return "admin/admin-dashboard";
     }
 
@@ -45,12 +55,24 @@ public class AdminController {
     public String getAllUsers(@PageableDefault Pageable pageableRequest, Model model) {
         helper.addAttributes(model, "/admin/dashboard/users", adminService.findAllUsers(pageableRequest));
         model.addAttribute("managedEntity", "Users");
-        model.addAttribute("formId", "deleteUsersForm");
-        model.addAttribute("deleteEndpoint", "/admin/dashboard/delete-users");
+        model.addAttribute("deleteSelectedFormId", "deleteUsersForm");
+        model.addAttribute("deleteSelectedEndpoint", "/admin/dashboard/delete-selected-users");
+
         return "admin/admin-dashboard";
     }
 
-    @PostMapping("/delete-users")
+    @PostMapping("/delete-expired-urls")
+    public String deleteAllExpiredUrls(RedirectAttributes redirectAttributes,
+                                       @RequestParam("returnUrl") String returnUrl) {
+        int numberOfDeletedUrls = adminService.deleteAllExpiredUrls();
+
+        redirectAttributes.addFlashAttribute("successMessage",
+                "Expired URLs have been successfully deleted");
+
+        return "redirect:" + returnUrl;
+    }
+
+    @PostMapping("/delete-selected-users")
     public String deleteSelectedUsers(@RequestParam("userIds") List<Long> userIds,
                                       RedirectAttributes redirectAttributes,
                                       @RequestParam("returnUrl") String returnUrl) {
@@ -60,11 +82,11 @@ public class AdminController {
             return "redirect:" + returnUrl;
         }
         try {
-            int[] usersAndUrlsDeleted = adminService.deleteSelectedUsers(userIds);
+            DeletionResult deletionResult = adminService.deleteSelectedUsers(userIds);
             redirectAttributes.addFlashAttribute("successMessage",
                     String.format("Selected users have been successfully deleted [%s users, %s urls]",
-                            usersAndUrlsDeleted[0],
-                            usersAndUrlsDeleted[1]));
+                            deletionResult.usersDeleted(),
+                            deletionResult.urlsDeleted()));
         } catch (UserException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting Users. Try again");
         }

@@ -49,12 +49,19 @@ public class AdminService {
     }
 
     @Transactional
-    public int[] deleteSelectedUsers(List<Long> userIds) throws UserException {
+    public DeletionResult deleteSelectedUsers(List<Long> userIds) throws UserException {
         if (userIds.stream().anyMatch(Objects::isNull))
             throw new UserException("One or more Users were null");
         int urlsDeleted = shortUrlRepository.deleteByCreatedByUserIn(userIds);
         int usersDeleted = userRepository.deleteByIdIn(userIds);
         log.info("{} users and {} urls were deleted", usersDeleted, urlsDeleted);
-        return new int[]{usersDeleted, urlsDeleted};
+        return new DeletionResult(usersDeleted, urlsDeleted);
+    }
+
+    @Transactional
+    public int deleteAllExpiredUrls() {
+        int deletedCount = shortUrlRepository.deleteAllExpiredUrls();
+        log.info("{} expired URLs were deleted", deletedCount);
+        return deletedCount;
     }
 }

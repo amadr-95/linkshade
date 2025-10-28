@@ -2,13 +2,10 @@ package de.linkshade.services;
 
 import de.linkshade.domain.entities.AuthProvider;
 import de.linkshade.domain.entities.Role;
-import de.linkshade.domain.entities.ShortUrl;
 import de.linkshade.domain.entities.User;
-import de.linkshade.exceptions.UserException;
 import de.linkshade.exceptions.UserNotFoundException;
 import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.repositories.UserRepository;
-import de.linkshade.security.AuthenticationService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +21,6 @@ public class UserService {
 
     private final ShortUrlRepository shortUrlRepository;
     private final UserRepository userRepository;
-    private final AuthenticationService authenticationService;
 
     @Transactional
     public User registerUser(Map<String, Object> userAttributes, AuthProvider oAuthProvider) {
@@ -41,20 +37,17 @@ public class UserService {
     }
 
     @Transactional
-    public int deleteUser(Long userId) throws UserException {
-        User user = userRepository.findUserById(userId).orElseThrow(
-                () -> new UserNotFoundException(String.format("User with id %s not found", userId))
-        );
-        Long loggedUserId = authenticationService.getUserId()
-                .orElseThrow(() -> new UserException("User not logged in"));
+    public int deleteUser(Long userId) throws UserNotFoundException {
+        userRepository.findUserById(userId).orElseThrow(() ->
+                new UserNotFoundException(String.format("User with id: %s not found", userId)));
 
-        if (!loggedUserId.equals(userId)) throw new UserException(String.format(
-                "User logged in with id '%s' does not match user delete request id '%s'", loggedUserId, userId
-        ));
-        List<UUID> urlsIds = shortUrlRepository.findAllByCreatedByUser(user)
-                .stream().map(ShortUrl::getId).toList();
-        shortUrlRepository.deleteByIdIn(urlsIds);
+        List<UUID> urlsIds = shortUrlRepository.findAllByCreatedByUserId(userId);
+        if (urlsIds.isEmpty()) {
+            userRepository.deleteById(userId);
+            return 0;
+        }
+        int deletedUrls = shortUrlRepository.deleteByIdIn(urlsIds);
         userRepository.deleteById(userId);
-        return urlsIds.size();
+        return deletedUrls;
     }
 }

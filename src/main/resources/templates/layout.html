@@ -72,10 +72,10 @@
                         <li class="nav-item">
                             <button type="submit" class="dropdown-item" form="logoutForm">Logout</button>
                         </li>
-                        <li sec:authorize="hasRole('USER')">
+                        <li th:if="${enableDeleteAccount}" sec:authorize="hasRole('USER')">
                             <hr class="dropdown-divider">
                         </li>
-                        <li class="nav-item" sec:authorize="hasRole('USER')">
+                        <li th:if="${enableDeleteAccount}" class="nav-item" sec:authorize="hasRole('USER')">
                             <!-- Button trigger delete-modal -->
                             <button type="button"
                                     class="dropdown-item text-danger"
@@ -101,18 +101,21 @@
                     </button>
                 </li>
             </ul>
-            <form th:action="@{/delete/{id}(id=${userId})}" id="deleteAccountForm" method="POST"></form>
+            <form th:action="@{/delete-user}" id="deleteAccountForm" method="POST"></form>
             <form th:action="@{/logout}" method="POST" id="logoutForm"></form>
         </div>
     </div>
 </nav>
 
-<div th:replace="~{fragments/delete-modal :: delete-modal(
-    confirmationMessage='Are you sure you want to delete your account and all the associated URLs?',
+<div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
+    title='Delete confirmation',
+    message='Are you sure you want to delete your account and all the associated URLs?',
+    warningMessage='This action cannot be undone',
     modalId='deleteAccountConfirmation',
-    formId='deleteAccountForm')}">
+    formId='deleteAccountForm',
+    buttonText='Delete',
+    buttonClass='btn-danger')}">
 </div>
-
 
 <div class="container d-flex flex-column flex-grow-1">
 
