@@ -57,7 +57,7 @@
                 <td class="text-center align-middle">
                     <label th:if="${!user.role.name.equals('ADMIN')}">
                         <input type="checkbox" name="userIds" th:value="${user.id}"
-                               th:form="'deleteUsersForm'" class="form-check-input user-checkbox">
+                               th:form="${deleteSelectedFormId}" class="form-check-input user-checkbox">
                     </label>
                     <span th:if="${user.role.name.equals('ADMIN')}" class="text-muted">
                         <i class="bi bi-shield-lock"></i>

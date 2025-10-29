@@ -41,6 +41,9 @@ public interface ShortUrlRepository extends JpaRepository<ShortUrl, UUID> {
     Long countByCreatedByUser(Long userId);
 
     @Modifying
+    int deleteByIdInAndCreatedByUserId(List<UUID> ids, Long userId);
+
+    @Modifying
     int deleteByIdIn(List<UUID> ids);
 
     @Modifying

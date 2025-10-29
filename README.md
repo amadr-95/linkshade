@@ -2,8 +2,9 @@
 
 - [x] Implement Google/GitHub Oauth
 - [x] Avoid unlogged users to use the /short-urls endpoint after X times (rate limit)
+- [ ] Implement rate limit for logged users too
 - [ ] Postgres cronjob for removing expired public urls
-- [ ] Check for unexpected changes in the backend. What happens if someone change the input type in the date field?, disabled buttons, etc
+- [x] Check for unexpected changes in the backend. What happens if someone change the input type in the date field?, disabled buttons, etc
 - [x] Avoid sending the userId to the front-end (model). Get it from the authenticationService when deleting a user
 - [ ] Unit tests 
 - [ ] Integration tests
@@ -12,7 +13,7 @@
 - [ ] Add links to my accounts 
 - [ ] Add metadata in layout 
 - [ ] Check responsiveness and styles
-- [ ] Improve logging and errorMessages
+- [x] Improve logging and errorMessages
 - [x] Fix discrepancy between days of expiration
 - [x] Delete user account and remove all URLs linked to it
 - [x] Delete all URLs when removing a user from Admin Dashboard

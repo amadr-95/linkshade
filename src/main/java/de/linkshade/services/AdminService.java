@@ -1,11 +1,11 @@
 package de.linkshade.services;
 
 import de.linkshade.domain.entities.PagedResult;
-import de.linkshade.domain.entities.User;
 import de.linkshade.domain.entities.dto.UserDTO;
 import de.linkshade.exceptions.UserException;
 import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.repositories.UserRepository;
+import de.linkshade.repositories.UserWithUrlCount;
 import de.linkshade.services.mapper.UserMapper;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,22 +30,29 @@ public class AdminService {
     private final PaginationService paginationService;
     private final UserMapper userMapper;
 
+    /**
+     * Fetches all users with pagination support.
+     * Uses optimized queries with JOIN to avoid N+1 query problem when counting URLs per user.
+     * Special handling for sorting by numberOfUrlsCreated since it's a calculated field, not a table column.
+     */
     public PagedResult<UserDTO> findAllUsers(Pageable pageableRequest) {
         Pageable validPage = paginationService.createValidPage(pageableRequest, userRepository::countAll);
 
         // Since numberOfUrlCreated it is not a field of User table, it needs to be treated with specific queries in the repository
         Sort.Order orderForNumberOfUrlsCreated = validPage.getSort().getOrderFor("numberOfUrlsCreated");
 
-        if (orderForNumberOfUrlsCreated == null)
-            return PagedResult.from(userRepository.findAllUsers(validPage)
-                    .map(userMapper::toUserDTO));
+        if (orderForNumberOfUrlsCreated == null) {
+            return PagedResult.from(userRepository.findAllUsersWithUrlCount(validPage)
+                    .map(result -> userMapper.toUserDTO(result.getUser(), result.getUrlCount())));
+        }
 
         Pageable pageWithoutSort = PageRequest.of(validPage.getPageNumber(), validPage.getPageSize());
-        Page<User> userPage = orderForNumberOfUrlsCreated.isAscending()
-                ? userRepository.findAllUsersSortedByUrlCountAsc(pageWithoutSort)
-                : userRepository.findAllUsersSortedByUrlCountDesc(pageWithoutSort);
+        Page<UserWithUrlCount> userPage = orderForNumberOfUrlsCreated.isAscending()
+                ? userRepository.findAllUsersWithUrlCountSortedAsc(pageWithoutSort)
+                : userRepository.findAllUsersWithUrlCountSortedDesc(pageWithoutSort);
 
-        return PagedResult.from(userPage.map(userMapper::toUserDTO));
+        return PagedResult.from(userPage.map(result ->
+                userMapper.toUserDTO(result.getUser(), result.getUrlCount())));
     }
 
     @Transactional
@@ -54,14 +61,14 @@ public class AdminService {
             throw new UserException("One or more Users were null");
         int urlsDeleted = shortUrlRepository.deleteByCreatedByUserIn(userIds);
         int usersDeleted = userRepository.deleteByIdIn(userIds);
-        log.info("{} users and {} urls were deleted", usersDeleted, urlsDeleted);
+        log.info("Batch users deletion: {} users and {} urls were deleted", usersDeleted, urlsDeleted);
         return new DeletionResult(usersDeleted, urlsDeleted);
     }
 
     @Transactional
     public int deleteAllExpiredUrls() {
         int deletedCount = shortUrlRepository.deleteAllExpiredUrls();
-        log.info("{} expired URLs were deleted", deletedCount);
+        log.info("Batch expired urls deletion: {} expired URLs were deleted", deletedCount);
         return deletedCount;
     }
 }

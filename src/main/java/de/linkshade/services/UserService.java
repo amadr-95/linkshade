@@ -46,7 +46,7 @@ public class UserService {
             userRepository.deleteById(userId);
             return 0;
         }
-        int deletedUrls = shortUrlRepository.deleteByIdIn(urlsIds);
+        int deletedUrls = shortUrlRepository.deleteByIdInAndCreatedByUserId(urlsIds, userId);
         userRepository.deleteById(userId);
         return deletedUrls;
     }

@@ -47,12 +47,12 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                         return userRepository.findUserByEmail(email)
                                 .orElseGet(() -> {
                                     User registeredUser = userService.registerUser(attributes, oAuthProviderName);
-                                    log.info("User not found in database, registered from provider {}, user={}", registeredUser.getAuthProvider(), registeredUser);
+                                    log.info("User not found in database, registered from provider '{}', user={}", registeredUser.getAuthProvider(), registeredUser);
                                     return registeredUser;
                                 });
                     }
                     User registeredUser = userService.registerUser(attributes, oAuthProviderName);
-                    log.info("User not found in database (email is null), registered from provider {}, user={}", registeredUser.getAuthProvider(), registeredUser);
+                    log.info("User not found in database (email is null), registered from provider '{}', user={}", registeredUser.getAuthProvider(), registeredUser);
                     return registeredUser;
                 });
     }

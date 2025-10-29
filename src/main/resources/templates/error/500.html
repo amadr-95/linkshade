@@ -3,19 +3,24 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Server error</title>
+    <title>Server error - 500</title>
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="container text-center py-5">
-        <div class="mb-4">
-            <img th:src="@{/images/server-error.webp}" alt="server broken" class="img-fluid" style="max-width: 400px;">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <img th:src="@{/images/server-error.webp}" alt="server broken" class="img-fluid"
+                     style="max-width: 300px;">
+                <div class="mt-4 alert alert-danger" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    We're sorry! Something went wrong on our end!
+                </div>
+            </div>
         </div>
-        <p class="lead mb-5">We're sorry! Something went wrong on our end!</p>
     </div>
 </div>
 </body>

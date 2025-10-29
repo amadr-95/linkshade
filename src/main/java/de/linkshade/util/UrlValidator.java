@@ -51,7 +51,7 @@ public class UrlValidator {
                 return false;
             }
         } catch (Exception ex) {
-            log.error("Url '{}' not valid", url, ex);
+            log.error("URL '{}' not valid", url, ex);
             contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", "originalUrl");
             return false;
         }

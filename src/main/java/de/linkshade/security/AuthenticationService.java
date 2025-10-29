@@ -32,11 +32,6 @@ public class AuthenticationService {
                 .orElse(Constants.DEFAULT_USER_NAME);
     }
 
-    public Optional<Long> getUserId() {
-        return getUserInfo()
-                .map(User::getId);
-    }
-
     public Optional<String> getAvatarUrl() {
         return getOAuth2User()
                 .map(OAuth2UserImpl::getAvatarUrl);

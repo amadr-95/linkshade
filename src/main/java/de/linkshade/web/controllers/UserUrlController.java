@@ -29,7 +29,7 @@ public class UserUrlController {
     private final ModelAttributeHelper helper;
 
     @GetMapping("/my-urls")
-    public String listUserUrls(Model model, @PageableDefault Pageable pageable) throws UserException {
+    public String listUserUrls(Model model, @PageableDefault Pageable pageable) {
         helper.addAttributes(model, "/my-urls", shortUrlService.listUserUrls(pageable));
         model.addAttribute("shortUrlEditForm", new ShortUrlEditForm(null,
                 null,
@@ -51,13 +51,14 @@ public class UserUrlController {
         try {
             int deletedUrls = shortUrlService.deleteSelectedUrls(shortUrlsIds);
             redirectAttributes.addFlashAttribute("successMessage",
-                    String.format("Selected URLs (%s) have been successfully deleted", deletedUrls));
+                    String.format("%d URL(s) deleted successfully", deletedUrls));
         } catch (UrlNotFoundException ex) {
             redirectAttributes.addFlashAttribute("errorMessage", "Error deleting URLs. Try again");
         }
         return "redirect:" + returnUrl;
     }
 
+    //For tradicional html-web-form applications it is common to use POST for editing; PUT for API Rest
     @PostMapping("/edit-urls/{urlId}")
     public String editUrl(@PathVariable("urlId") UUID urlId,
                           @RequestParam("returnUrl") String returnUrl,
@@ -71,7 +72,6 @@ public class UserUrlController {
                     String.format("URL updated successfully: %s", shortUrlUpdated));
             redirectAttributes.addFlashAttribute("shortUrlCopyToClipboard", shortUrlUpdated);
         } catch (UrlException ex) {
-            //TODO: provide better error messages to the user (message exception from the service)
             log.error("Edit URL problem, reason: '{}'", ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage",
                     "There was an error editing the URL. Insert valid values and try again");
@@ -85,7 +85,7 @@ public class UserUrlController {
         try {
             int reactivatedExpiredUrls = shortUrlService.reactivateExpiredUrls();
             redirectAttributes.addFlashAttribute("successMessage",
-                    String.format("Number of URLs reactivated: %s", reactivatedExpiredUrls));
+                    String.format("%d URL(s) successfully reactivated:", reactivatedExpiredUrls));
         } catch (UserException ex) {
             log.error("Reactivation URL problem, reason: '{}'", ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage",
@@ -100,7 +100,7 @@ public class UserUrlController {
         try {
             int deleteExpiredUrls = shortUrlService.deleteExpiredUrls();
             redirectAttributes.addFlashAttribute("successMessage",
-                    String.format("Number of expired URLs deleted: %s", deleteExpiredUrls));
+                    String.format("%d expired URL(s) deleted successfully", deleteExpiredUrls));
         } catch (UserException ex) {
             log.error("Deletion expired URL problem, reason: '{}'", ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage",

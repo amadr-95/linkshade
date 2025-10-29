@@ -3,19 +3,23 @@
       xmlns:th="http://www.thymeleaf.org"
       xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
       layout:decorate="~{layout}">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Not Found</title>
+    <title>Not Found - 404</title>
 </head>
 <body>
 <div layout:fragment="content">
-    <div class="container text-center py-5">
-        <div class="mb-4">
-            <img th:src="@{/images/broken-link.webp}" alt="broken link" class="rounded-circle img-fluid" style="max-width: 200px; border: 2px solid #dc3545;">
+    <div class="container mt-5">
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center">
+                <img th:src="@{/images/broken-link.webp}" alt="broken link" class="img-fluid" style="max-width: 200px;">
+                <div class="mt-4 alert alert-warning" role="alert">
+                    <i class="bi bi-exclamation-triangle-fill me-2"></i>
+                    We're sorry! The resource you are looking for does not exist, or it has expired!
+                </div>
+            </div>
         </div>
-        <p class="lead mb-5">We're sorry! The link you are looking for does not exist, or it has expired!</p>
     </div>
 </div>
 </body>

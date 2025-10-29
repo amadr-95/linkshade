@@ -60,12 +60,11 @@ public class ShortUrlService {
     }
 
     public PagedResult<ShortUrlDTO> listUserUrls(Pageable pageableRequest) throws UserException {
-        Long loggedUserId = authenticationService.getUserId()
-                .orElseThrow(() -> new UserException("User not logged in"));
+        Long userId = getUser().getId();
         Pageable validPage = paginationService.createValidPage(pageableRequest,
-                () -> shortUrlRepository.countByCreatedByUser(loggedUserId));
+                () -> shortUrlRepository.countByCreatedByUser(userId));
         Page<ShortUrlDTO> shortUrlDTOS =
-                shortUrlRepository.findAllByCreatedByUser(validPage, loggedUserId)
+                shortUrlRepository.findAllByCreatedByUser(validPage, userId)
                         .map(shortUrlMapper::toShortUrlDTO);
         return PagedResult.from(shortUrlDTOS);
     }
@@ -117,11 +116,8 @@ public class ShortUrlService {
                 shortUrl.append(characters.charAt(random.nextInt(characters.length())));
             }
             if (!shortUrlRepository.existsByShortenedUrl(shortUrl.toString())) {
-                log.info("ShortUrl '{}' successfully generated in {} attempts", shortUrl, attempts);
                 return shortUrl.toString();
             }
-            //clean stringBuilder for subsequent tries
-//            shortUrl = new StringBuilder();
         }
         throw new UrlException("ShortenedUrl could not be created: max attempts reached");
     }
@@ -143,7 +139,7 @@ public class ShortUrlService {
 
     private void validateUserPermissions(Optional<User> OptionalUser, ShortUrl shortUrl) throws UrlPrivateException {
         if (!shortUrl.isPrivate()) {
-            log.info("Accessing public url '{}'", shortUrl.getShortenedUrl());
+            log.debug("Accessing public url '{}'", shortUrl.getShortenedUrl());
             return; //public urls are accessible by all
         }
         User user = OptionalUser.orElseThrow(() -> {
@@ -152,25 +148,23 @@ public class ShortUrlService {
         });
 
         if (shortUrl.getCreatedByUser() != null && !shortUrl.getCreatedByUser().getId().equals(user.getId()) &&
-                !user.getRole().equals(ADMIN)) {
+                user.getRole() != ADMIN) {
             log.warn("Accessing private url '{}' with wrong user: '{}', expected: '{}'", shortUrl.getShortenedUrl(),
-                    user.getEmail(), shortUrl.getCreatedByUser().getEmail());
+                    user.getId(), shortUrl.getCreatedByUser().getId());
             throw new UrlPrivateException("Trying to access to private URL with wrong user");
         }
     }
 
     @Transactional
     public String updateUrl(UUID urlId, ShortUrlEditForm shortUrlEditForm) throws UrlException {
-        User currentUserInfo = authenticationService.getUserInfo()
-                .orElseThrow(() -> new UrlUpdateException("Trying to edit an URL without logging in"));
-
+        User user = getUser();
         ShortUrl shortUrl = shortUrlRepository.findById(urlId)
                 .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", urlId)));
 
-        if (!currentUserInfo.getRole().equals(ADMIN) &&
-                !currentUserInfo.getId().equals(shortUrl.getCreatedByUser().getId()))
-            throw new UrlUpdateException(String.format("Trying to remove an URL with wrong user. Expected userId: '%s', got: '%s'",
-                    shortUrl.getCreatedByUser().getId(), currentUserInfo.getId()));
+        if (user.getRole() != ADMIN &&
+                !user.getId().equals(shortUrl.getCreatedByUser().getId()))
+            throw new UrlUpdateException(String.format("Trying to edit an URL with wrong user. Expected userId: '%s', got: '%s'",
+                    shortUrl.getCreatedByUser().getId(), user.getId()));
 
         // check whether is expired, if so reactivate and exit the method
         LocalDate now = LocalDate.now();
@@ -229,15 +223,17 @@ public class ShortUrlService {
 
     @Transactional
     public int deleteSelectedUrls(List<UUID> shortUrlsIds) throws UrlNotFoundException {
+        User user = getUser();
         if (shortUrlsIds.stream().anyMatch(Objects::isNull))
             throw new UrlNotFoundException("One or more URLs were null");
-        return shortUrlRepository.deleteByIdIn(shortUrlsIds);
+        return user.getRole() == ADMIN ?
+                shortUrlRepository.deleteByIdIn(shortUrlsIds) :
+                shortUrlRepository.deleteByIdInAndCreatedByUserId(shortUrlsIds, user.getId());
     }
 
     @Transactional
     public int reactivateExpiredUrls() throws UserException {
-        Long userId = authenticationService.getUserId()
-                .orElseThrow(() -> new UserException("User not authenticated"));
+        Long userId = getUser().getId();
 
         List<UUID> expiredUrls = shortUrlRepository.findExpiredUrlIdsByUserId(userId);
 
@@ -250,14 +246,26 @@ public class ShortUrlService {
 
     @Transactional
     public int deleteExpiredUrls() throws UserException {
-        Long userId = authenticationService.getUserId()
-                .orElseThrow(() -> new UserException("User not authenticated"));
+        Long userId = getUser().getId();
 
         List<UUID> expiredUrls = shortUrlRepository.findExpiredUrlIdsByUserId(userId);
 
         if (expiredUrls.isEmpty()) return 0;
 
-        return shortUrlRepository.deleteByIdIn(expiredUrls);
+        return shortUrlRepository.deleteByIdInAndCreatedByUserId(expiredUrls, userId);
+    }
+
+    public int getExpiredUrlsCountByUserId(Long userId) {
+        return shortUrlRepository.numberOfExpiredUrlsByUserId(userId);
+    }
+
+    public int getAllExpiredUrls() {
+        return shortUrlRepository.numberOfExpiredUrls();
+    }
+
+    private User getUser() throws UserException {
+        return authenticationService.getUserInfo()
+                .orElseThrow(() -> new UserException("User not authenticated"));
     }
 }
 

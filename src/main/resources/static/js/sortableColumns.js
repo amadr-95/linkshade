@@ -17,10 +17,10 @@ document.addEventListener('DOMContentLoaded', function () {
             const newDirection = currentDirection === 'ASC' ? 'DESC' : 'ASC';
             this.closest('th').dataset.direction = newDirection;
 
-            // create URL (TODO: clean the URL by removing parts not expected like /create-url
-            //  when sending wrong values for creating URLs)
-            const url = new URL(window.location.href);
-            const params = new URLSearchParams(url.search);
+            let pathname = window.location.pathname;
+            pathname = pathname.replace('/short-urls', '');
+            const url = new URL(window.location.origin + pathname);
+            const params = new URLSearchParams(window.location.search);
             params.set('sort', `${propName},${newDirection}`);
             url.search = params.toString();
 

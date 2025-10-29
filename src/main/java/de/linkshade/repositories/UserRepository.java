@@ -16,25 +16,40 @@ public interface UserRepository extends JpaRepository<User, Long> {
     @Query("select count(*) from User")
     Long countAll();
 
-    @Query("select u from User u")
-    Page<User> findAllUsers(Pageable pageable);
-
+    /**
+     * Fetches all users with their URL count using a single query with LEFT JOIN.
+     * This avoids the N+1 query problem that would occur if we fetched users
+     * and then counted URLs separately for each user.
+     */
     @Query("""
-    select u from User u
+    select u as user, count(s.id) as urlCount from User u
     left join ShortUrl s on s.createdByUser = u
     group by u.id
-    order by count (s.id) asc
     """)
-    Page<User> findAllUsersSortedByUrlCountAsc(Pageable pageable);
+    Page<UserWithUrlCount> findAllUsersWithUrlCount(Pageable pageable);
 
+    /**
+     * Same as findAllUsersWithUrlCount but sorted by URL count in ascending order.
+     * Sorting is done in the query itself since numberOfUrlsCreated is not a User field.
+     */
     @Query("""
-    select u from User u
+    select u as user, count(s.id) as urlCount from User u
     left join ShortUrl s on s.createdByUser = u
     group by u.id
-    order by count (s.id) desc
+    order by count(s.id) asc
     """)
-    Page<User> findAllUsersSortedByUrlCountDesc(Pageable pageable);
+    Page<UserWithUrlCount> findAllUsersWithUrlCountSortedAsc(Pageable pageable);
 
+    /**
+     * Same as findAllUsersWithUrlCount but sorted by URL count in descending order.
+     */
+    @Query("""
+    select u as user, count(s.id) as urlCount from User u
+    left join ShortUrl s on s.createdByUser = u
+    group by u.id
+    order by count(s.id) desc
+    """)
+    Page<UserWithUrlCount> findAllUsersWithUrlCountSortedDesc(Pageable pageable);
 
     Optional<User> findUserById(Long userId);
 

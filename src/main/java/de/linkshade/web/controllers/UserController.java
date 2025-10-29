@@ -38,11 +38,11 @@ public class UserController {
             int numberOfUrls = userService.deleteUser(userId);
             //close the user session
             new SecurityContextLogoutHandler().logout(request, response, auth);
-            log.info("User with userId {} and {} urls associated was deleted", userId, numberOfUrls);
+            log.info("User with userId '{}' and {} urls associated was deleted", userId, numberOfUrls);
             redirectAttributes.addFlashAttribute("successMessage",
-                    String.format("User has been successfully deleted along with %s urls", numberOfUrls));
+                    String.format("User has been successfully deleted along with %d url(s)", numberOfUrls));
         } catch (UserNotFoundException ex) {
-            log.error("There was an error deleting user with userId {}. {}", userId, ex.getMessage(), ex);
+            log.error("There was an error deleting user with userId '{}'. {}", userId, ex.getMessage(), ex);
             redirectAttributes.addFlashAttribute("errorMessage",
                     "There was an error deleting your account. Please try again.");
         }

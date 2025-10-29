@@ -16,7 +16,7 @@ public class CustomUrlNameValidator {
     private final ShortUrlRepository shortUrlRepository;
 
     public boolean isValid(ConstraintValidatorContext context, String shortenedUrl) {
-        log.info("Checking custom url name: '{}'", shortenedUrl);
+        log.debug("Checking custom url name: '{}'", shortenedUrl);
         if (shortenedUrl == null || shortenedUrl.isBlank()) {
             log.error("ShortenedUrl '{}' is null or blank", shortenedUrl);
             contextBuilder.buildContext(context, "{validation.urlForm.invalidCustomUrlName}", "customShortUrlName");

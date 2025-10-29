@@ -1,11 +1,10 @@
 package de.linkshade.web.controllers;
 
 import de.linkshade.exceptions.UserException;
-import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.services.AdminService;
 import de.linkshade.services.DeletionResult;
 import de.linkshade.services.ShortUrlService;
-import de.linkshade.web.controllers.dto.ShortUrlEditForm;
+import de.linkshade.web.controllers.helpers.AdminModelAttributeHelper;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -27,37 +26,20 @@ public class AdminController {
 
     private final AdminService adminService;
     private final ShortUrlService shortUrlService;
-    private final ShortUrlRepository shortUrlRepository;
+    private final AdminModelAttributeHelper adminHelper;
     private final ModelAttributeHelper helper;
 
     @GetMapping("/urls")
     public String getAllShortUrls(@PageableDefault Pageable pageableRequest, Model model) {
         helper.addAttributes(model, "/admin/dashboard/urls", shortUrlService.findAllShortUrls(pageableRequest));
-        model.addAttribute("managedEntity", "URLs");
-        model.addAttribute("deleteSelectedFormId", "deleteUrlsForm");
-        model.addAttribute("deleteSelectedEndpoint", "/delete-selected-urls");
-        int numberOfExpiredUrls = shortUrlRepository.numberOfExpiredUrls();
-        if (numberOfExpiredUrls > 0) {
-            model.addAttribute("deleteExpiredFormId", "deleteExpiredUrlsFormId");
-            model.addAttribute("deleteExpiredUrlsEndpoint", "/admin/dashboard/delete-expired-urls");
-            model.addAttribute("existExpiredUrls", true);
-            model.addAttribute("numberOfUrlExpired", numberOfExpiredUrls);
-        }
-        model.addAttribute("shortUrlEditForm", new ShortUrlEditForm(null,
-                null,
-                null,
-                false,
-                false));
+        adminHelper.addUrlsManagementAttributes(model);
         return "admin/admin-dashboard";
     }
 
     @GetMapping("/users")
     public String getAllUsers(@PageableDefault Pageable pageableRequest, Model model) {
         helper.addAttributes(model, "/admin/dashboard/users", adminService.findAllUsers(pageableRequest));
-        model.addAttribute("managedEntity", "Users");
-        model.addAttribute("deleteSelectedFormId", "deleteUsersForm");
-        model.addAttribute("deleteSelectedEndpoint", "/admin/dashboard/delete-selected-users");
-
+        adminHelper.addUsersManagementAttributes(model);
         return "admin/admin-dashboard";
     }
 
@@ -67,7 +49,7 @@ public class AdminController {
         int numberOfDeletedUrls = adminService.deleteAllExpiredUrls();
 
         redirectAttributes.addFlashAttribute("successMessage",
-                "Expired URLs have been successfully deleted");
+                String.format("%d expired URL(s) successfully deleted", numberOfDeletedUrls));
 
         return "redirect:" + returnUrl;
     }
@@ -84,11 +66,12 @@ public class AdminController {
         try {
             DeletionResult deletionResult = adminService.deleteSelectedUsers(userIds);
             redirectAttributes.addFlashAttribute("successMessage",
-                    String.format("Selected users have been successfully deleted [%s users, %s urls]",
+                    String.format("Selected users have been successfully deleted (%d user(s), %d url(s))",
                             deletionResult.usersDeleted(),
                             deletionResult.urlsDeleted()));
         } catch (UserException ex) {
-            redirectAttributes.addFlashAttribute("errorMessage", "Error deleting Users. Try again");
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "Error deleting users. Try again");
         }
         return "redirect:" + returnUrl;
     }

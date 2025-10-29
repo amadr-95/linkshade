@@ -21,4 +21,10 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     });
+
+    // Set all returnUrl inputs
+    const returnUrlInputs = document.querySelectorAll('.return-url-input');
+    returnUrlInputs.forEach(input => {
+        input.value = window.location.href;
+    });
 });
