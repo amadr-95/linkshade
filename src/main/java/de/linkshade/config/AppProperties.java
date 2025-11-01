@@ -19,7 +19,8 @@ public record AppProperties(
         Set<String> userSortProperties,
         int numberOfTries,
         boolean checkHttpStatusCode,
-        int maxRequestPerHour,
+        int maxRequestAnonymousUser,
+        int maxRequestLoggedUser,
         boolean enableDeleteAccount,
         @Valid
         ShortUrlProperties shortUrlProperties

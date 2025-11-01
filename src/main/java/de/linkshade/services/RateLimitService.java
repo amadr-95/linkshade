@@ -1,6 +1,7 @@
 package de.linkshade.services;
 
 import de.linkshade.config.AppProperties;
+import de.linkshade.security.AuthenticationService;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
@@ -12,7 +13,6 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static de.linkshade.util.Constants.CONSECUTIVE_ERRORS_ALLOWED;
 import static de.linkshade.util.Constants.X_FORWARDED_FOR;
 
 @Service
@@ -20,7 +20,7 @@ import static de.linkshade.util.Constants.X_FORWARDED_FOR;
 public class RateLimitService {
 
     private final AppProperties properties;
-    private final Map<String, Integer> consecutiveErrorsCount = new ConcurrentHashMap<>();
+    private final AuthenticationService authenticationService;
 
     /**
      * Thread-safe map to store rate-limiting buckets by IP address.
@@ -43,34 +43,23 @@ public class RateLimitService {
     public String getClientIpAddress(HttpServletRequest request) {
         String xForwardedFor = request.getHeader(X_FORWARDED_FOR);
         if (xForwardedFor != null && !xForwardedFor.isBlank())
-            return xForwardedFor.split(",")[0];
+            return enrichIpAddress(xForwardedFor.split(",")[0]);
 
-        return request.getRemoteAddr();
+        return enrichIpAddress(request.getRemoteAddr());
     }
 
-    public boolean allowRequest(String ipAddress) {
-        return getBucket(ipAddress).tryConsume(1);
+    public long consumeToken(String ipAddress) {
+        return getBucket(ipAddress).tryConsumeAndReturnRemaining(1).getRemainingTokens();
     }
 
     public long getRemainingTokens(String ipAddress) {
         return getBucket(ipAddress).getAvailableTokens();
     }
 
-    public void addExtraToken(String ipAddress) {
-        if (getConsecutiveErrors(ipAddress) < CONSECUTIVE_ERRORS_ALLOWED)
-            getBucket(ipAddress).addTokens(1);
-    }
-
-    public void incrementConsecutiveErrors(String ipAddress) {
-        consecutiveErrorsCount.compute(ipAddress, (key, count) -> count == null ? 1 : count + 1);
-    }
-
-    private int getConsecutiveErrors(String ipAddress) {
-        return consecutiveErrorsCount.getOrDefault(ipAddress, 0);
-    }
-
     private Bucket createBucket() {
-        int limit = properties.maxRequestPerHour();
+        int limit = authenticationService.getUserInfo().isPresent() ?
+                properties.maxRequestLoggedUser() :
+                properties.maxRequestAnonymousUser();
 
         Bandwidth bandwidth = Bandwidth.classic(limit, Refill.intervally(limit, Duration.ofHours(1)));
 
@@ -83,10 +72,15 @@ public class RateLimitService {
      * Retrieves or creates a rate limiting bucket for the specified IP address.
      * Uses concurrent map's computeIfAbsent for thread-safe lazy initialization.
      *
-     * @param ipAddress the client's IP address
+     * @param key the key generated based on whether the user is logged in or not and the client's IP address
      * @return the Bucket instance associated with the IP address
      */
-    private Bucket getBucket(String ipAddress) {
-        return buckets.computeIfAbsent(ipAddress, key -> createBucket());
+    private Bucket getBucket(String key) {
+        return buckets.computeIfAbsent(key, k -> createBucket());
+    }
+
+    private String enrichIpAddress(String ipAddress) {
+        boolean isAuthenticated = authenticationService.getUserInfo().isPresent();
+        return ipAddress + ":" + (isAuthenticated ? "logged" : "anonymous");
     }
 }

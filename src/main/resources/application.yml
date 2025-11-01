@@ -41,8 +41,8 @@ app:
   # false: only check the url syntax
   # true: check the url syntax plus whether the url is reachable or not (slow)
   check-http-status-code: false
-  max-request-per-hour: 10
-  #max-request-per-hour: 20 for logged users
+  max-request-anonymous-user: 5
+  max-request-logged-user: 10
   enable-delete-account: false
   short-url-properties:
     base-url: "http://localhost:8080"

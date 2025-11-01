@@ -16,10 +16,16 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Objects;
+
+import static de.linkshade.util.Constants.REMAINING_TOKENS_WARNING;
 
 
 @Slf4j
@@ -57,32 +63,32 @@ public class ShortUrlController {
     ) {
         Boolean rateLimitReached = (Boolean) request.getAttribute("rateLimitReached");
         if (rateLimitReached != null && rateLimitReached) {
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    request.getAttribute("rateLimitMessage"));
+            String rateLimitMessage = authenticationService.getUserInfo().isPresent() ?
+                    "You have reached your rate limit. Please wait 1 hour before creating more URLs"
+                    : "Maximum number of URLs created has been reached. Please either wait 1 hour or log in to create more";
+            redirectAttributes.addFlashAttribute("errorMessage", rateLimitMessage);
             return "redirect:/";
         }
 
-        String rateLimitWarning = (String) request.getAttribute("rateLimitWarning");
-        if (rateLimitWarning != null)
-            redirectAttributes.addFlashAttribute("warningMessage", rateLimitWarning);
-
         if (bindingResult.hasErrors()) {
             if (bindingResult.getFieldError("expirationDate") != null) {
-                log.warn("User {} is introducing wrong values intentionally. Expected: date, got: {}", authenticationService.getUserInfo().orElse(null),
+                log.warn("User {} is introducing wrong values intentionally. Expected: date, got: {}",
+                        authenticationService.getUserInfo().orElse(null),
                         Objects.requireNonNull(bindingResult.getFieldError("expirationDate")).getRejectedValue());
             }
-            if (authenticationService.getUserInfo().isEmpty()) {
-                String clientIpAddress = rateLimitService.getClientIpAddress(request);
-                rateLimitService.incrementConsecutiveErrors(clientIpAddress);
-                rateLimitService.addExtraToken(clientIpAddress);
-            }
             helper.addAttributes(model, "/", shortUrlService.findAllPublicUrls(pageable));
-            if (rateLimitWarning != null) model.addAttribute("warningMessage", rateLimitWarning);
             return "index";
         }
 
+        String clientIpAddress = rateLimitService.getClientIpAddress(request);
         try {
             String shortenedUrl = shortUrlService.createShortUrl(shortUrlForm);
+            long remainingTokens = rateLimitService.consumeToken(clientIpAddress);
+            if (remainingTokens <= REMAINING_TOKENS_WARNING) {
+                redirectAttributes.addFlashAttribute("warningMessage",
+                        remainingTokens == 0 ? "You ran out of URLs to be created!" :
+                        String.format("You have %s URL(s) left to be created", remainingTokens));
+            }
             String shortUrlCreated =
                     String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortenedUrl);
             redirectAttributes.addFlashAttribute("shortUrlSuccessful",
