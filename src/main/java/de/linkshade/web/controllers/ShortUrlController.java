@@ -61,14 +61,8 @@ public class ShortUrlController {
                                  @PageableDefault Pageable pageable,
                                  HttpServletRequest request
     ) {
-        Boolean rateLimitReached = (Boolean) request.getAttribute("rateLimitReached");
-        if (rateLimitReached != null && rateLimitReached) {
-            String rateLimitMessage = authenticationService.getUserInfo().isPresent() ?
-                    "You have reached your rate limit. Please wait 1 hour before creating more URLs"
-                    : "Maximum number of URLs created has been reached. Please either wait 1 hour or log in to create more";
-            redirectAttributes.addFlashAttribute("errorMessage", rateLimitMessage);
-            return "redirect:/";
-        }
+
+        if (rateLimitReached(request, redirectAttributes)) return "redirect:/";
 
         if (bindingResult.hasErrors()) {
             if (bindingResult.getFieldError("expirationDate") != null) {
@@ -80,20 +74,10 @@ public class ShortUrlController {
             return "index";
         }
 
-        String clientIpAddress = rateLimitService.getClientIpAddress(request);
         try {
             String shortenedUrl = shortUrlService.createShortUrl(shortUrlForm);
-            long remainingTokens = rateLimitService.consumeToken(clientIpAddress);
-            if (remainingTokens <= REMAINING_TOKENS_WARNING) {
-                redirectAttributes.addFlashAttribute("warningMessage",
-                        remainingTokens == 0 ? "You ran out of URLs to be created!" :
-                        String.format("You have %s URL(s) left to be created", remainingTokens));
-            }
-            String shortUrlCreated =
-                    String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortenedUrl);
-            redirectAttributes.addFlashAttribute("shortUrlSuccessful",
-                    String.format("URL created successfully: %s", shortUrlCreated));
-            redirectAttributes.addFlashAttribute("shortUrlCopyToClipboard", shortUrlCreated);
+            checkAvailableTokens(redirectAttributes, request);
+            addSuccessMessage(shortenedUrl, redirectAttributes);
         } catch (UrlException ex) {
             log.error("Shorturl problem, reason: {}", ex.getMessage(), ex);
             redirectAttributes.addFlashAttribute("errorMessage",
@@ -105,5 +89,35 @@ public class ShortUrlController {
     @GetMapping("/s/{short-urls}")
     public String accessOriginalUrl(@PathVariable("short-urls") String shortUrl) throws UrlException {
         return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl);
+    }
+
+    private boolean rateLimitReached(HttpServletRequest request, RedirectAttributes redirectAttributes) {
+        Boolean rateLimitReached = (Boolean) request.getAttribute("rateLimitReached");
+        if (rateLimitReached != null && rateLimitReached) {
+            String rateLimitMessage = authenticationService.getUserInfo().isPresent() ?
+                    "You have reached your rate limit. Please wait 1 hour before creating more URLs"
+                    : "Maximum number of URLs created has been reached. Please either wait 1 hour or log in to create more";
+            redirectAttributes.addFlashAttribute("errorMessage", rateLimitMessage);
+            return true;
+        }
+        return false;
+    }
+
+    private void checkAvailableTokens(RedirectAttributes redirectAttributes, HttpServletRequest request) {
+        String clientIpAddress = rateLimitService.getClientIpAddress(request);
+        long remainingTokens = rateLimitService.consumeToken(clientIpAddress);
+        if (remainingTokens <= REMAINING_TOKENS_WARNING) {
+            redirectAttributes.addFlashAttribute("warningMessage",
+                    remainingTokens == 0 ? "You ran out of URLs to be created!" :
+                            String.format("You have %s URL(s) left to be created", remainingTokens));
+        }
+    }
+
+    private void addSuccessMessage(String shortenedUrl, RedirectAttributes redirectAttributes) {
+        String shortUrlCreated =
+                String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortenedUrl);
+        redirectAttributes.addFlashAttribute("shortUrlSuccessful",
+                String.format("URL created successfully: %s", shortUrlCreated));
+        redirectAttributes.addFlashAttribute("shortUrlCopyToClipboard", shortUrlCreated);
     }
 }
