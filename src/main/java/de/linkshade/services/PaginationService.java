@@ -1,7 +1,9 @@
 package de.linkshade.services;
 
 import de.linkshade.config.AppProperties;
+import de.linkshade.domain.entities.User;
 import de.linkshade.security.AuthenticationService;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -9,6 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
+import java.util.Optional;
 import java.util.function.Supplier;
 
 import static de.linkshade.domain.entities.Role.ADMIN;
@@ -19,6 +22,14 @@ public class PaginationService {
 
     private final AppProperties appProperties;
     private final AuthenticationService authenticationService;
+    private Sort defaultSort;
+
+    @PostConstruct
+    private void init() {
+        this.defaultSort = Sort.by(Sort.Direction.DESC, "createdAt")
+                // unique field (id) is needed to avoid problems when retrieving sorted records from the database
+                .and(Sort.by("id").descending());
+    }
 
     public Pageable createValidPage(Pageable pageableRequest, Supplier<Long> countFunction) {
 
@@ -46,17 +57,14 @@ public class PaginationService {
     }
 
     private Sort validateSort(Sort sortRequest) {
-        Sort defaultSort = Sort.by(Sort.Direction.DESC, "createdAt")
-                // unique field (id) is needed to avoid problems when retrieving sorted records from the database
-                .and(Sort.by("id").descending());
-
-        if (sortRequest.isUnsorted() || authenticationService.getUserInfo().isEmpty())
+        Optional<User> userInfo = authenticationService.getUserInfo();
+        if (sortRequest.isUnsorted() || userInfo.isEmpty())
             return defaultSort;
 
         //if the direction is something different from ASC or DESC, @PageableDefault in the controller makes it ASC by default, no need for validation
         Sort.Order validSortProperty = sortRequest.stream()
                 .filter(sort -> appProperties.urlSortProperties().contains(sort.getProperty()) ||
-                        (authenticationService.getUserInfo().get().getRole() == ADMIN &&
+                        (userInfo.get().getRole() == ADMIN &&
                                 appProperties.userSortProperties().contains(sort.getProperty()))
                 )
                 .findFirst()
