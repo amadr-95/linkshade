@@ -2,7 +2,7 @@
 
 - [x] Implement Google/GitHub Oauth
 - [x] Avoid unlogged users to use the /short-urls endpoint after X times (rate limit)
-- [ ] Implement rate limit for logged users too
+- [x] Implement rate limit for logged users too
 - [ ] Postgres cronjob for removing expired public urls
 - [x] Check for unexpected changes in the backend. What happens if someone change the input type in the date field?, disabled buttons, etc
 - [x] Avoid sending the userId to the front-end (model). Get it from the authenticationService when deleting a user
