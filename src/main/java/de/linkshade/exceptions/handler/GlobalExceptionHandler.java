@@ -1,4 +1,4 @@
-package de.linkshade.web.controllers.handler;
+package de.linkshade.exceptions.handler;
 
 import de.linkshade.exceptions.UrlException;
 import de.linkshade.exceptions.UrlExpiredException;
