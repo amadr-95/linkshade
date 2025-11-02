@@ -259,8 +259,8 @@ public class ShortUrlService {
         return shortUrlRepository.numberOfExpiredUrlsByUserId(userId);
     }
 
-    public int getAllExpiredUrls() {
-        return shortUrlRepository.numberOfExpiredUrls();
+    public int getAllNonCreatedByUserExpiredUrls() {
+        return shortUrlRepository.numberOfAllNonCreatedByUserExpiredUrls();
     }
 
     private User getUser() throws UserException {

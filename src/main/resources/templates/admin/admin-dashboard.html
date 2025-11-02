@@ -43,7 +43,8 @@
                 <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
                     title='Delete confirmation',
                     message='Are you sure you want to delete the selected ' + ${managedEntity} + '?',
-                    warningMessage='This action cannot be undone. ' + ${managedEntity.equalsIgnoreCase('users') ? 'All the associated URLs will also be deleted' : ''},
+                    warningMessage='This action cannot be undone. ' + ${managedEntity.equalsIgnoreCase('users') ?
+                    'All the associated URLs will also be deleted' : ''},
                     modalId='deleteConfirmation',
                     formId=${deleteSelectedFormId},
                     buttonText='Delete',
@@ -52,7 +53,7 @@
                 <input type="hidden" name="returnUrl" class="return-url-input"/>
             </form>
 
-            <!-- Delete all expired URLs (only visible when needed) -->
+            <!-- Delete all expired URLs that do not belong to any user (only visible when needed) -->
             <form th:if="${deleteExpiredUrlsEndpoint != null}"
                   th:action="@{${deleteExpiredUrlsEndpoint}}" method="POST" th:id="${deleteExpiredFormId}">
                 <!-- Button trigger modal -->
@@ -64,7 +65,8 @@
                 </button>
                 <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
                         title='Delete confirmation',
-                        message='Are you sure you want to delete ' + ${expiredUrls} + ' expired URL(s)?',
+                        message='Are you sure you want to delete ' + ${expiredUrls} +
+                         ' expired URL(s) that do not belong to any user?',
                         warningMessage='This action cannot be undone',
                         modalId='deleteExpiredUrlsConfirmation',
                         formId=${deleteExpiredFormId},

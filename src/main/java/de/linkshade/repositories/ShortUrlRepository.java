@@ -56,9 +56,6 @@ public interface ShortUrlRepository extends JpaRepository<ShortUrl, UUID> {
     @Query("select count(su) from ShortUrl su where su.createdByUser.id=:userId and su.expiresAt < current_date")
     int numberOfExpiredUrlsByUserId(Long userId);
 
-    @Query("select count(su) from ShortUrl su where su.expiresAt < current_date")
-    int numberOfExpiredUrls();
-
     @Query("select su.id from ShortUrl su where su.createdByUser.id=:userId and su.expiresAt < current_date")
     List<UUID> findExpiredUrlIdsByUserId(Long userId);
 
@@ -66,8 +63,11 @@ public interface ShortUrlRepository extends JpaRepository<ShortUrl, UUID> {
     @Query("update ShortUrl su set su.expiresAt = :newDate where su.id in :ids")
     int updateExpirationDateByUrlIds(List<UUID> ids, LocalDate newDate);
 
+    @Query("select count(su) from ShortUrl su where su.createdByUser is null and su.expiresAt < current_date")
+    int numberOfAllNonCreatedByUserExpiredUrls();
+
     @Modifying
-    @Query("delete from ShortUrl su where su.expiresAt < current_date")
-    int deleteAllExpiredUrls();
+    @Query("delete from ShortUrl su where su.createdByUser is null and su.expiresAt < current_date")
+    int deleteAllNonCreatedByUserExpiredUrls();
 
 }

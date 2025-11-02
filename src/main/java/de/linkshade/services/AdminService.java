@@ -66,9 +66,9 @@ public class AdminService {
     }
 
     @Transactional
-    public int deleteAllExpiredUrls() {
-        int deletedCount = shortUrlRepository.deleteAllExpiredUrls();
-        log.info("Batch expired urls deletion: {} expired URLs were deleted", deletedCount);
+    public int deleteAllNonCreatedByUserExpiredUrls() {
+        int deletedCount = shortUrlRepository.deleteAllNonCreatedByUserExpiredUrls();
+        log.debug("Batch of non-created-by-user expired urls deletion: {} expired URLs were deleted", deletedCount);
         return deletedCount;
     }
 }

@@ -46,7 +46,7 @@ public class AdminController {
     @PostMapping("/delete-expired-urls")
     public String deleteAllExpiredUrls(RedirectAttributes redirectAttributes,
                                        @RequestParam("returnUrl") String returnUrl) {
-        int numberOfDeletedUrls = adminService.deleteAllExpiredUrls();
+        int numberOfDeletedUrls = adminService.deleteAllNonCreatedByUserExpiredUrls();
 
         redirectAttributes.addFlashAttribute("successMessage",
                 String.format("%d expired URL(s) successfully deleted", numberOfDeletedUrls));

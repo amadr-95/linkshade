@@ -27,7 +27,7 @@ public class AdminModelAttributeHelper {
     }
 
     private void addExpiredUrlsAttributesIfPresent(Model model) {
-        int expiredUrls = shortUrlService.getAllExpiredUrls();
+        int expiredUrls = shortUrlService.getAllNonCreatedByUserExpiredUrls();
         if (expiredUrls > 0) {
             model.addAttribute("deleteExpiredFormId", "deleteExpiredUrlsFormId");
             model.addAttribute("deleteExpiredUrlsEndpoint", "/admin/dashboard/delete-expired-urls");
