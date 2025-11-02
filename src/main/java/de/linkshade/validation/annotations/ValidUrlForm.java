@@ -1,6 +1,6 @@
-package de.linkshade.util.annotations;
+package de.linkshade.validation.annotations;
 
-import de.linkshade.util.UrlFormValidator;
+import de.linkshade.validation.UrlFormValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 

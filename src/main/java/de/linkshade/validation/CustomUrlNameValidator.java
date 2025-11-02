@@ -1,5 +1,6 @@
-package de.linkshade.util;
+package de.linkshade.validation;
 
+import de.linkshade.config.Constants;
 import de.linkshade.repositories.ShortUrlRepository;
 import jakarta.validation.ConstraintValidatorContext;
 import lombok.RequiredArgsConstructor;

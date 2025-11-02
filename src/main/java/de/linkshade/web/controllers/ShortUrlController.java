@@ -25,7 +25,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Objects;
 
-import static de.linkshade.util.Constants.REMAINING_TOKENS_WARNING;
+import static de.linkshade.config.Constants.REMAINING_TOKENS_WARNING;
 
 
 @Slf4j

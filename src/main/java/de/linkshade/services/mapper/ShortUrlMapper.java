@@ -2,7 +2,7 @@ package de.linkshade.services.mapper;
 
 import de.linkshade.domain.entities.ShortUrl;
 import de.linkshade.domain.entities.dto.ShortUrlDTO;
-import de.linkshade.util.Constants;
+import de.linkshade.config.Constants;
 import org.springframework.stereotype.Service;
 
 @Service

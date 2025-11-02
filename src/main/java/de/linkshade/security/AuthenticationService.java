@@ -2,7 +2,7 @@ package de.linkshade.security;
 
 import de.linkshade.domain.entities.User;
 import de.linkshade.security.oauth.OAuth2UserImpl;
-import de.linkshade.util.Constants;
+import de.linkshade.config.Constants;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;

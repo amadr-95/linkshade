@@ -1,4 +1,4 @@
-package de.linkshade.util;
+package de.linkshade.validation;
 
 import jakarta.validation.ConstraintValidatorContext;
 import org.springframework.stereotype.Component;

@@ -1,4 +1,4 @@
-package de.linkshade.util;
+package de.linkshade.config;
 
 import java.util.regex.Pattern;
 

@@ -1,6 +1,6 @@
 package de.linkshade.web.controllers.dto;
 
-import de.linkshade.util.annotations.ValidUrlForm;
+import de.linkshade.validation.annotations.ValidUrlForm;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDate;

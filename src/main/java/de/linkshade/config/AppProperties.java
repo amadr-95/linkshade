@@ -1,6 +1,5 @@
 package de.linkshade.config;
 
-import de.linkshade.util.Constants;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

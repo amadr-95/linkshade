@@ -1,7 +1,7 @@
-package de.linkshade.util;
+package de.linkshade.validation;
 
 import de.linkshade.security.AuthenticationService;
-import de.linkshade.util.annotations.ValidUrlForm;
+import de.linkshade.validation.annotations.ValidUrlForm;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
 import jakarta.validation.ConstraintValidator;
 import jakarta.validation.ConstraintValidatorContext;

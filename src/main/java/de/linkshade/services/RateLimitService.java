@@ -13,7 +13,7 @@ import java.time.Duration;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-import static de.linkshade.util.Constants.X_FORWARDED_FOR;
+import static de.linkshade.config.Constants.X_FORWARDED_FOR;
 
 @Service
 @RequiredArgsConstructor

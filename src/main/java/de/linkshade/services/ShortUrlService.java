@@ -14,7 +14,7 @@ import de.linkshade.exceptions.UserException;
 import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.security.AuthenticationService;
 import de.linkshade.services.mapper.ShortUrlMapper;
-import de.linkshade.util.Constants;
+import de.linkshade.config.Constants;
 import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
 import jakarta.transaction.Transactional;
