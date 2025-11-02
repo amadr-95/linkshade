@@ -46,7 +46,9 @@ public class PaginationService {
     }
 
     private Sort validateSort(Sort sortRequest) {
-        Sort defaultSort = Sort.by(Sort.Direction.DESC, "createdAt");
+        Sort defaultSort = Sort.by(Sort.Direction.DESC, "createdAt")
+                // unique field (id) is needed to avoid problems when retrieving sorted records from the database
+                .and(Sort.by("id").descending());
 
         if (sortRequest.isUnsorted() || authenticationService.getUserInfo().isEmpty())
             return defaultSort;
@@ -54,12 +56,15 @@ public class PaginationService {
         //if the direction is something different from ASC or DESC, @PageableDefault in the controller makes it ASC by default, no need for validation
         Sort.Order validSortProperty = sortRequest.stream()
                 .filter(sort -> appProperties.urlSortProperties().contains(sort.getProperty()) ||
-                                (authenticationService.getUserInfo().get().getRole() == ADMIN &&
-                        appProperties.userSortProperties().contains(sort.getProperty()))
+                        (authenticationService.getUserInfo().get().getRole() == ADMIN &&
+                                appProperties.userSortProperties().contains(sort.getProperty()))
                 )
                 .findFirst()
                 .orElse(null);
 
-        return validSortProperty == null ? defaultSort : Sort.by(validSortProperty);
+        return validSortProperty == null ?
+                defaultSort :
+                Sort.by(validSortProperty)
+                        .and(Sort.by("id").descending());
     }
 }
