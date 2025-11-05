@@ -86,7 +86,7 @@
                             <input type="hidden" name="returnUrl" class="return-url-input"/>
                         </form>
 
-                        <a th:href="@{'/s/' + ${url.shortenedUrl}}"
+                        <a th:href="${baseUrl + '/s/' + url.shortenedUrl}"
                            target="_blank"
                            class="me-2 text-decoration-none link-primary link-opacity-75 link-opacity-100-hover">
                             <span th:text="${#strings.abbreviate(baseUrl + '/s/' + url.shortenedUrl, 40)}"></span>

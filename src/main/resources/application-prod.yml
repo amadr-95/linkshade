@@ -1,0 +1,11 @@
+spring:
+# DB config in prod
+  datasource:
+    url: ${DB_PROD_URL}
+    username: ${DB_PROD_USERNAME}
+    password: ${DB_PROD_PASSWORD}
+
+# App properties in prod
+app:
+  short-url-properties:
+    base-url: "https://linksha.de"
