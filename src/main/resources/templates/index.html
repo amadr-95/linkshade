@@ -10,10 +10,56 @@
     <title>Home</title>
 </head>
 <body>
+
+<div layout:fragment="hero">
+    <div sec:authorize="!isAuthenticated()" id="heroCarousel" class="carousel slide carousel-dark" data-bs-ride="carousel">
+        <!-- Indicators/dots -->
+        <div class="carousel-indicators">
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true"
+                    aria-label="Slide 1"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
+            <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+        </div>
+
+        <!-- Slides -->
+        <div class="carousel-inner">
+            <!-- Slide 1 -->
+            <div class="carousel-item active">
+                <div th:replace="~{fragments/carousel-slide :: carousel-slide(
+                    icon='lightning-charge-fill',
+                    title='Shorten URLs Instantly',
+                    description='Transform long links into short, shareable URLs in seconds. Perfect for social media, emails, and anywhere you need clean links',
+                    buttonText='Sign Up Free',
+                    buttonIcon='person-plus-fill')}">
+                </div>
+            </div>
+            <!-- Slide 2 -->
+            <div class="carousel-item">
+                <div th:replace="~{fragments/carousel-slide :: carousel-slide(
+                    icon='shield-lock-fill',
+                    title='Unlock Advanced Features',
+                    description='Register to access custom URLs, private links, expiration dates, and more. Take full control of your shortened links',
+                    buttonText='Get Started Now',
+                    buttonIcon='unlock-fill')}">
+                </div>
+            </div>
+            <!-- Slide 3 -->
+            <div class="carousel-item">
+                <div th:replace="~{fragments/carousel-slide :: carousel-slide(
+                    icon='bar-chart-fill',
+                    title='Manage & Track Your Links',
+                    description='Monitor click statistics, organize your URLs, and edit or delete them anytime. Create an account to access your personal dashboard',
+                    buttonText='Join Today',
+                    buttonIcon='speedometer2')}">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div layout:fragment="content">
-    <div class="jumbotron bg-light p-5 rounded-3 my-4">
+    <div sec:authorize="isAuthenticated()" class="jumbotron bg-light p-5 rounded-3 my-4">
         <h1>Hello, <span th:text="${userName}"></span></h1>
-        <p class="lead">Welcome to the home page of the URL Shortener App.</p>
     </div>
 
     <div class="card mt-4">
@@ -55,7 +101,8 @@
                     <div class="mb-3">
                         <div class="input-group"
                              th:classappend="${#fields.hasErrors('expirationDate')} ? 'has-validation' : ''">
-                            <button class="input-group-text fs-4" id="openExpirationDatePicker" type="button" aria-label="Open calendar">
+                            <button class="input-group-text fs-4" id="openExpirationDatePicker" type="button"
+                                    aria-label="Open calendar">
                                 <i class="bi bi-calendar"></i>
                             </button>
                             <div class="form-floating"

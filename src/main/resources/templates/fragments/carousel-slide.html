@@ -1,0 +1,12 @@
+<div th:fragment="carousel-slide(icon, title, description, buttonText, buttonIcon)">
+    <div class="d-flex justify-content-center align-items-center" style="min-height: 400px;">
+        <div class="text-center container">
+            <i th:class="'bi bi-' + ${icon} + ' text-primary'" style="font-size: 3rem;"></i>
+            <h2 class="fw-bold mt-3 fs-3" th:text="${title}"></h2>
+            <p class="text-muted mt-3" th:text="${description}"></p>
+            <a th:href="@{/login}" class="btn btn-primary">
+                <i th:class="'bi bi-' + ${buttonIcon} + ' me-2'"></i><span th:text="${buttonText}"></span>
+            </a>
+        </div>
+    </div>
+</div>
