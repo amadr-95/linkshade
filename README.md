@@ -9,10 +9,10 @@
 - [ ] Unit tests 
 - [ ] Integration tests
 - [x] Increase number of characters to the original url (~1000)
-- [ ] Image carrousel explaining the product 
-- [ ] Add links to my accounts 
-- [ ] Add metadata in layout 
-- [ ] Check responsiveness and styles
+- [x] Image carrousel explaining the product 
+- [x] Add links to my accounts 
+- [x] Add metadata in layout 
+- [x] Check responsiveness and styles
 - [x] Improve logging and errorMessages
 - [x] Fix discrepancy between days of expiration
 - [x] Delete user account and remove all URLs linked to it
