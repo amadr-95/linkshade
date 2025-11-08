@@ -5,10 +5,11 @@ import de.linkshade.domain.entities.Role;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Builder
 public record UserDTO(
-        Long id,
+        UUID id,
         String name,
         String email,
         String userProviderId,

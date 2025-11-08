@@ -35,29 +35,29 @@ public interface ShortUrlRepository extends JpaRepository<ShortUrl, UUID> {
 
     @Query("select su from ShortUrl su where su.createdByUser.id=:userId")
     @EntityGraph(attributePaths = {"createdByUser"})
-    Page<ShortUrl> findAllByCreatedByUser(Pageable pageable, Long userId);
+    Page<ShortUrl> findAllByCreatedByUser(Pageable pageable, UUID userId);
 
     @Query("select count(su) from ShortUrl su where su.createdByUser.id=:userId")
-    Long countByCreatedByUser(Long userId);
+    Long countByCreatedByUser(UUID userId);
 
     @Modifying
-    int deleteByIdInAndCreatedByUserId(List<UUID> ids, Long userId);
+    int deleteByIdInAndCreatedByUserId(List<UUID> ids, UUID userId);
 
     @Modifying
     int deleteByIdIn(List<UUID> ids);
 
     @Modifying
     @Query("delete from ShortUrl su where su.createdByUser.id in:userIds")
-    int deleteByCreatedByUserIn(Collection<Long> userIds);
+    int deleteByCreatedByUserIn(Collection<UUID> userIds);
 
     @Query("select su.id from ShortUrl su where su.createdByUser.id=:userId")
-    List<UUID> findAllByCreatedByUserId(Long userId);
+    List<UUID> findAllByCreatedByUserId(UUID userId);
 
     @Query("select count(su) from ShortUrl su where su.createdByUser.id=:userId and su.expiresAt < current_date")
-    int numberOfExpiredUrlsByUserId(Long userId);
+    int numberOfExpiredUrlsByUserId(UUID userId);
 
     @Query("select su.id from ShortUrl su where su.createdByUser.id=:userId and su.expiresAt < current_date")
-    List<UUID> findExpiredUrlIdsByUserId(Long userId);
+    List<UUID> findExpiredUrlIdsByUserId(UUID userId);
 
     @Modifying
     @Query("update ShortUrl su set su.expiresAt = :newDate where su.id in :ids")

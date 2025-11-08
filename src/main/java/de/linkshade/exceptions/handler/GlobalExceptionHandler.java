@@ -1,10 +1,6 @@
 package de.linkshade.exceptions.handler;
 
-import de.linkshade.exceptions.UrlException;
-import de.linkshade.exceptions.UrlExpiredException;
-import de.linkshade.exceptions.UrlNotFoundException;
-import de.linkshade.exceptions.UrlPrivateException;
-import de.linkshade.exceptions.UserException;
+import de.linkshade.exceptions.*;
 import de.linkshade.security.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -61,7 +57,7 @@ public class GlobalExceptionHandler {
     public String unknownException(Model model, Exception ex) {
         addAvatarToModel(model);
         log.error("Unknown error occurred: {}", ex.getMessage(), ex);
-        return "error/400";
+        return "error/500";
     }
 
     private void addAvatarToModel(Model model) {

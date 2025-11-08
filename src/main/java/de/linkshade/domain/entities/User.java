@@ -1,14 +1,18 @@
 package de.linkshade.domain.entities;
 
 import jakarta.persistence.*;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-
-import static jakarta.persistence.GenerationType.SEQUENCE;
+import java.util.UUID;
 
 @Entity
 @Table(name = "users",
@@ -27,9 +31,8 @@ import static jakarta.persistence.GenerationType.SEQUENCE;
 public class User {
 
     @Id
-    @SequenceGenerator(name = "user_seq", sequenceName = "user_seq", allocationSize = 1)
-    @GeneratedValue(strategy = SEQUENCE, generator = "user_seq")
-    private Long id;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
     @Column(nullable = false)
     private String name;

@@ -9,8 +9,9 @@ import org.springframework.data.jpa.repository.Query;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.UUID;
 
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface UserRepository extends JpaRepository<User, UUID> {
     Optional<User> findUserByEmail(String email);
 
     @Query("select count(*) from User")
@@ -51,10 +52,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     """)
     Page<UserWithUrlCount> findAllUsersWithUrlCountSortedDesc(Pageable pageable);
 
-    Optional<User> findUserById(Long userId);
+    Optional<User> findUserById(UUID userId);
 
     @Modifying
-    int deleteByIdIn(Collection<Long> ids);
+    int deleteByIdIn(Collection<UUID> ids);
 
     Optional<User> findByUserProviderId(String userProviderId);
 }

@@ -15,6 +15,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.util.UUID;
+
 @Slf4j
 @Controller
 @RequiredArgsConstructor
@@ -33,7 +35,7 @@ public class UserController {
                                  HttpServletResponse response,
                                  RedirectAttributes redirectAttributes) {
         Authentication auth = authenticationService.getAuthentication();
-        Long userId = ((OAuth2UserImpl) auth.getPrincipal()).user().getId();
+        UUID userId = ((OAuth2UserImpl) auth.getPrincipal()).user().getId();
         try {
             int numberOfUrls = userService.deleteUser(userId);
             //close the user session

@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 
 @Slf4j
@@ -56,7 +57,7 @@ public class AdminService {
     }
 
     @Transactional
-    public DeletionResult deleteSelectedUsers(List<Long> userIds) throws UserException {
+    public DeletionResult deleteSelectedUsers(List<UUID> userIds) throws UserException {
         if (userIds.stream().anyMatch(Objects::isNull))
             throw new UserException("One or more Users were null");
         int urlsDeleted = shortUrlRepository.deleteByCreatedByUserIn(userIds);

@@ -37,7 +37,7 @@ public class UserService {
     }
 
     @Transactional
-    public int deleteUser(Long userId) throws UserNotFoundException {
+    public int deleteUser(UUID userId) throws UserNotFoundException {
         userRepository.findUserById(userId).orElseThrow(() ->
                 new UserNotFoundException(String.format("User with id: %s not found", userId)));
 

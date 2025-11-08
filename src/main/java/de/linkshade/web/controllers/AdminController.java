@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/admin/dashboard")
@@ -55,7 +56,7 @@ public class AdminController {
     }
 
     @PostMapping("/delete-selected-users")
-    public String deleteSelectedUsers(@RequestParam("userIds") List<Long> userIds,
+    public String deleteSelectedUsers(@RequestParam("userIds") List<UUID> userIds,
                                       RedirectAttributes redirectAttributes,
                                       @RequestParam("returnUrl") String returnUrl) {
         if (userIds == null || userIds.isEmpty()) {

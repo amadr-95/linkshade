@@ -60,7 +60,7 @@ public class ShortUrlService {
     }
 
     public PagedResult<ShortUrlDTO> listUserUrls(Pageable pageableRequest) throws UserException {
-        Long userId = getUser().getId();
+        UUID userId = getUser().getId();
         Pageable validPage = paginationService.createValidPage(pageableRequest,
                 () -> shortUrlRepository.countByCreatedByUser(userId));
         Page<ShortUrlDTO> shortUrlDTOS =
@@ -233,7 +233,7 @@ public class ShortUrlService {
 
     @Transactional
     public int reactivateExpiredUrls() throws UserException {
-        Long userId = getUser().getId();
+        UUID userId = getUser().getId();
 
         List<UUID> expiredUrls = shortUrlRepository.findExpiredUrlIdsByUserId(userId);
 
@@ -246,7 +246,7 @@ public class ShortUrlService {
 
     @Transactional
     public int deleteExpiredUrls() throws UserException {
-        Long userId = getUser().getId();
+        UUID userId = getUser().getId();
 
         List<UUID> expiredUrls = shortUrlRepository.findExpiredUrlIdsByUserId(userId);
 
@@ -255,7 +255,7 @@ public class ShortUrlService {
         return shortUrlRepository.deleteByIdInAndCreatedByUserId(expiredUrls, userId);
     }
 
-    public int getExpiredUrlsCountByUserId(Long userId) {
+    public int getExpiredUrlsCountByUserId(UUID userId) {
         return shortUrlRepository.numberOfExpiredUrlsByUserId(userId);
     }
 
