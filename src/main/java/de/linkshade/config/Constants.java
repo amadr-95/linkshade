@@ -23,6 +23,12 @@ public final class Constants {
     public static final String ANONYMOUS_USER_NAME = "anonymousUser";
     public static final String DEFAULT_USER_NAME = "Guest";
 
+    //ShortUrlFormFieldNames
+    public static final String ORIGINAL_URL = "originalUrl";
+    public static final String URL_LENGTH = "urlLength";
+    public static final String CUSTOM_URL_NAME = "customShortUrlName";
+    public static final String EXPIRATION_DATE = "expirationDate";
+
     private Constants() {
         // Utility class, no instances
     }

@@ -17,7 +17,14 @@ public class LengthValidator {
 
     public boolean isValid(ConstraintValidatorContext context, Integer length, String field) {
 
-        if (field.equals("urlLength")) {
+        if (field.equals(Constants.ORIGINAL_URL)) {
+            if (length > Constants.MAX_ORIGINAL_URL_LENGTH) {
+                contextBuilder.buildContext(context, "{validation.urlForm.originalUrlLength.range}", field);
+                return false;
+            }
+        }
+
+        if (field.equals(Constants.URL_LENGTH)) {
             if (length < Constants.MIN_SHORTURL_LENGTH || length > Constants.MAX_SHORTURL_LENGTH) {
                 log.warn("User {} is introducing wrong values intentionally. Length value: {}. Range expected: {} - {}",
                         authenticationService.getUserInfo().orElse(null), length,
@@ -26,12 +33,15 @@ public class LengthValidator {
                 contextBuilder.buildContext(context, "{validation.urlForm.shortUrlLength.range}", field);
                 return false;
             }
-        } else if (field.equals("originalUrl")) {
-            if (length > Constants.MAX_ORIGINAL_URL_LENGTH) {
-                contextBuilder.buildContext(context, "{validation.urlForm.originalUrlLength.range}", field);
+        }
+
+        if (field.equals(Constants.CUSTOM_URL_NAME)) {
+            if (length > Constants.MAX_SHORTURL_LENGTH) {
+                contextBuilder.buildContext(context, "{validation.urlForm.invalidCustomUrlName.length}", field);
                 return false;
             }
         }
+
         return true;
     }
 }

@@ -20,27 +20,26 @@ public class CustomUrlNameValidator {
         log.debug("Checking custom url name: '{}'", shortenedUrl);
         if (shortenedUrl == null || shortenedUrl.isBlank()) {
             log.error("ShortenedUrl '{}' is null or blank", shortenedUrl);
-            contextBuilder.buildContext(context, "{validation.urlForm.invalidCustomUrlName}", "customShortUrlName");
+            contextBuilder.buildContext(context, "{validation.urlForm.invalidCustomUrlName.name}", Constants.CUSTOM_URL_NAME);
             return false;
         }
 
         int shortenerUrlLength = shortenedUrl.length();
-        if (!lengthValidator.isValid(context, shortenerUrlLength, "customShortUrlName")) {
+        if (!lengthValidator.isValid(context, shortenerUrlLength, Constants.CUSTOM_URL_NAME)) {
             log.error("ShortenedUrl '{}' is outside limits", shortenedUrl);
             return false;
         }
 
-        for (int i = 0; i < shortenerUrlLength; i++) {
-            if (!Constants.VALID_CHARACTERS.contains(String.valueOf(shortenedUrl.charAt(i)))) {
-                log.error("ShortenedUrl '{}' contains invalid characters", shortenedUrl);
-                contextBuilder.buildContext(context, "{validation.urlForm.invalidCustomUrlName}", "customShortUrlName");
-                return false;
-            }
+        if (shortenedUrl.chars().anyMatch(c ->
+                !Constants.VALID_CHARACTERS.contains(String.valueOf((char) c)))) {
+            log.error("ShortenedUrl '{}' contains invalid characters", shortenedUrl);
+            contextBuilder.buildContext(context, "{validation.urlForm.invalidCustomUrlName.characters}", Constants.CUSTOM_URL_NAME);
+            return false;
         }
 
         if (shortUrlRepository.existsByShortenedUrl(shortenedUrl)) {
             log.error("Duplicate key: shortenedUrl '{}' already exists", shortenedUrl);
-            contextBuilder.buildContext(context, "{validation.urlForm.customUrlNameAlreadyExist}", "customShortUrlName");
+            contextBuilder.buildContext(context, "{validation.urlForm.invalidCustomUrlName.nameExists}", Constants.CUSTOM_URL_NAME);
             return false;
         }
 

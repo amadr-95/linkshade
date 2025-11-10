@@ -91,7 +91,7 @@ public class ShortUrlService {
                 .build();
 
         shortUrlRepository.save(shortUrl);
-        log.info("ShortUrl '{}' successfully stored in DB", shortUrl.getShortenedUrl());
+        log.debug("ShortUrl '{}' successfully stored in DB", shortUrl.getShortenedUrl());
         return shortUrl.getShortenedUrl();
     }
 
@@ -112,6 +112,7 @@ public class ShortUrlService {
         StringBuilder shortUrl = new StringBuilder(urlLength);
         int maxAttempts = appProperties.numberOfTries();
         for (int attempts = 1; attempts <= maxAttempts; attempts++) {
+            shortUrl.setLength(0);
             for (int i = 0; i < urlLength; i++) {
                 shortUrl.append(characters.charAt(random.nextInt(characters.length())));
             }
@@ -139,7 +140,6 @@ public class ShortUrlService {
 
     private void validateUserPermissions(Optional<User> OptionalUser, ShortUrl shortUrl) throws UrlPrivateException {
         if (!shortUrl.isPrivate()) {
-            log.debug("Accessing public url '{}'", shortUrl.getShortenedUrl());
             return; //public urls are accessible by all
         }
         User user = OptionalUser.orElseThrow(() -> {

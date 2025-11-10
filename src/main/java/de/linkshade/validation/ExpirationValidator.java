@@ -17,7 +17,7 @@ public class ExpirationValidator {
         LocalDate now = LocalDate.now();
         if (expirationDate.isBefore(now) ||
                 expirationDate.isAfter(now.plusDays(Constants.MAX_SHORTURL_EXPIRATION_DAYS))) {
-            contextBuilder.buildContext(context, "{validation.urlForm.expirationDate}", "expirationDate");
+            contextBuilder.buildContext(context, "{validation.urlForm.expirationDate}", Constants.EXPIRATION_DATE);
             return false;
         }
         return true;

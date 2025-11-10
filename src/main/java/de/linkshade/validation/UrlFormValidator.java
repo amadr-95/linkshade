@@ -1,5 +1,6 @@
 package de.linkshade.validation;
 
+import de.linkshade.config.Constants;
 import de.linkshade.security.AuthenticationService;
 import de.linkshade.validation.annotations.ValidUrlForm;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
@@ -22,11 +23,13 @@ public class UrlFormValidator implements ConstraintValidator<ValidUrlForm, Short
     public boolean isValid(ShortUrlForm shortUrlForm, ConstraintValidatorContext context) {
         //disable default error message because specific ones will be provided
         context.disableDefaultConstraintViolation();
-        if (!lengthValidator.isValid(context, shortUrlForm.originalUrl().length(), "originalUrl"))
+        // When user is not logged in
+        if (!lengthValidator.isValid(context, shortUrlForm.originalUrl().length(), Constants.ORIGINAL_URL))
             return false;
         if (!urlValidator.isValid(context, shortUrlForm.originalUrl())) {
             return false;
         }
+        // User is logged in
         if (authenticationService.getUserInfo().isPresent()) {
             if (shortUrlForm.expirationDate() != null && !expirationDateValidator.isValid(context, shortUrlForm.expirationDate())) {
                 return false;
@@ -34,7 +37,7 @@ public class UrlFormValidator implements ConstraintValidator<ValidUrlForm, Short
             if (shortUrlForm.isCustom()) {
                 return customUrlNameValidator.isValid(context, shortUrlForm.customShortUrlName());
             } else {
-                return lengthValidator.isValid(context, shortUrlForm.urlLength(), "urlLength");
+                return lengthValidator.isValid(context, shortUrlForm.urlLength(), Constants.URL_LENGTH);
             }
         }
         return true;

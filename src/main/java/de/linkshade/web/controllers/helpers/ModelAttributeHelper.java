@@ -26,8 +26,7 @@ public class ModelAttributeHelper {
                             shortUrlService.getExpiredUrlsCountByUserId(user.getId()));
                     model.addAttribute("deleteSelectedFormId", "deleteUrlsForm");
                 });
-        authenticationService.getAvatarUrl().ifPresent(
-                avatarUrl -> model.addAttribute("avatarUrl", avatarUrl));
+        addAvatarToModel(model);
     }
 
     private void addCommonDataToModel(Model model, String path) {
@@ -35,5 +34,11 @@ public class ModelAttributeHelper {
         model.addAttribute("baseUrl", appProperties.shortUrlProperties().baseUrl());
         model.addAttribute("path", path);
         model.addAttribute("enableDeleteAccount", appProperties.enableDeleteAccount());
+    }
+
+    public void addAvatarToModel(Model model) {
+        authenticationService.getAvatarUrl().ifPresent(
+                avatarUrl -> model.addAttribute("avatarUrl", avatarUrl)
+        );
     }
 }

@@ -17,6 +17,8 @@
 - [x] Fix discrepancy between days of expiration
 - [x] Delete user account and remove all URLs linked to it
 - [x] Delete all URLs when removing a user from Admin Dashboard
+- [ ] Improve logging messages
+- [x] Improve GlobalErrorHandler
 - OPTIONAL:
 - [x] Button for deleting all expired urls in my-urls/admin html page
 - [x] Button for reactivating all expired urls in my-urls page 

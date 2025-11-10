@@ -20,11 +20,10 @@ public class UrlValidator {
     private final AppProperties appProperties;
 
     public boolean isValid(ConstraintValidatorContext context, String formUrl) {
-        log.debug("Checking url: '{}'", formUrl);
         // first layer (mandatory): syntax validation
         if (!isValidSyntax(formUrl)) {
-            log.error("URL '{}' has syntax error", formUrl);
-            contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", "originalUrl");
+            log.debug("URL '{}' has syntax error", formUrl);
+            contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", Constants.ORIGINAL_URL);
             return false;
         }
         //(optional): validate http response code (slow)
@@ -48,12 +47,12 @@ public class UrlValidator {
                 return true;
             } else {
                 log.error("URL '{}' not reachable with status code: {}", url, responseCode);
-                contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", "originalUrl");
+                contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", Constants.ORIGINAL_URL);
                 return false;
             }
         } catch (Exception ex) {
             log.error("URL '{}' not valid", url, ex);
-            contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", "originalUrl");
+            contextBuilder.buildContext(context, "{validation.urlForm.invalidUrl}", Constants.ORIGINAL_URL);
             return false;
         }
     }
