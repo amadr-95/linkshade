@@ -62,13 +62,42 @@
                     </label>
                 </td>
                 <td>
-                    <div class="d-flex align-items-center gap-3">
+                    <div class="d-flex align-items-center gap-2">
                         <button class="btn btn-sm btn-outline-secondary clipboard-button"
                                 th:data-url="${baseUrl + '/s/' + url.shortenedUrl}"
                                 title="Copy link"
                                 type="button">
                             <i class="bi bi-clipboard"></i>
                         </button>
+
+                        <!--TODO-->
+                        <form th:if="${url.isPrivate}" th:action="@{/manage-sharing-code/{id}(id=${url.id})}"
+                              method="POST" th:id="'manageSharingCode-' + ${url.id}"
+                              th:with="isShared=${url.shareCode != null}">
+                            <button class="btn btn-sm"
+                                    type="button"
+                                    th:classappend="${isShared ? 'btn-success' : 'btn-outline-primary'}"
+                                    th:title="${isShared ? 'Shared - Click to manage' : 'Share private URL'}"
+                                    data-bs-toggle="modal"
+                                    th:data-bs-target="'#manageSharingCodeConfirmation-' + ${url.id}">
+                                <i th:class="${isShared ? 'bi bi-shield-check' : 'bi bi-share-fill'}"></i>
+<!--                                <span th:if="${isShared}" class="badge bg-white text-success ms-1">-->
+<!--                                    <i class="bi bi-check-circle-fill"></i>-->
+<!--                                </span>-->
+                            </button>
+
+                            <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
+                                 title=${isShared ? 'Stop sharing private URL' : 'Share private URL'},
+                                 message=${isShared ? 'This will revoke the current sharing code. Anyone with the previous link will lose access.'
+                                 : 'Generate a shareable link with a password for this private URL.'},
+                                 warningMessage=${isShared ? 'Warning: This action cannot be undone.' : null},
+                                 modalId='manageSharingCodeConfirmation-' + ${url.id},
+                                 formId='manageSharingCode-' + ${url.id},
+                                 buttonText=${isShared ? 'Stop Sharing' : 'Generate Link'},
+                                 buttonClass=${isShared ? 'btn-danger' : 'btn-primary'})}">
+                            </div>
+                            <input type="hidden" name="returnUrl" class="return-url-input"/>
+                        </form>
 
                         <!-- insert modal form for editing the url-->
                         <form th:if="${showEditButton}" th:action="@{/edit-urls/{id}(id=${url.id})}" method="POST"
@@ -104,9 +133,13 @@
                     </span>
                 </td>
                 <td th:if="${showCreatedBy}" class="text-center" th:text="${url.createdByUser}"></td>
-                <td th:if="${showPrivate}" class="text-center">
+                <td th:if="${showPrivate}" class="text-center align-items-center">
                     <span th:if="${url.isPrivate}" class="badge bg-primary-subtle text-dark-emphasis">Private</span>
                     <span th:unless="${url.isPrivate}" class="badge bg-success">Public</span>
+                    <span th:if="${url.isPrivate && url.shareCode != null}"
+                          class="badge bg-success-subtle text-success-emphasis">
+                            <i class="bi bi-people-fill"></i>
+                    </span>
                 </td>
                 <td class="text-center">
                         <span class="badge bg-light text-dark border"
