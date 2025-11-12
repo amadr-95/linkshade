@@ -34,7 +34,7 @@
                 <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
                     title='Delete confirmation',
                     message='Are you sure you want to delete the selected URLs?',
-                    warningMessage='This action cannot be undone',
+                    captionMessage='This action cannot be undone',
                     modalId='deleteUrlsConfirmation',
                     formId='deleteUrlsForm',
                     buttonText='Delete',
@@ -56,7 +56,7 @@
                 <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
                         title='Reactivation confirmation',
                         message='Are you sure you want to reactivate ' + ${expiredUrls} + ' expired URL(s)?',
-                        warningMessage=${null},
+                        captionMessage=${null},
                         modalId='reactivateUrlsConfirmation',
                         formId='reactivateUrlsForm',
                         buttonText='Reactivate',
@@ -78,7 +78,7 @@
                 <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
                         title='Delete confirmation',
                         message='Are you sure you want to delete ' + ${expiredUrls} + ' expired URL(s)?',
-                        warningMessage='This action cannot be undone',
+                        captionMessage='This action cannot be undone',
                         modalId='deleteExpiredUrlsConfirmation',
                         formId='deleteExpiredUrlsForm',
                         buttonText='Delete',

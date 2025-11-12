@@ -1,7 +1,9 @@
 package de.linkshade.web.controllers;
 
 import de.linkshade.config.AppProperties;
+import de.linkshade.config.Constants;
 import de.linkshade.exceptions.UrlException;
+import de.linkshade.exceptions.UrlPrivateException;
 import de.linkshade.security.AuthenticationService;
 import de.linkshade.services.RateLimitService;
 import de.linkshade.services.ShortUrlService;
@@ -67,7 +69,7 @@ public class ShortUrlController {
         if (bindingResult.hasErrors()) {
             if (bindingResult.getFieldError("expirationDate") != null) {
                 log.warn("User {} is introducing wrong values intentionally. Expected: date, got: {}",
-                        authenticationService.getUserInfo().orElse(null),
+                        authenticationService.getUserInfo().map(u -> u.getId().toString()).orElse("anonymous"),
                         Objects.requireNonNull(bindingResult.getFieldError("expirationDate")).getRejectedValue());
             }
             helper.addAttributes(model, "/", shortUrlService.findAllPublicUrls(pageable));
@@ -87,8 +89,35 @@ public class ShortUrlController {
     }
 
     @GetMapping("/s/{short-urls}")
-    public String accessOriginalUrl(@PathVariable("short-urls") String shortUrl) throws UrlException {
-        return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl);
+    public String accessOriginalUrl(@PathVariable("short-urls") String shortUrl, Model model) throws UrlException {
+        try {
+            return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl, null);
+        } catch (UrlPrivateException ex) {
+            if (Constants.SHARE_CODE_REQUIRED.equals(ex.getMessage())) { //triggers form for sending the code
+                model.addAttribute("shortUrl", shortUrl);
+                model.addAttribute("requiresShareCode", true);
+                return "error/401";
+            }
+            throw new UrlPrivateException(ex.getMessage());
+        }
+    }
+
+    @PostMapping("/s/{short-urls}/verify")
+    public String verifyShareCode(@PathVariable("short-urls") String shortUrl,
+                                  @ModelAttribute("shareCode") String shareCode,
+                                  Model model) {
+        try {
+            return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl, shareCode);
+        } catch (UrlPrivateException ex) {
+            model.addAttribute("shortUrl", shortUrl);
+            model.addAttribute("requiresShareCode", true);
+            model.addAttribute("errorMessage", "Invalid code");
+            return "error/401";
+        } catch (UrlException ex) {
+            log.error("Error verifying share code: {}", ex.getMessage(), ex);
+            model.addAttribute("requiresShareCode", false);
+            return "error/401";
+        }
     }
 
     private boolean rateLimitReached(HttpServletRequest request, RedirectAttributes redirectAttributes) {

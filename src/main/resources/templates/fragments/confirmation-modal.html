@@ -1,4 +1,4 @@
-<div th:fragment="confirmation-modal(title, message, warningMessage, modalId, formId, buttonText, buttonClass)">
+<div th:fragment="confirmation-modal(title, message, captionMessage, modalId, formId, buttonText, buttonClass)">
     <div class="modal fade" th:id="${modalId}" tabindex="-1" th:aria-labelledby="${modalId + 'Label'}"
          aria-hidden="true">
         <div class="modal-dialog">
@@ -9,7 +9,7 @@
                 </div>
                 <div class="modal-body">
                     <p th:text="${message}"></p>
-                    <span th:if="${warningMessage != null}" class="text-danger" th:text="${warningMessage}"></span>
+                    <span th:if="${captionMessage != null}" class="text-danger" th:text="${captionMessage}"></span>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

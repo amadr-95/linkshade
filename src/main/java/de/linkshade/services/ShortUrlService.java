@@ -17,6 +17,7 @@ import de.linkshade.services.mapper.ShortUrlMapper;
 import de.linkshade.config.Constants;
 import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
+import jakarta.annotation.PostConstruct;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,12 @@ public class ShortUrlService {
     private final AuthenticationService authenticationService;
     private final AppProperties appProperties;
     private final PaginationService paginationService;
+    private Random random;
+
+    @PostConstruct
+    public void postConstruct() {
+        this.random = new Random();
+    }
 
     public PagedResult<ShortUrlDTO> findAllPublicUrls(Pageable pageableRequest) {
         Pageable validPage = paginationService.createValidPage(pageableRequest, shortUrlRepository::countAllPublicUrls);
@@ -85,6 +92,7 @@ public class ShortUrlService {
                 .shortenedUrl(shortenUrl(shortUrlForm))
                 .createdByUser(currentUser.orElse(null))
                 .isPrivate(shortUrlForm.isPrivate() != null && shortUrlForm.isPrivate()) //false by default if the user is not logged in
+                .shareCode(null) // by default
                 .numberOfClicks(0L)
                 .createdAt(createdAt)
                 .expiresAt(expirationDate) //either the default value or the custom value picked by the authenticated user
@@ -105,7 +113,6 @@ public class ShortUrlService {
     }
 
     private String generateRandomShortUrl(Integer urlLength) throws UrlException {
-        Random random = new Random();
         String characters = Constants.VALID_CHARACTERS;
         urlLength = urlLength == null ?
                 appProperties.shortUrlProperties().defaultShortUrlLength() : urlLength;
@@ -124,35 +131,56 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public String accessOriginalUrl(String url) throws UrlException {
-        if (url == null || url.isBlank()) throw new UrlException("URL is null or empty");
-        ShortUrl shortUrl = shortUrlRepository.findByShortenedUrl(url)
-                .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", url)));
+    public String accessOriginalUrl(String shortenedUrl, String code) throws UrlException {
+        ShortUrl shortUrl = shortUrlRepository.findByShortenedUrl(shortenedUrl)
+                .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", shortenedUrl)));
 
-        if (shortUrl.isExpired()) throw new UrlExpiredException(String.format("URL '%s' is expired", url));
+        if (shortUrl.isExpired()) throw new UrlExpiredException(String.format("URL '%s' is expired", shortenedUrl));
 
-        validateUserPermissions(authenticationService.getUserInfo(), shortUrl);
+        if (!shortUrl.isPrivate()) {
+            incrementClicksAndSave(shortUrl);
+            return shortUrl.getOriginalUrl();
+        }
 
-        shortUrl.setNumberOfClicks(shortUrl.getNumberOfClicks() + 1);
-        shortUrlRepository.save(shortUrl);
-        return shortUrl.getOriginalUrl();
+        if (userHasGrantedAccess(shortUrl))
+            return shortUrl.getOriginalUrl();
+
+        // private and shared
+        boolean isShared = shortUrl.getShareCode() != null;
+        if (isShared) {
+            //check the code provided
+            if (code == null || code.isBlank())
+                throw new UrlPrivateException(Constants.SHARE_CODE_REQUIRED); // trigger for showing the form
+            if (!shortUrl.getShareCode().equals(code)) {
+                throw new UrlPrivateException(String.format(
+                        "Invalid sharing code '%s' for shortUrl '%s'", code, shortenedUrl));
+            }
+            incrementClicksAndSave(shortUrl);
+            return shortUrl.getOriginalUrl();
+        }
+
+        // private and NOT shared
+        log.warn("Unauthorized access attempt to private url '{}' by user '{}'",
+                shortUrl.getShortenedUrl(), authenticationService.getUserInfo()
+                        .map(u -> u.getId().toString()).orElse("anonymous"));
+        throw new UrlPrivateException("Trying to access to private URL without proper permissions");
     }
 
-    private void validateUserPermissions(Optional<User> OptionalUser, ShortUrl shortUrl) throws UrlPrivateException {
-        if (!shortUrl.isPrivate()) {
-            return; //public urls are accessible by all
-        }
-        User user = OptionalUser.orElseThrow(() -> {
-            log.warn("Accessing private url '{}' without logging in", shortUrl.getShortenedUrl());
-            return new UrlPrivateException("Trying to access to private URL without logging in");
-        });
+    private boolean userHasGrantedAccess(ShortUrl shortUrl) {
+        Optional<User> currentUser = authenticationService.getUserInfo();
+        if (currentUser.isEmpty()) return false;
 
-        if (shortUrl.getCreatedByUser() != null && !shortUrl.getCreatedByUser().getId().equals(user.getId()) &&
-                user.getRole() != ADMIN) {
-            log.warn("Accessing private url '{}' with wrong user: '{}', expected: '{}'", shortUrl.getShortenedUrl(),
-                    user.getId(), shortUrl.getCreatedByUser().getId());
-            throw new UrlPrivateException("Trying to access to private URL with wrong user");
-        }
+        User user = currentUser.get();
+        boolean isOwner = shortUrl.getCreatedByUser() != null &&
+                shortUrl.getCreatedByUser().getId().equals(user.getId());
+        boolean isAdmin = user.getRole() == ADMIN;
+
+        return isOwner || isAdmin;
+    }
+
+    private void incrementClicksAndSave(ShortUrl shortUrl) {
+        shortUrl.setNumberOfClicks(shortUrl.getNumberOfClicks() + 1);
+        shortUrlRepository.save(shortUrl);
     }
 
     @Transactional
@@ -163,7 +191,8 @@ public class ShortUrlService {
 
         if (user.getRole() != ADMIN &&
                 !user.getId().equals(shortUrl.getCreatedByUser().getId()))
-            throw new UrlUpdateException(String.format("Trying to edit an URL with wrong user. Expected userId: '%s', got: '%s'",
+            throw new UrlUpdateException(String.format(
+                    "Trying to edit an URL with wrong user. Expected userId: '%s', got: '%s'",
                     shortUrl.getCreatedByUser().getId(), user.getId()));
 
         // check whether is expired, if so reactivate and exit the method
@@ -183,7 +212,7 @@ public class ShortUrlService {
         boolean shortenedUrlChanged = !Objects.equals(shortenedUrlForm, shortUrl.getShortenedUrl());
 
         if (!expirationChanged && !privacyChanged && !shortenedUrlChanged)
-            return shortUrl.getShortenedUrl();
+            return String.format("%s (No changes were made)", shortUrl.getShortenedUrl());
 
         // check individual changes and update the values
         if (expirationChanged) {
@@ -207,7 +236,7 @@ public class ShortUrlService {
                     throw new UrlUpdateException("Shortened value cannot be blank");
                 if (shortenedUrlForm.length() < Constants.MIN_SHORTURL_LENGTH ||
                         shortenedUrlForm.length() > Constants.MAX_SHORTURL_LENGTH)
-                    throw new UrlUpdateException(String.format("Shortened length '%s' exceeds the limits",
+                    throw new UrlUpdateException(String.format("Shortened length '%s' is outside the limits",
                             shortenedUrlForm.length()));
                 // check that it's not existing already
                 if (shortUrlRepository.findByShortenedUrl(shortenedUrlForm).isPresent()) {
@@ -261,6 +290,43 @@ public class ShortUrlService {
 
     public int getAllNonCreatedByUserExpiredUrls() {
         return shortUrlRepository.numberOfAllNonCreatedByUserExpiredUrls();
+    }
+
+    @Transactional
+    public SharingResult manageSharingPrivateUrl(UUID urlId) throws UrlException {
+        User user = getUser();
+        ShortUrl shortUrl = shortUrlRepository.findById(urlId).orElseThrow(
+                () -> new UrlNotFoundException(String.format("URL '%s' not found", urlId))
+        );
+
+        if (user.getRole() != ADMIN &&
+                !user.getId().equals(shortUrl.getCreatedByUser().getId()))
+            throw new UrlPrivateException(String.format("Trying to change permissions to a private URL with wrong user. " +
+                            "Expected userId: '%s', got: '%s'",
+                    shortUrl.getCreatedByUser().getId(), user.getId()));
+
+        // deactivating sharing state
+        if (shortUrl.getShareCode() != null) {
+            shortUrl.setShareCode(null);
+            shortUrlRepository.save(shortUrl);
+            return new SharingResult(shortUrl.getShortenedUrl(), null);
+        }
+
+        //activating sharing state
+        shortUrl.setShareCode(generateSharingCode());
+        shortUrlRepository.save(shortUrl);
+        return new SharingResult(shortUrl.getShortenedUrl(), shortUrl.getShareCode());
+    }
+
+    // this code can be the same multiple times, since the unique combination is shortUrl (unique) + sharingCode
+    private String generateSharingCode() {
+        int sharingCodeLength = Constants.SHARING_CODE_LENGTH;
+        String characters = Constants.VALID_CHARACTERS;
+        StringBuilder code = new StringBuilder(sharingCodeLength);
+        for (int i = 0; i < sharingCodeLength; i++) {
+            code.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return code.toString();
     }
 
     private User getUser() throws UserException {

@@ -12,6 +12,7 @@ public record ShortUrlDTO(
         String originalUrl,
         String createdByUser,
         boolean isPrivate,
+        String shareCode,
         LocalDate createdAt,
         LocalDate expiresAt,
         boolean isExpired,

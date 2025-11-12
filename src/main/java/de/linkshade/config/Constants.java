@@ -15,15 +15,18 @@ public final class Constants {
     public static final int MIN_SHORTURL_LENGTH = 5;
     public static final int MAX_SHORTURL_LENGTH = 20;
     public static final int MAX_SHORTURL_EXPIRATION_DAYS = 365;
-    public static final String VALID_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnñopqrstuvwxyz0123456789";
+    public static final String VALID_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    public static final int SHARING_CODE_LENGTH = 6;
 
     // Security and rate limit constants
     public static final String X_FORWARDED_FOR ="X-Forwarded-For";
     public static final int REMAINING_TOKENS_WARNING = 3;
     public static final String ANONYMOUS_USER_NAME = "anonymousUser";
     public static final String DEFAULT_USER_NAME = "Guest";
+    public static final int NUMBER_OF_SHARING_CODE_TRIES = 3;
+    public static final String SHARE_CODE_REQUIRED = "share_code_required";
 
-    //ShortUrlFormFieldNames
+    // ShortUrlFormFieldNames
     public static final String ORIGINAL_URL = "originalUrl";
     public static final String URL_LENGTH = "urlLength";
     public static final String CUSTOM_URL_NAME = "customShortUrlName";

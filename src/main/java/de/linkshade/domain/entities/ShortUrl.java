@@ -42,7 +42,7 @@ public class ShortUrl {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @Column(nullable = false, name = "shortened_url")
+    @Column(nullable = false)
     private String shortenedUrl;
 
     @Column(nullable = false)
@@ -53,6 +53,9 @@ public class ShortUrl {
     private User createdByUser;
 
     private boolean isPrivate;
+
+    // this field is only relevant for private url when sharing them
+    private String shareCode;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
@@ -69,7 +72,7 @@ public class ShortUrl {
 
     public Integer daysToExpire() {
         if (this.expiresAt == null) return null;
-        return (int) ChronoUnit.DAYS.between(LocalDate.now(), this.expiresAt);//might be 0 (same day)
+        return (int) ChronoUnit.DAYS.between(LocalDate.now(), this.expiresAt); //might be 0 (same day)
     }
 
     public boolean isExpired() {

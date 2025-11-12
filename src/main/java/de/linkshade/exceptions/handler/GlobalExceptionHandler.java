@@ -113,7 +113,7 @@ public class GlobalExceptionHandler {
     public String handleUnknownException(Model model, Exception ex, HttpServletRequest request) {
         log.error("Unexpected error - Path: {}, Type: {}, Message: {}",
                 request.getRequestURI(), ex.getClass().getSimpleName(), ex.getMessage(), ex);
-        return buildErrorView(model, "error/500");
+        return buildErrorView(model, "error/400");
     }
 
     /**

@@ -5,6 +5,7 @@ CREATE TABLE short_urls
     original_url       VARCHAR(1000) NOT NULL,
     created_by_user    UUID,
     is_private         BOOLEAN       NOT NULL,
+    share_code         VARCHAR(6),
     created_at         DATE          NOT NULL,
     last_modified_date TIMESTAMP WITHOUT TIME ZONE,
     expires_at         DATE,

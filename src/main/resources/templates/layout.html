@@ -115,7 +115,7 @@
 <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
     title='Delete confirmation',
     message='Are you sure you want to delete your account along with all your URLs?',
-    warningMessage='This action cannot be undone',
+    captionMessage='This action cannot be undone',
     modalId='deleteAccountConfirmation',
     formId='deleteAccountForm',
     buttonText='Delete',
@@ -135,7 +135,7 @@
             <span class="me-2" th:text="${shortUrlSuccessful}"></span>
             <button class="btn btn-sm btn-outline-secondary clipboard-button"
                     th:data-url="${shortUrlCopyToClipboard}"
-                    title="Copy link"
+                    title="Copy"
                     type="button">
                 <i class="bi bi-clipboard"></i>
             </button>

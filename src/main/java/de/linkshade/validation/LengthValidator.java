@@ -36,7 +36,7 @@ public class LengthValidator {
         }
 
         if (field.equals(Constants.CUSTOM_URL_NAME)) {
-            if (length > Constants.MAX_SHORTURL_LENGTH) {
+            if (length < Constants.MIN_SHORTURL_LENGTH || length > Constants.MAX_SHORTURL_LENGTH) {
                 contextBuilder.buildContext(context, "{validation.urlForm.invalidCustomUrlName.length}", field);
                 return false;
             }

@@ -4,6 +4,7 @@ import de.linkshade.config.AppProperties;
 import de.linkshade.exceptions.UrlException;
 import de.linkshade.exceptions.UrlNotFoundException;
 import de.linkshade.exceptions.UserException;
+import de.linkshade.services.SharingResult;
 import de.linkshade.services.ShortUrlService;
 import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
@@ -79,13 +80,42 @@ public class UserUrlController {
         return "redirect:" + returnUrl;
     }
 
+    @PostMapping("/manage-sharing-code/{urlId}")
+    public String manageSharingPrivateUrl(@PathVariable("urlId") UUID urlId,
+                                          @RequestParam("returnUrl") String returnUrl,
+                                          RedirectAttributes redirectAttributes) {
+        try {
+            SharingResult sharingResult = shortUrlService.manageSharingPrivateUrl(urlId);
+            String sharingCode = sharingResult.sharingCode();
+            if (sharingCode == null) {
+                redirectAttributes.addFlashAttribute("successMessage",
+                        String.format("Sharing deactivated for '%s/s/%s'",
+                                appProperties.shortUrlProperties().baseUrl(), sharingResult.url()));
+            } else {
+                String shortUrl =
+                        String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), sharingResult.url());
+
+                redirectAttributes.addFlashAttribute("shortUrlSuccessful",
+                        String.format("Sharing activated for '%s'. CODE: %s",
+                                shortUrl, sharingCode));
+                redirectAttributes.addFlashAttribute("shortUrlCopyToClipboard",
+                        String.format("URL: %s, Code: %s", shortUrl, sharingCode));
+            }
+        } catch (UrlException ex) {
+            log.error("Sharing private URL problem, reason: '{}'", ex.getMessage());
+            redirectAttributes.addFlashAttribute("errorMessage",
+                    "There was an error sharing this URL. Please try again");
+        }
+        return "redirect:" + returnUrl;
+    }
+
     @PostMapping("/reactivate-expired-urls")
     public String reactivateUrls(@RequestParam("returnUrl") String returnUrl,
                                  RedirectAttributes redirectAttributes) {
         try {
             int reactivatedExpiredUrls = shortUrlService.reactivateExpiredUrls();
             redirectAttributes.addFlashAttribute("successMessage",
-                    String.format("%d URL(s) successfully reactivated:", reactivatedExpiredUrls));
+                    String.format("%d URL(s) successfully reactivated", reactivatedExpiredUrls));
         } catch (UserException ex) {
             log.error("Reactivation URL problem, reason: '{}'", ex.getMessage());
             redirectAttributes.addFlashAttribute("errorMessage",
@@ -96,7 +126,7 @@ public class UserUrlController {
 
     @PostMapping("/delete-expired-urls")
     public String deleteExpiredUrls(@RequestParam("returnUrl") String returnUrl,
-                                 RedirectAttributes redirectAttributes) {
+                                    RedirectAttributes redirectAttributes) {
         try {
             int deleteExpiredUrls = shortUrlService.deleteExpiredUrls();
             redirectAttributes.addFlashAttribute("successMessage",
