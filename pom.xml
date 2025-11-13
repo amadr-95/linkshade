@@ -116,6 +116,13 @@
             <artifactId>bucket4j-core</artifactId>
             <version>8.1.0</version>
         </dependency>
+
+        <!-- Caching library for managing number of tries when checking shareable code on private URLs -->
+        <dependency>
+            <groupId>com.github.ben-manes.caffeine</groupId>
+            <artifactId>caffeine</artifactId>
+            <version>3.2.0</version>
+        </dependency>
     </dependencies>
 
     <build>

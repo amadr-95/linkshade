@@ -6,6 +6,7 @@ import de.linkshade.exceptions.UrlException;
 import de.linkshade.exceptions.UrlPrivateException;
 import de.linkshade.security.AuthenticationService;
 import de.linkshade.services.RateLimitService;
+import de.linkshade.services.ShareCodeAttemptService;
 import de.linkshade.services.ShortUrlService;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
@@ -40,6 +41,7 @@ public class ShortUrlController {
     private final AppProperties appProperties;
     private final ModelAttributeHelper helper;
     private final RateLimitService rateLimitService;
+    private final ShareCodeAttemptService shareCodeAttemptService;
     private final AuthenticationService authenticationService;
 
     @GetMapping
@@ -91,11 +93,10 @@ public class ShortUrlController {
     @GetMapping("/s/{short-urls}")
     public String accessOriginalUrl(@PathVariable("short-urls") String shortUrl, Model model) throws UrlException {
         try {
-            return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl, null);
+            return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl);
         } catch (UrlPrivateException ex) {
             if (Constants.SHARE_CODE_REQUIRED.equals(ex.getMessage())) { //triggers form for sending the code
-                model.addAttribute("shortUrl", shortUrl);
-                model.addAttribute("requiresShareCode", true);
+                addShareCodeAttributes(shortUrl, model);
                 return "error/401";
             }
             throw new UrlPrivateException(ex.getMessage());
@@ -106,18 +107,32 @@ public class ShortUrlController {
     public String verifyShareCode(@PathVariable("short-urls") String shortUrl,
                                   @ModelAttribute("shareCode") String shareCode,
                                   Model model) {
+
+        if (shareCodeAttemptService.hasExceededMaxAttempts(shortUrl)) {
+            model.addAttribute("errorMessage", "Maximum attempts exceeded. Try again in 15 minutes.");
+            model.addAttribute("requiresShareCode", false);
+            // add new attribute to show a different message in 401.html (e.g. shareCodeTriesReached)
+            return "error/401";
+        }
         try {
-            return "redirect:" + shortUrlService.accessOriginalUrl(shortUrl, shareCode);
+            String originalUrl = shortUrlService.verifySharingCode(shortUrl, shareCode);
+            shareCodeAttemptService.resetAttempts(shortUrl);
+            return "redirect:" + originalUrl;
         } catch (UrlPrivateException ex) {
-            model.addAttribute("shortUrl", shortUrl);
-            model.addAttribute("requiresShareCode", true);
+            shareCodeAttemptService.recordFailedAttempt(shortUrl);
+            addShareCodeAttributes(shortUrl, model);
             model.addAttribute("errorMessage", "Invalid code");
             return "error/401";
         } catch (UrlException ex) {
             log.error("Error verifying share code: {}", ex.getMessage(), ex);
             model.addAttribute("requiresShareCode", false);
-            return "error/401";
+            return "error/400";
         }
+    }
+
+    private static void addShareCodeAttributes(String shortUrl, Model model) {
+        model.addAttribute("shortUrl", shortUrl);
+        model.addAttribute("requiresShareCode", true);
     }
 
     private boolean rateLimitReached(HttpServletRequest request, RedirectAttributes redirectAttributes) {

@@ -131,7 +131,7 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public String accessOriginalUrl(String shortenedUrl, String code) throws UrlException {
+    public String accessOriginalUrl(String shortenedUrl) throws UrlException {
         ShortUrl shortUrl = shortUrlRepository.findByShortenedUrl(shortenedUrl)
                 .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", shortenedUrl)));
 
@@ -146,23 +146,12 @@ public class ShortUrlService {
             return shortUrl.getOriginalUrl();
 
         // private and shared
-        boolean isShared = shortUrl.getShareCode() != null;
-        if (isShared) {
-            //check the code provided
-            if (code == null || code.isBlank())
-                throw new UrlPrivateException(Constants.SHARE_CODE_REQUIRED); // trigger for showing the form
-            if (!shortUrl.getShareCode().equals(code)) {
-                throw new UrlPrivateException(String.format(
-                        "Invalid sharing code '%s' for shortUrl '%s'", code, shortenedUrl));
-            }
-            incrementClicksAndSave(shortUrl);
-            return shortUrl.getOriginalUrl();
+        if (shortUrl.getShareCode() != null) {
+            // trigger for showing the form
+            throw new UrlPrivateException(Constants.SHARE_CODE_REQUIRED);
         }
 
         // private and NOT shared
-        log.warn("Unauthorized access attempt to private url '{}' by user '{}'",
-                shortUrl.getShortenedUrl(), authenticationService.getUserInfo()
-                        .map(u -> u.getId().toString()).orElse("anonymous"));
         throw new UrlPrivateException("Trying to access to private URL without proper permissions");
     }
 
@@ -176,6 +165,20 @@ public class ShortUrlService {
         boolean isAdmin = user.getRole() == ADMIN;
 
         return isOwner || isAdmin;
+    }
+
+    @Transactional
+    public String verifySharingCode(String shortenedUrl, String code) throws UrlException{
+        ShortUrl shortUrl = shortUrlRepository.findByShortenedUrl(shortenedUrl)
+                .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", shortenedUrl)));
+
+        if (!shortUrl.getShareCode().equals(code)) {
+            throw new UrlPrivateException(String.format(
+                    "Invalid sharing code for shortUrl '%s'. Expected '%s', got: '%s'",
+                    shortenedUrl, shortUrl.getShareCode(), code));
+        }
+        incrementClicksAndSave(shortUrl);
+        return shortUrl.getOriginalUrl();
     }
 
     private void incrementClicksAndSave(ShortUrl shortUrl) {
