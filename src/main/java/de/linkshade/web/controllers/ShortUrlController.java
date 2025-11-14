@@ -97,6 +97,7 @@ public class ShortUrlController {
         } catch (UrlPrivateException ex) {
             if (Constants.SHARE_CODE_REQUIRED.equals(ex.getMessage())) { //triggers form for sending the code
                 addShareCodeAttributes(shortUrl, model);
+                helper.addAvatarToModel(model);
                 return "error/401";
             }
             throw new UrlPrivateException(ex.getMessage());
@@ -106,26 +107,30 @@ public class ShortUrlController {
     @PostMapping("/s/{short-urls}/verify")
     public String verifyShareCode(@PathVariable("short-urls") String shortUrl,
                                   @ModelAttribute("shareCode") String shareCode,
+                                  HttpServletRequest request,
                                   Model model) {
 
-        if (shareCodeAttemptService.hasExceededMaxAttempts(shortUrl)) {
-            model.addAttribute("errorMessage", "Maximum attempts exceeded. Try again in 15 minutes.");
-            model.addAttribute("requiresShareCode", false);
-            // add new attribute to show a different message in 401.html (e.g. shareCodeTriesReached)
+        String key = shareCodeAttemptService.createKeyFromRequest(shortUrl, request);
+        if (shareCodeAttemptService.hasExceededMaxAttempts(key)) {
+            model.addAttribute("errorMessage", String.format("Maximum attempts exceeded. Try again in %d minutes",
+                    Constants.CODE_TRIES_DURATION));
+            addShareCodeAttributes(shortUrl, model);
+            helper.addAvatarToModel(model);
             return "error/401";
         }
         try {
             String originalUrl = shortUrlService.verifySharingCode(shortUrl, shareCode);
-            shareCodeAttemptService.resetAttempts(shortUrl);
+            shareCodeAttemptService.resetAttempts(key);
             return "redirect:" + originalUrl;
         } catch (UrlPrivateException ex) {
-            shareCodeAttemptService.recordFailedAttempt(shortUrl);
+            shareCodeAttemptService.recordFailedAttempt(key);
             addShareCodeAttributes(shortUrl, model);
             model.addAttribute("errorMessage", "Invalid code");
+            helper.addAvatarToModel(model);
             return "error/401";
         } catch (UrlException ex) {
             log.error("Error verifying share code: {}", ex.getMessage(), ex);
-            model.addAttribute("requiresShareCode", false);
+            helper.addAvatarToModel(model);
             return "error/400";
         }
     }
@@ -140,7 +145,8 @@ public class ShortUrlController {
         if (rateLimitReached != null && rateLimitReached) {
             String rateLimitMessage = authenticationService.getUserInfo().isPresent() ?
                     "You have reached your rate limit. Please wait 1 hour before creating more URLs"
-                    : "Maximum number of URLs created has been reached. Please either wait 1 hour or log in to create more";
+                    : String.format("Maximum number of URLs created has been reached. Please either wait %d hour or log in to create more",
+                    Constants.RATE_LIMIT_DURATION);
             redirectAttributes.addFlashAttribute("errorMessage", rateLimitMessage);
             return true;
         }
@@ -148,12 +154,12 @@ public class ShortUrlController {
     }
 
     private void checkAvailableTokens(RedirectAttributes redirectAttributes, HttpServletRequest request) {
-        String clientIpAddress = rateLimitService.getClientIpAddress(request);
-        long remainingTokens = rateLimitService.consumeToken(clientIpAddress);
+        String bucketKey = rateLimitService.createBucketKeyFromRequest(request);
+        long remainingTokens = rateLimitService.consumeToken(bucketKey);
         if (remainingTokens <= REMAINING_TOKENS_WARNING) {
             redirectAttributes.addFlashAttribute("warningMessage",
                     remainingTokens == 0 ? "You ran out of URLs to be created!" :
-                            String.format("You have %s URL(s) left to be created", remainingTokens));
+                            String.format("You have %d URL(s) left to be created", remainingTokens));
         }
     }
 

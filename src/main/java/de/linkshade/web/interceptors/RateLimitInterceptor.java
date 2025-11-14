@@ -18,8 +18,8 @@ public class RateLimitInterceptor implements HandlerInterceptor {
                              @NonNull HttpServletResponse response,
                              @NonNull Object handler) {
 
-        String clientIpAddress = rateLimitService.getClientIpAddress(request);
-        long remainingTokens = rateLimitService.getRemainingTokens(clientIpAddress);
+        String bucketKey = rateLimitService.createBucketKeyFromRequest(request);
+        long remainingTokens = rateLimitService.getRemainingTokens(bucketKey);
 
         if (remainingTokens == 0)
             request.setAttribute("rateLimitReached", true);

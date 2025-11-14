@@ -142,8 +142,10 @@ public class ShortUrlService {
             return shortUrl.getOriginalUrl();
         }
 
-        if (userHasGrantedAccess(shortUrl))
+        if (userHasGrantedAccess(shortUrl)) {
+            incrementClicksAndSave(shortUrl);
             return shortUrl.getOriginalUrl();
+        }
 
         // private and shared
         if (shortUrl.getShareCode() != null) {
