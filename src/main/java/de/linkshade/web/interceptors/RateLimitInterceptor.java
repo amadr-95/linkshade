@@ -1,5 +1,6 @@
 package de.linkshade.web.interceptors;
 
+import de.linkshade.exceptions.RateLimitExceededException;
 import de.linkshade.services.RateLimitService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -22,7 +23,7 @@ public class RateLimitInterceptor implements HandlerInterceptor {
         long remainingTokens = rateLimitService.getRemainingTokens(bucketKey);
 
         if (remainingTokens == 0)
-            request.setAttribute("rateLimitReached", true);
+            throw new RateLimitExceededException("Rate limit exceeded for: " + bucketKey);
 
         return true;
     }

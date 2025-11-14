@@ -1,11 +1,14 @@
 package de.linkshade.exceptions.handler;
 
+import de.linkshade.config.Constants;
+import de.linkshade.exceptions.RateLimitExceededException;
 import de.linkshade.exceptions.UrlException;
 import de.linkshade.exceptions.UrlExpiredException;
 import de.linkshade.exceptions.UrlNotFoundException;
 import de.linkshade.exceptions.UrlPrivateException;
 import de.linkshade.exceptions.UserException;
 import de.linkshade.exceptions.UserNotFoundException;
+import de.linkshade.security.AuthenticationService;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +22,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 @Slf4j
 @ControllerAdvice
@@ -26,6 +30,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 public class GlobalExceptionHandler {
 
     private final ModelAttributeHelper helper;
+    private final AuthenticationService authenticationService;
 
     /**
      * Handles URL not found exceptions.
@@ -36,7 +41,7 @@ public class GlobalExceptionHandler {
     public String handleUrlNotFound(Model model, UrlException ex, HttpServletRequest request) {
         log.warn("URL not found or expired - Path: {}, Message: {}",
                 request.getRequestURI(), ex.getMessage(), ex);
-        return buildErrorView(model, "error/404");
+        return buildView(model, "error/404");
     }
 
     /**
@@ -48,7 +53,7 @@ public class GlobalExceptionHandler {
     public String handleUrlPrivate(Model model, UrlPrivateException ex, HttpServletRequest request) {
         log.warn("Unauthorized access to private URL - Path: {}, Message: {}",
                 request.getRequestURI(), ex.getMessage(), ex);
-        return buildErrorView(model, "error/401");
+        return buildView(model, "error/401");
     }
 
     /**
@@ -60,7 +65,7 @@ public class GlobalExceptionHandler {
     public String handleUrlException(Model model, UrlException ex, HttpServletRequest request) {
         log.error("Unexpected URL error - Path: {}, Message: {}",
                 request.getRequestURI(), ex.getMessage(), ex);
-        return buildErrorView(model, "error/500");
+        return buildView(model, "error/500");
     }
 
     /**
@@ -72,7 +77,7 @@ public class GlobalExceptionHandler {
     public String handleUserNotFound(Model model, UserNotFoundException ex, HttpServletRequest request) {
         log.warn("User not found - Path: {}, Message: {}",
                 request.getRequestURI(), ex.getMessage(), ex);
-        return buildErrorView(model, "error/404");
+        return buildView(model, "error/404");
     }
 
     /**
@@ -84,7 +89,7 @@ public class GlobalExceptionHandler {
     public String handleUserException(Model model, UserException ex, HttpServletRequest request) {
         log.error("User error - Path: {}, Message: {}",
                 request.getRequestURI(), ex.getMessage(), ex);
-        return buildErrorView(model, "error/500");
+        return buildView(model, "error/500");
     }
 
     /**
@@ -101,7 +106,25 @@ public class GlobalExceptionHandler {
     public String handleBadRequest(Model model, Exception ex, HttpServletRequest request) {
         log.warn("Bad request - Path: {}, Type: {}, Message: {}",
                 request.getRequestURI(), ex.getClass().getSimpleName(), ex.getMessage(), ex);
-        return buildErrorView(model, "error/400");
+        return buildView(model, "error/400");
+    }
+
+    @ExceptionHandler(RateLimitExceededException.class)
+    public String handleRateLimitExceededException(RateLimitExceededException ex,
+                                                   HttpServletRequest request,
+                                                   Model model,
+                                                   RedirectAttributes redirectAttributes) {
+        log.warn("Rate limit exceeded - Path: {}, Type: {}, Message: {}",
+                request.getRequestURI(),
+                ex.getClass().getSimpleName(), ex.getMessage(), ex);
+
+        String rateLimitMessage = authenticationService.getUserInfo().isPresent() ?
+                "You have reached your rate limit. Please wait 1 hour before creating more URLs"
+                : String.format("Maximum number of URLs created has been reached. Please either wait %d hour or log in to create more",
+                Constants.RATE_LIMIT_DURATION);
+
+        redirectAttributes.addFlashAttribute("errorMessage", rateLimitMessage);
+        return buildView(model, "redirect:/");
     }
 
     /**
@@ -113,7 +136,7 @@ public class GlobalExceptionHandler {
     public String handleUnknownException(Model model, Exception ex, HttpServletRequest request) {
         log.error("Unexpected error - Path: {}, Type: {}, Message: {}",
                 request.getRequestURI(), ex.getClass().getSimpleName(), ex.getMessage(), ex);
-        return buildErrorView(model, "error/400");
+        return buildView(model, "error/400");
     }
 
     /**
@@ -123,7 +146,7 @@ public class GlobalExceptionHandler {
      * @param viewName the name of the error view to render
      * @return the view name
      */
-    private String buildErrorView(Model model, String viewName) {
+    private String buildView(Model model, String viewName) {
         helper.addAvatarToModel(model);
         return viewName;
     }

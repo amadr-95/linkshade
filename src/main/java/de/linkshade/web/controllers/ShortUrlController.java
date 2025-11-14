@@ -65,9 +65,6 @@ public class ShortUrlController {
                                  @PageableDefault Pageable pageable,
                                  HttpServletRequest request
     ) {
-
-        if (rateLimitReached(request, redirectAttributes)) return "redirect:/";
-
         if (bindingResult.hasErrors()) {
             if (bindingResult.getFieldError("expirationDate") != null) {
                 log.warn("User {} is introducing wrong values intentionally. Expected: date, got: {}",
@@ -138,19 +135,6 @@ public class ShortUrlController {
     private static void addShareCodeAttributes(String shortUrl, Model model) {
         model.addAttribute("shortUrl", shortUrl);
         model.addAttribute("requiresShareCode", true);
-    }
-
-    private boolean rateLimitReached(HttpServletRequest request, RedirectAttributes redirectAttributes) {
-        Boolean rateLimitReached = (Boolean) request.getAttribute("rateLimitReached");
-        if (rateLimitReached != null && rateLimitReached) {
-            String rateLimitMessage = authenticationService.getUserInfo().isPresent() ?
-                    "You have reached your rate limit. Please wait 1 hour before creating more URLs"
-                    : String.format("Maximum number of URLs created has been reached. Please either wait %d hour or log in to create more",
-                    Constants.RATE_LIMIT_DURATION);
-            redirectAttributes.addFlashAttribute("errorMessage", rateLimitMessage);
-            return true;
-        }
-        return false;
     }
 
     private void checkAvailableTokens(RedirectAttributes redirectAttributes, HttpServletRequest request) {
