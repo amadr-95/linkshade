@@ -5,9 +5,9 @@ spring:
     basename: messages
   # Database config
   datasource:
-    url: jdbc:postgresql://localhost:5432/linkshade-db
-    username: asabido
-    password: asabido
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
   jpa:
     open-in-view: false
   security:
@@ -45,7 +45,7 @@ app:
   max-request-logged-user: 10
   enable-delete-account: false
   short-url-properties:
-    base-url: "http://localhost:8080"
+    base-url: ${APP_BASE_URL}
     default-expiry-days: 30
     is-private: false
     default-shorturl-length: 10

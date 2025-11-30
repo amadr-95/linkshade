@@ -1,10 +1,12 @@
+# Only for local development
+# run: docker compose up -d --build
 services:
   linkshade-db:
     container_name: linkshade-db
     image: postgres
     environment:
-      POSTGRES_USER: asabido
-      POSTGRES_PASSWORD: asabido
+      POSTGRES_USER: ${SPRING_DATASOURCE_USERNAME}
+      POSTGRES_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
       POSTGRES_DB: linkshade-db # creates database by default (psql -U asabido -d db_name)
       PGDATA: /data/postgres
     volumes:
@@ -12,11 +14,36 @@ services:
     ports:
       - "5432:5432"
     networks:
-      - linkshade-db-network
+      - linkshade-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U asabido -d linkshade-db" ]
+      interval: 5s
+      timeout: 3s
+      retries: 3
+
+  linkshade-app:
+    env_file:
+      - .env
+    container_name: linkshade-app
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://linkshade-db:5432/linkshade-db
+      SPRING_DATASOURCE_USERNAME: ${SPRING_DATASOURCE_USERNAME}
+      SPRING_DATASOURCE_PASSWORD: ${SPRING_DATASOURCE_PASSWORD}
+    depends_on:
+      linkshade-db:
+        condition: service_healthy
+    networks:
+      - linkshade-network
     restart: unless-stopped
 
 networks:
-  linkshade-db-network:
+  linkshade-network:
     driver: bridge
 
 volumes:

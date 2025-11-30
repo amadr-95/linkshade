@@ -37,7 +37,7 @@ with user management capabilities.
 - Java 21
 - Maven
 - Docker (PostgreSQL)
-- Spring Boot 3.5.5
+- Spring Boot 3.5.7
 
 ## Architecture
 
@@ -92,93 +92,58 @@ This setting:
 - Improves performance by releasing database resources more quickly
 - Forces explicitly loading all necessary data within the transaction
 
-This configuration is considered a best practice for production applications, although the default value in Spring Boot
-is `true`. In order to use this approach, the relationships have to be marked with `fetch = FetchType.LAZY` and retrieve the necessary data
+In order to use this approach, the relationships have to be marked with `fetch = FetchType.LAZY` and retrieve the necessary data
 directly from the query (either using `psql` join columns or using `@EntityGraph` annotation), resulting in a single executed query by Spring Data JPA and not N+1.
 
 ## User Interface
 
 The application uses Thymeleaf as a template engine with Bootstrap to provide a responsive and modern interface.
 
-# Security topics
-## Detailed explanation about CSRF in Spring Security
+## Running the app
 
-### What is CSRF?
+### Using Docker Compose (Recommended)
 
-CSRF (Cross-Site Request Forgery) is a type of attack where a malicious site tricks an authenticated user's browser into sending an unwanted request to your web application. The attacker takes advantage of the fact that session cookies are automatically sent with each request to the same domain.
+This is the recommended approach as it orchestrates all services together.
 
-### CSRF Configurations in Spring Security
+#### Option 1: Running PostgreSQL only with Docker Compose
 
-#### 1. Completely disable CSRF
+If you want to run the Spring Boot application from your IDE and only use Docker for the database:
 
-```
-.csrf(CsrfConfigurer::disable)
-```
-
-**When to use it:**
-- Stateless RESTful APIs
-- Applications using JWT tokens or other token-based authentication mechanisms (not cookies)
-- Mobile applications
-- Internal services where CSRF is not a threat
-
-#### 2. Default configuration
-
-```
-.csrf(Customizer.withDefaults())
+1. Start only the PostgreSQL service:
+```bash
+docker-compose up -d linkshade-db
 ```
 
-**When to use it:**
-- Traditional web applications with forms
-- Applications using session-based authentication
-- When you need protection against CSRF with minimal configuration
-
-### Recommendations
-
-1. For web applications with forms and session authentication: **enable CSRF**
-2. For pure REST APIs using JWT or stateless authentication: **disable CSRF**
-3. For hybrid applications: **custom configuration** that protects vulnerable parts
-
-## Disabling anonymous authentication in Spring Security
-
-In Spring Security, by default, when a user is not authenticated, the framework automatically creates an authentication object with an "anonymous" user. This behavior is managed by the `AnonymousAuthenticationFilter`.
-
-### What is anonymous authentication?
-
-When a user is not authenticated, Spring Security creates an anonymous authentication token (`AnonymousAuthenticationToken`) in the security context. This ensures that there is always an authentication object available, even if the user has not logged in.
-
-### Why disable it?
-
-It may be necessary to disable this behavior when:
-
-- You need to clearly distinguish between authenticated and unauthenticated users
-- You want `SecurityContextHolder.getContext().getAuthentication()` to return `null` for unauthenticated users
-- You want to implement your own logic to handle unauthenticated users
-
-### How to disable anonymous authentication
-
-To disable anonymous authentication in Spring Security, add the following configuration:
-
-```java
-@Bean
-public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-    http
-            // Rest of the configuration...
-            
-            // Disable anonymous authentication
-            .anonymous(AbstractHttpConfigurer::disable);
-            
-    return http.build();
-}
+2. Run the Spring Boot application from your IDE or using Maven:
+```bash
+./mvnw spring-boot:run
 ```
-Note: disabling anonymous authentication will lead to `sec:authorize="isAnonymous()` and `sec:authorize="isAuthenticated()` 
-in index.html to not work properly, because it is always expecting some authentication (anonymous or not) to show/not show the different navbar links.
 
-### Implications
+3. Stop the database when finished:
+```bash
+docker-compose down
+```
 
-When disabling anonymous authentication:
+#### Option 2: Running everything with Docker Compose
 
-- `SecurityContextHolder.getContext().getAuthentication()` will return `null` when there is no authenticated user
-- You will need to explicitly check if authentication is `null` before accessing its properties
-- Methods like `isAuthenticated()` won't work if authentication is `null`
+To run both the database and the application as containers:
 
-This configuration gives you greater control over how to handle unauthenticated users in your application.
+1. Build and start all services in detached mode (background):
+```bash
+docker-compose up -d
+```
+
+2. View logs:
+```bash
+docker-compose logs -f
+```
+
+3. Stop all services:
+```bash
+docker-compose down
+```
+
+4. Stop and remove volumes (database data):
+```bash
+docker-compose down -v
+```

@@ -117,7 +117,7 @@
             <version>8.1.0</version>
         </dependency>
 
-        <!-- Caching library for managing number of tries when checking shareable code on private URLs -->
+        <!-- Caching library -->
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
