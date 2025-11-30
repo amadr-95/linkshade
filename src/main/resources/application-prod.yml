@@ -1,14 +1,22 @@
 spring:
 # DB config in prod
   datasource:
-    url: ${DATABASE_URL}
-    username: ${PGUSER}
-    password: ${PGPASSWORD}
+    url: ${DATABASE_URL}?sslmode=require
+    hikari:
+      maximum-pool-size: 5  # free tier limits connections
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: validate  # Flyway's managing the schema
+  flyway:
+    enabled: true
+    baseline-on-migrate: true
+
+logging:
+  level:
+    de.linkshade: INFO
 
 # App properties in prod
 app:
   short-url-properties:
     base-url: ${APP_BASE_URL}
+  check-http-status-code: true  # Verify URLs on prod

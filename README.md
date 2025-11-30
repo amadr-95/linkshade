@@ -130,8 +130,9 @@ To run both the database and the application as containers:
 
 1. Build and start all services in detached mode (background):
 ```bash
-docker-compose up -d
+docker-compose up -d --build
 ```
+Note: `--build` can be avoided if no changes were made. In that case, the local built image will be used.
 
 2. View logs:
 ```bash
