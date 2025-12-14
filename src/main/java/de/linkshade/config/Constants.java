@@ -25,10 +25,9 @@ public final class Constants {
     public static final String DEFAULT_USER_NAME = "Guest";
     public static final int NUMBER_OF_CODE_TRIES = 3;
     public static final String SHARE_CODE_REQUIRED = "share_code_required";
-    public static final int CODE_TRIES_DURATION = 1;
-    public static final int RATE_LIMIT_DURATION = 1;
-    public static final int BUCKETS_EXPIRATION_TIME = 2;
-
+    public static final int CODE_TRIES_DURATION_IN_MINUTES = 1;
+    public static final int RATE_LIMIT_DURATION_IN_HOURS = 1;
+    public static final int BUCKETS_EXPIRATION_TIME_IN_HOURS = 2;
 
     // ShortUrlFormFieldNames
     public static final String ORIGINAL_URL = "originalUrl";

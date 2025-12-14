@@ -110,7 +110,7 @@ public class ShortUrlController {
         String key = shareCodeAttemptService.createKeyFromRequest(shortUrl, request);
         if (shareCodeAttemptService.hasExceededMaxAttempts(key)) {
             model.addAttribute("errorMessage", String.format("Maximum attempts exceeded. Try again in %d minutes",
-                    Constants.CODE_TRIES_DURATION));
+                    Constants.CODE_TRIES_DURATION_IN_MINUTES));
             addShareCodeAttributes(shortUrl, model);
             helper.addAvatarToModel(model);
             return "error/401";

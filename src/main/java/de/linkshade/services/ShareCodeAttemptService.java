@@ -16,7 +16,7 @@ import static de.linkshade.utils.IpAddressUtils.getClientIpAddress;
 public class ShareCodeAttemptService {
 
     private final Cache<@NonNull String, Integer> attemptCache = Caffeine.newBuilder()
-            .expireAfterWrite(Duration.ofMinutes(Constants.CODE_TRIES_DURATION))
+            .expireAfterWrite(Duration.ofMinutes(Constants.CODE_TRIES_DURATION_IN_MINUTES))
             .maximumSize(1_000)
             .build();
 
