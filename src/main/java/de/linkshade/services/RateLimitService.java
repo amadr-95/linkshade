@@ -29,7 +29,7 @@ public class RateLimitService {
      * Buckets are evicted after 2 hours of inactivity.
      */
     private final Cache<@NonNull String, Bucket> buckets = Caffeine.newBuilder()
-            .expireAfterAccess(Duration.ofHours(Constants.BUCKETS_EXPIRATION_TIME))
+            .expireAfterAccess(Duration.ofHours(Constants.BUCKETS_EXPIRATION_TIME_IN_HOURS))
             .build();
 
     public long consumeToken(String bucketKey) {
@@ -57,7 +57,7 @@ public class RateLimitService {
                 properties.maxRequestAnonymousUser();
 
         Bandwidth bandwidth = Bandwidth.classic(limit,
-                Refill.intervally(limit, Duration.ofHours(Constants.RATE_LIMIT_DURATION)));
+                Refill.intervally(limit, Duration.ofHours(Constants.RATE_LIMIT_DURATION_IN_HOURS)));
 
         return Bucket.builder()
                 .addLimit(bandwidth)

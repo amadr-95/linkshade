@@ -61,7 +61,7 @@ public class UserUrlController {
 
     //For tradicional html-web-form applications it is common to use POST for editing; PUT for API Rest
     @PostMapping("/edit-urls/{urlId}")
-    public String editUrl(@PathVariable("urlId") UUID urlId,
+    public String editUrl(@PathVariable UUID urlId,
                           @RequestParam("returnUrl") String returnUrl,
                           @ModelAttribute ShortUrlEditForm shortUrlEditForm,
                           RedirectAttributes redirectAttributes) {
@@ -81,7 +81,7 @@ public class UserUrlController {
     }
 
     @PostMapping("/manage-sharing-code/{urlId}")
-    public String manageSharingPrivateUrl(@PathVariable("urlId") UUID urlId,
+    public String manageSharingPrivateUrl(@PathVariable UUID urlId,
                                           @RequestParam("returnUrl") String returnUrl,
                                           RedirectAttributes redirectAttributes) {
         try {

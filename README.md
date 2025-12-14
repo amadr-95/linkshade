@@ -1,82 +1,376 @@
-# TODO
+# LinkShade
 
-- [x] Implement Google/GitHub Oauth
-- [x] Avoid unlogged users to use the /short-urls endpoint after X times (rate limit)
-- [x] Implement rate limit for logged users too
-- [ ] Postgres cronjob for removing expired public urls
-- [x] Check for unexpected changes in the backend. What happens if someone change the input type in the date field?, disabled buttons, etc
-- [x] Avoid sending the userId to the front-end (model). Get it from the authenticationService when deleting a user
-- [ ] Unit tests 
-- [ ] Integration tests
-- [x] Increase number of characters to the original url (~1000)
-- [x] Image carrousel explaining the product 
-- [x] Add links to my accounts 
-- [x] Add metadata in layout 
-- [x] Check responsiveness and styles
-- [x] Improve logging and errorMessages
-- [x] Fix discrepancy between days of expiration
-- [x] Delete user account and remove all URLs linked to it
-- [x] Delete all URLs when removing a user from Admin Dashboard
-- [ ] Improve logging messages
-- [x] Improve GlobalErrorHandler
-- OPTIONAL:
-- [x] Button for deleting all expired urls in my-urls/admin html page
-- [x] Button for reactivating all expired urls in my-urls page 
+<div style="text-align: center;">
 
-# URL Shortener App
+A modern URL shortening service built with Spring Boot and PostgreSQL, featuring OAuth authentication, rate limiting, and comprehensive URL management capabilities.
 
-A URL shortening service built with Spring Boot, Java 21, and PostgreSQL.
+[![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen.svg)](https://spring.io/projects/spring-boot)
+[![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Latest-blue.svg)](https://www.postgresql.org/)
 
-## Description
+</div>
 
-This application allows users to shorten long URLs and track usage statistics. It supports both public and private URLs
-with user management capabilities.
+---
 
-## Technical Requirements
+## 📑 Table of Contents
 
-- Java 21
-- Maven
-- Docker (PostgreSQL)
-- Spring Boot 3.5.7
+- [Overview](#-overview)
+- [Key Features](#-key-features)
+- [Technology Stack](#-technology-stack)
+- [Architecture](#-architecture)
+- [Prerequisites](#-prerequisites)
+- [Getting Started](#-getting-started)
+- [Project Structure](#-project-structure)
+- [Database Management](#-database-management)
+- [Performance Optimization](#-performance-optimization)
+- [Screenshots](#-screenshots)
+- [Contributing](#-contributing)
 
-## Architecture
+---
+
+## 🎯 Overview
+
+LinkShade is a production-ready URL shortening service designed with scalability, security, and user experience in mind. It provides both public and authenticated access, with robust rate limiting, OAuth integration, and comprehensive URL management features.
+
+### Purpose
+
+- **Simplify URL Sharing**: Convert long URLs into short, manageable links
+- **Track Engagement**: Monitor clicks
+- **Secure Access Control**: Support for both public and private URLs with user authentication
+- **Multi-tenant Support**: User-specific URL management with admin capabilities
+- **Enterprise-Ready**: Built with production best practices including rate limiting, validation, and error handling
+
+---
+
+## ✨ Key Features
+
+### Core Functionality
+- ✅ **URL Shortening**: Generate short, unique identifiers for long URLs
+- ✅ **Custom Short Codes**: Create personalized short URL identifiers
+- ✅ **Click Tracking**: Monitor usage statistics for each shortened URL
+- ✅ **URL Expiration**: Automatic expiration with configurable time periods
+- ✅ **Bulk Operations**: Delete or reactivate multiple URLs at once
+- ✅ **User Profiles**: Manage URLs fields
+- ✅ **Admin Dashboard**: Administrative interface for user and URL management
+- 
+### Authentication & Security
+- ✅ **OAuth 2.0 Integration**: Login with Google and GitHub
+- ✅ **Rate Limiting**: Separate limits for anonymous and authenticated users
+- ✅ **Private URLs**: User-specific URL access control
+- ✅ **Input Validation**: Comprehensive validation for URLs and user input
+
+### UI/UX
+- ✅ **Responsive Design**: Bootstrap 5-based modern interface
+- ✅ **Interactive Carousel**: Product feature showcase
+- ✅ **Pagination & Sorting**: Efficient data browsing with customizable views
+- ✅ **Error Pages**: Custom error handling with user-friendly messages
+
+---
+
+## 🛠 Technology Stack
+
+### Backend
+- **Java 21**: Latest LTS version with modern language features
+- **Spring Boot 3.5.7**: Enterprise-grade application framework
+- **Spring Security**: OAuth 2.0 and authentication/authorization
+- **Spring Data JPA**: Database abstraction and ORM
+- **Hibernate**: JPA implementation for entity management
+- **Maven**: Dependency management and build automation
+
+### Database
+- **PostgreSQL**: Primary relational database
+- **Flyway**: Database version control and migration management
+
+### Frontend
+- **Thymeleaf**: Server-side template engine
+- **Bootstrap 5.3.5**: Responsive UI framework
+- **Bootstrap Icons 1.11.3**: Icon library
+- **JavaScript**: Client-side interactivity
+
+### DevOps & Tools
+- **Docker**: Containerization for consistent environments
+- **Docker Compose**: Multi-container orchestration
+- **Lombok**: Boilerplate code reduction
+- **JUnit 5**: Testing framework
+
+### Development Tools
+- **Maven Wrapper**: Ensures consistent Maven version
+- **Eclipse Temurin JDK**: OpenJDK distribution for builds
+
+---
+
+## 🏗 Architecture
+
+### Domain-Driven Design
+
+The application follows a layered architecture with clear separation of concerns:
+
+```
+┌─────────────────────────────────────────┐
+│         Presentation Layer              │
+│  (Controllers, Templates, Interceptors) │
+└─────────────────────────────────────────┘
+                  ↓
+┌─────────────────────────────────────────┐
+│          Service Layer                  │
+│  (Business Logic, Validation, Mapping)  │
+└─────────────────────────────────────────┘
+                  ↓
+┌─────────────────────────────────────────┐
+│         Repository Layer                │
+│    (Data Access, JPA Repositories)      │
+└─────────────────────────────────────────┘
+                  ↓
+┌─────────────────────────────────────────┐
+│          Database Layer                 │
+│           (PostgreSQL)                  │
+└─────────────────────────────────────────┘
+```
 
 ### Core Entities
 
-The system is based on two main entities:
+The system is built around two primary domain entities:
 
-- `User`: Manages registered user information
-- `ShortUrl`: Stores shortened URLs and their metadata
+- **`User`**: Manages authenticated user information, OAuth provider data, and relationships to shortened URLs
+- **`ShortUrl`**: Stores shortened URLs with metadata including clicks, expiration dates, and privacy settings
 
-### Database Migrations with Flyway
+---
 
-Flyway is used to manage database migrations in a controlled and versioned manner. This tool allows:
+## 📋 Prerequisites
 
-- Maintaining a history of changes to the database structure
-- Applying migrations consistently across different environments
-- Avoiding conflicts in database schemas
+Before running the application, ensure you have the following installed:
 
-#### Flyway Configuration
+| Tool               | Version | Purpose                                                         |
+|--------------------|---------|-----------------------------------------------------------------|
+| **Java JDK**       | 21+     | Required for running the application                            |
+| **Maven**          | 3.8+    | Build and dependency management (or use included Maven Wrapper) |
+| **Docker**         | Latest  | For containerized PostgreSQL and application deployment         |
+| **Docker Compose** | Latest  | For multi-container orchestration                               |
+| **Git**            | Latest  | Version control                                                 |
 
-Flyway requires the following directory structure:
+---
+
+## 🚀 Getting Started
+
+Get up and running in 5 minutes (using `docker compose`):
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/linkshade.git
+cd linkshade
+
+# Set up environment variables (optional - see table below)
+cp .env.example .env
+```
+
+### 📊 Environment Variables Reference
+
+| Variable                     | Description                  | Required | Default | Example                                         |
+|------------------------------|------------------------------|----------|---------|-------------------------------------------------|
+| `GITHUB_CLIENT_ID`           | GitHub OAuth client ID       | No*      | -       | `abc123def456`                                  |
+| `GITHUB_CLIENT_SECRET`       | GitHub OAuth client secret   | No*      | -       | `xyz789uvw456`                                  |
+| `GOOGLE_CLIENT_ID`           | Google OAuth client ID       | No*      | -       | `123456.apps.googleusercontent.com`             |
+| `GOOGLE_CLIENT_SECRET`       | Google OAuth client secret   | No*      | -       | `GOCSPX-abc123`                                 |
+| `APP_BASE_URL`               | Base URL for the application | Yes      | -       | `http://localhost:8080`                         |
+| `SPRING_DATASOURCE_URL`      | PostgreSQL JDBC URL          | Yes      | -       | `jdbc:postgresql://localhost:5432/linkshade-db` |
+| `SPRING_DATASOURCE_USERNAME` | Database username            | Yes      | -       | `postgres`                                      |
+| `SPRING_DATASOURCE_PASSWORD` | Database password            | Yes      | -       | `postgres`                                      |
+
+\* *Required for OAuth login functionality. Application will work without OAuth but users won't be able to log in.*
+
+> [!INFO]  
+> If you don't mind having this feature, skip this part and continue with running the app from [here](#option-1)
+
+To enable OAuth authentication, you'll need:
+- **Google OAuth 2.0 Credentials**: [Google Cloud Console](https://console.cloud.google.com/)
+- **GitHub OAuth App**: [GitHub Developer Settings](https://github.com/settings/developers)
+
+#### Google OAuth Configuration
+
+1. Go to [Google Cloud Console](https://console.cloud.google.com/)
+2. Create a new project or select an existing one
+3. Enable the Google+ API
+4. Create OAuth 2.0 credentials:
+   - Application type: Web application
+   - Authorized redirect URIs: `http://localhost:8080/login/oauth2/code/google`
+5. Copy the Client ID and Client Secret to your `.env.local` file
+
+#### GitHub OAuth Configuration
+
+1. Go to [GitHub Developer Settings](https://github.com/settings/developers)
+2. Click "New OAuth App"
+3. Fill in the application details:
+   - Application name: LinkShade
+   - Homepage URL: `http://localhost:8080`
+   - Authorization callback URL: `http://localhost:8080/login/oauth2/code/github`
+4. Copy the Client ID and Client Secret to your `.env.local` file
+
+---
+
+### Option 1
+
+Run the database in Docker and the application from your IDE or Maven:
+
+#### Step 1: Start PostgreSQL
+
+```bash
+docker compose up -d linkshade-db
+```
+
+#### Step 2: Run the Application
+
+Run `LinkshadeApplication.java` or 
+```bash
+./mvnw spring-boot:run
+```
+
+#### Step 3: Access the Application
+
+Open your browser and navigate to:
+```
+http://localhost:8080
+```
+
+#### Step 4: Stop the Database (when finished)
+
+```bash
+docker compose down
+```
+
+To remove all data:
+```bash
+docker compose down -v
+```
+
+---
+
+### Option 2 (Recommended)
+
+Run both the database and application as Docker containers :
+
+#### Step 1: Build and Start All Services
+
+```bash
+docker compose up -d --build
+```
+
+> [!NOTE]  
+> Omit `--build` flag if no code changes were made since the last build.
+
+#### Step 2: Verify Services are Running
+
+```bash
+docker compose ps
+```
+
+Expected output:
+```
+NAME              IMAGE              STATUS         PORTS
+linkshade-app     linkshade-app      Up             0.0.0.0:8080->8080/tcp
+linkshade-db      postgres           Up (healthy)   0.0.0.0:5432->5432/tcp
+```
+
+#### Step 3: View Logs
+
+**All services:**
+```bash
+docker compose logs -f
+```
+
+**Specific service:**
+```bash
+docker compose logs -f [NAME]
+```
+
+#### Step 4: Access the Application
 
 ```
-resources
-|-- db
-    |-- migration
-        |-- V1__script_name.sql
-        |-- V2__script_name.sql
-        |-- ...
+http://localhost:8080
 ```
 
-Migration scripts follow a naming convention: `V{number}__{description}.sql`.
+#### Step 5: Stop All Services
 
-## Performance Optimization
+```bash
+docker compose down
+```
+
+**To remove all data (including database volumes):**
+```bash
+docker compose down -v
+```
+
+---
+
+## 📁 Project Structure
+
+```
+linkshade/
+├── src/
+│   ├── main/
+│   │   ├── java/de/linkshade/
+│   │   │   ├── config/              # Application configuration
+│   │   │   ├── domain/              # Domain entities and DTOs
+│   │   │   │   ├── entities/        # JPA entities
+│   │   │   │   └── dto/             # Data Transfer Objects
+│   │   │   ├── exceptions/          # Custom exceptions and handlers
+│   │   │   ├── repositories/        # Spring Data JPA repositories
+│   │   │   ├── security/            # Security configuration and OAuth
+│   │   │   ├── services/            # Business logic layer
+│   │   │   ├── utils/               # Utility classes
+│   │   │   ├── validation/          # Custom validators
+│   │   │   └── web/                 # Controllers and interceptors
+│   │   └── resources/
+│   │       ├── db/migration/        # Flyway migration scripts
+│   │       ├── static/              # Static assets (CSS, JS, images)
+│   │       ├── templates/           # Thymeleaf templates
+│   │       ├── application.yml      # Main configuration
+│   │       └── application-prod.yml # Production configuration
+│   └── test/                        # Test files
+├── docker-compose.yml               # Docker Compose configuration
+├── Dockerfile                       # Multi-stage Docker build
+├── pom.xml                          # Maven configuration
+├── .env.example                     # Environment variables template
+└── README.md                        # This file
+```
+
+---
+
+## 🗄 Database Management
+
+### Flyway Migrations
+
+LinkShade uses Flyway for database version control and migration management. This ensures:
+
+- **Version Control**: Track all database schema changes
+- **Consistency**: Apply migrations uniformly across all environments
+- **Rollback Safety**: Maintain migration history for audit trails
+- **Team Collaboration**: Avoid schema conflicts
+
+#### Migration Structure
+
+Flyway migrations are located in `src/main/resources/db/migration/`:
+
+```
+db/migration/
+├── V1__create_schema.sql      # Initial schema creation
+├── V2__insert_data.sql        # Seed data
+└── V{n}__{description}.sql   # Subsequent migrations
+```
+
+#### Naming Convention
+
+- **Format**: `V{version}__{description}.sql`
+- **Example**: `V3__add_user_roles.sql`
+- **Rules**:
+  - Version must be numeric and unique
+  - Double underscore separates version from description
+  - Description uses underscores for spaces
+
+## ⚡ Performance Optimization
 
 ### Preventing the N+1 Select Problem
 
-To avoid the N+1 Select problem (where an additional query is performed for each retrieved record), the application
-sets:
+The application implements best practices to avoid the N+1 query problem:
 
 ```yaml
 spring:
@@ -84,67 +378,70 @@ spring:
     open-in-view: false
 ```
 
-This setting:
+**Benefits:**
+- ✅ Closes `EntityManager` at transaction boundary
+- ✅ Prevents lazy loading outside transaction context
+- ✅ Forces explicit data fetching strategies
+- ✅ Releases database connections promptly
+- ✅ Reduces database load
 
-- Closes the EntityManager when the transaction ends (typically at the end of the controller method)
-- Prevents database connections from remaining open during the entire HTTP response
-- Prevents lazy loading outside the transaction context
-- Improves performance by releasing database resources more quickly
-- Forces explicitly loading all necessary data within the transaction
+**Implementation Strategy:**
 
-In order to use this approach, the relationships have to be marked with `fetch = FetchType.LAZY` and retrieve the necessary data
-directly from the query (either using `psql` join columns or using `@EntityGraph` annotation), resulting in a single executed query by Spring Data JPA and not N+1.
+1. **Lazy Loading by Default**: All relationships are marked with `FetchType.LAZY`
+2. **Explicit Fetching**: Use `@EntityGraph` or JPQL JOIN FETCH for related data
+3. **Single Query Execution**: Ensures only one query per operation instead of N+1
 
-## User Interface
+**Example:**
 
-The application uses Thymeleaf as a template engine with Bootstrap to provide a responsive and modern interface.
-
-## Running the app
-
-### Using Docker Compose (Recommended)
-
-This is the recommended approach as it orchestrates all services together.
-
-#### Option 1: Running PostgreSQL only with Docker Compose
-
-If you want to run the Spring Boot application from your IDE and only use Docker for the database:
-
-1. Start only the PostgreSQL service:
-```bash
-docker-compose up -d linkshade-db
+```java
+@EntityGraph(attributePaths = {"user"})
+@Query("SELECT u FROM ShortUrl u WHERE u.id = :id")
+Optional<ShortUrl> findByIdWithUser(@Param("id") Long id);
 ```
 
-2. Run the Spring Boot application from your IDE or using Maven:
-```bash
-./mvnw spring-boot:run
-```
+---
 
-3. Stop the database when finished:
-```bash
-docker-compose down
-```
+## 📸 Screenshots
 
-#### Option 2: Running everything with Docker Compose
+### Home Page
+_Coming soon - URL shortening interface_
 
-To run both the database and the application as containers:
+### User Dashboard
+_Coming soon - Personal URL management_
 
-1. Build and start all services in detached mode (background):
-```bash
-docker-compose up -d --build
-```
-Note: `--build` can be avoided if no changes were made. In that case, the local built image will be used.
+### Admin Dashboard
+_Coming soon - Administrative interface_
 
-2. View logs:
-```bash
-docker-compose logs -f
-```
+---
 
-3. Stop all services:
-```bash
-docker-compose down
-```
+## 🤝 Contributing
 
-4. Stop and remove volumes (database data):
-```bash
-docker-compose down -v
-```
+Contributions are welcome! Please follow these guidelines:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+### Development Roadmap
+
+- [ ] Postgres cronjob for automated expired URL cleanup
+- [ ] Comprehensive unit test coverage
+- [ ] Integration test suite
+- [ ] Enhanced logging with structured logging
+- [ ] Metrics and monitoring integration
+- [ ] API documentation with OpenAPI/Swagger
+- [ ] Internationalization (i18n) support
+- [ ] URL analytics dashboard
+- [ ] QR code generation for shortened URLs
+
+---
+
+<div style="text-align: center;">
+
+**Made with ❤️ using Spring Boot**
+
+[⬆ Back to Top](#linkshade)
+
+</div>

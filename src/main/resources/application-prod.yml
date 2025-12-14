@@ -1,7 +1,9 @@
 spring:
 # DB config in prod
   datasource:
-    url: ${DATABASE_URL}?sslmode=require
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
     hikari:
       maximum-pool-size: 5  # free tier limits connections
   jpa:
@@ -10,6 +12,7 @@ spring:
   flyway:
     enabled: true
     baseline-on-migrate: true
+    default-schema: linkshade
 
 logging:
   level:
