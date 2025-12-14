@@ -1,5 +1,6 @@
 package de.linkshade.config;
 
+import java.util.Set;
 import java.util.regex.Pattern;
 
 public final class Constants {
@@ -7,6 +8,10 @@ public final class Constants {
     // ShorUrlProperties constants
     public static final int SHORTURL_EXPIRY_DAYS_DEFAULT = 30;
     public static final int SHORTURL_LENGTH_DEFAULT = 10;
+    public static final Set<String> URL_SORT_PROPERTIES =
+            Set.of("shortenedUrl", "originalUrl", "numberOfClicks", "createdByUser", "isPrivate", "createdAt", "expiresAt");
+    public static final Set<String> USER_SORT_PROPERTIES =
+            Set.of("id", "name", "email", "authProvider", "userProviderId", "numberOfUrlsCreated", "createdAt");
 
     // ShortUrlForm constants
     public static final int MAX_ORIGINAL_URL_LENGTH = 1000;
@@ -19,7 +24,7 @@ public final class Constants {
     public static final int SHARING_CODE_LENGTH = 6;
 
     // Security and rate limit constants
-    public static final String X_FORWARDED_FOR ="X-Forwarded-For";
+    public static final String X_FORWARDED_FOR = "X-Forwarded-For";
     public static final int REMAINING_TOKENS_WARNING = 3;
     public static final String ANONYMOUS_USER_NAME = "anonymousUser";
     public static final String DEFAULT_USER_NAME = "Guest";

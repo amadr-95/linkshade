@@ -1,6 +1,7 @@
 package de.linkshade.services;
 
 import de.linkshade.config.AppProperties;
+import de.linkshade.config.Constants;
 import de.linkshade.domain.entities.User;
 import de.linkshade.security.AuthenticationService;
 import jakarta.annotation.PostConstruct;
@@ -63,9 +64,9 @@ public class PaginationService {
 
         //if the direction is something different from ASC or DESC, @PageableDefault in the controller makes it ASC by default, no need for validation
         Sort.Order validSortProperty = sortRequest.stream()
-                .filter(sort -> appProperties.urlSortProperties().contains(sort.getProperty()) ||
+                .filter(sort -> Constants.URL_SORT_PROPERTIES.contains(sort.getProperty()) ||
                         (userInfo.get().getRole() == ADMIN &&
-                                appProperties.userSortProperties().contains(sort.getProperty()))
+                                Constants.USER_SORT_PROPERTIES.contains(sort.getProperty()))
                 )
                 .findFirst()
                 .orElse(null);

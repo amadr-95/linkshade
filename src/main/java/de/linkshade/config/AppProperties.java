@@ -7,15 +7,11 @@ import jakarta.validation.constraints.NotBlank;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.validation.annotation.Validated;
 
-import java.util.Set;
-
 @ConfigurationProperties(prefix = "app")
 @Validated //to be validated before the application starts, ensuring correct values
 public record AppProperties(
         int pageDefaultSize,
         int[] pageAvailableSizes,
-        Set<String> urlSortProperties,
-        Set<String> userSortProperties,
         int numberOfTries,
         boolean checkHttpStatusCode,
         int maxRequestAnonymousUser,

@@ -121,7 +121,7 @@ public class GlobalExceptionHandler {
         String rateLimitMessage = authenticationService.getUserInfo().isPresent() ?
                 "You have reached your rate limit. Please wait 1 hour before creating more URLs"
                 : String.format("Maximum number of URLs created has been reached. Please either wait %d hour or log in to create more",
-                Constants.RATE_LIMIT_DURATION);
+                Constants.RATE_LIMIT_DURATION_IN_HOURS);
 
         redirectAttributes.addFlashAttribute("errorMessage", rateLimitMessage);
         return buildView(model, "redirect:/");
