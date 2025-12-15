@@ -59,7 +59,7 @@ public class ShortUrl {
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDate createdAt;
+    private LocalDateTime createdAt;
 
     @LastModifiedDate
     @Column(insertable = false)

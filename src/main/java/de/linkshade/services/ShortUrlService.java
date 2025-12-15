@@ -26,6 +26,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -80,10 +81,10 @@ public class ShortUrlService {
     public String createShortUrl(ShortUrlForm shortUrlForm) throws UrlException {
         Optional<User> currentUser = authenticationService.getUserInfo();
         LocalDate expirationDate;
-        LocalDate createdAt = LocalDate.now();
+        LocalDateTime createdAt = LocalDateTime.now();
 
         if (currentUser.isEmpty())
-            expirationDate = createdAt.plusDays(appProperties.shortUrlProperties().defaultExpiryDays());
+            expirationDate = createdAt.plusDays(appProperties.shortUrlProperties().defaultExpiryDays()).toLocalDate();
         else if (shortUrlForm.expirationDate() == null) expirationDate = null;
         else expirationDate = shortUrlForm.expirationDate();
 
