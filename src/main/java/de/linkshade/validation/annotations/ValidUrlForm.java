@@ -1,6 +1,6 @@
 package de.linkshade.validation.annotations;
 
-import de.linkshade.validation.UrlFormValidator;
+import de.linkshade.validation.ShortUrlFormValidator;
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;
 
@@ -11,7 +11,7 @@ import java.lang.annotation.Target;
 
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Constraint(validatedBy = {UrlFormValidator.class})
+@Constraint(validatedBy = {ShortUrlFormValidator.class})
 public @interface ValidUrlForm {
     Class<?>[] groups() default { };
 

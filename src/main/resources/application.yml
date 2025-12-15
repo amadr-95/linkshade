@@ -30,21 +30,41 @@ logging:
   level:
     de.linkshade: DEBUG
 
-# App properties by default
+# App properties
 app:
+  # This value needs to be one of the available sizes
   page-default-size: 10
   page-available-sizes: [5, 10, 20, 50]
-  number-of-tries: 3 # number of tries for creating a random shorturl
-  # decides whether the app should check a URL is reachable or not
-  # false: only check the url syntax
-  # true: check the url syntax plus whether the url is reachable or not (slow)
+  # Number of attempts for generating a unique random short URL
+  number-of-tries: 3
+  # URL validation mode: false = syntax check only, true = syntax + reachability check (slower)
   check-http-status-code: false
-  max-request-anonymous-user: 5
-  max-request-logged-user: 10
-  enable-delete-account: false
+  enable-delete-account: true
   short-url-properties:
-    base-url: ${APP_BASE_URL}
+    base-url: http://localhost:8080
     default-expiry-days: 30
+    max-shorturl-expiration-days: 365
     is-private: false
     default-shorturl-length: 10
+    min-shorturl-length: 5
+    max-shorturl-length: 20
+    # Maximum allowed length of the original URL to be shortened
+    max-original-url-length: 1000
     is-custom: false
+    # Length of the sharing code generated for private URLs
+    sharing-code-length: 6
+  security-properties:
+    # Maximum number of URL shortening requests allowed for anonymous users within rate limit period
+    max-request-anonymous-user: 5
+    # Maximum number of URL shortening requests allowed for logged-in users within rate limit period
+    max-request-logged-user: 20
+    # Threshold to warn users when their remaining tokens fall below this value
+    remaining-tokens-warning: 3
+    # Maximum number of attempts allowed for entering a sharing code in private URLs
+    number-code-tries: 3
+    # Duration for which code tries are tracked before reset
+    code-tries-duration-minutes: 15
+    # Duration for which rate limiting is applied after exceeding request limits
+    rate-limit-duration-hours: 1
+    # Duration before rate limit buckets expire and are cleaned up
+    buckets-expiration-time-hours: 2

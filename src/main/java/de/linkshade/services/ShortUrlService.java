@@ -54,7 +54,7 @@ public class ShortUrlService {
     public PagedResult<ShortUrlDTO> findAllPublicUrls(Pageable pageableRequest) {
         Pageable validPage = paginationService.createValidPage(pageableRequest, shortUrlRepository::countAllPublicUrls);
 
-        // Wrapper object that allows to store all the data coming from Page so it can be shown in the html
+        // Wrapper object that allows to store all the data coming from Page so it can be shown in the HTML
         return PagedResult.from(shortUrlRepository.findAllPublicUrls(validPage)
                 .map(shortUrlMapper::toShortUrlDTO));
     }
@@ -224,7 +224,7 @@ public class ShortUrlService {
             // Validate expirationDate
             if (expirationDateForm != null &&
                     (expirationDateForm.isBefore(now) || expirationDateForm.isAfter(
-                            now.plusDays(Constants.MAX_SHORTURL_EXPIRATION_DAYS)))) {
+                            now.plusDays(appProperties.shortUrlProperties().maxShortUrlExpirationDays())))) {
                 throw new UrlUpdateException(
                         String.format("Expiration date '%s' is before today or exceeds the limits", expirationDateForm));
             }
@@ -239,8 +239,8 @@ public class ShortUrlService {
                 // Validate shortened value if not random
                 if (shortenedUrlForm == null || shortenedUrlForm.isBlank())
                     throw new UrlUpdateException("Shortened value cannot be blank");
-                if (shortenedUrlForm.length() < Constants.MIN_SHORTURL_LENGTH ||
-                        shortenedUrlForm.length() > Constants.MAX_SHORTURL_LENGTH)
+                if (shortenedUrlForm.length() < appProperties.shortUrlProperties().minShorturlLength() ||
+                        shortenedUrlForm.length() > appProperties.shortUrlProperties().maxShorturlLength())
                     throw new UrlUpdateException(String.format("Shortened length '%s' is outside the limits",
                             shortenedUrlForm.length()));
                 // check that it's not existing already
@@ -325,7 +325,7 @@ public class ShortUrlService {
 
     // this code can be the same multiple times, since the unique combination is shortUrl (unique) + sharingCode
     private String generateSharingCode() {
-        int sharingCodeLength = Constants.SHARING_CODE_LENGTH;
+        int sharingCodeLength = appProperties.shortUrlProperties().sharingCodeLength();
         String characters = Constants.VALID_CHARACTERS;
         StringBuilder code = new StringBuilder(sharingCodeLength);
         for (int i = 0; i < sharingCodeLength; i++) {

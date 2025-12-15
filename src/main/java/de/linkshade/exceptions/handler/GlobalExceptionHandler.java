@@ -1,13 +1,7 @@
 package de.linkshade.exceptions.handler;
 
-import de.linkshade.config.Constants;
-import de.linkshade.exceptions.RateLimitExceededException;
-import de.linkshade.exceptions.UrlException;
-import de.linkshade.exceptions.UrlExpiredException;
-import de.linkshade.exceptions.UrlNotFoundException;
-import de.linkshade.exceptions.UrlPrivateException;
-import de.linkshade.exceptions.UserException;
-import de.linkshade.exceptions.UserNotFoundException;
+import de.linkshade.config.AppProperties;
+import de.linkshade.exceptions.*;
 import de.linkshade.security.AuthenticationService;
 import de.linkshade.web.controllers.helpers.ModelAttributeHelper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -31,6 +25,7 @@ public class GlobalExceptionHandler {
 
     private final ModelAttributeHelper helper;
     private final AuthenticationService authenticationService;
+    private final AppProperties appProperties;
 
     /**
      * Handles URL not found exceptions.
@@ -119,9 +114,10 @@ public class GlobalExceptionHandler {
                 ex.getClass().getSimpleName(), ex.getMessage(), ex);
 
         String rateLimitMessage = authenticationService.getUserInfo().isPresent() ?
-                "You have reached your rate limit. Please wait 1 hour before creating more URLs"
+                String.format("You have reached your rate limit. Please wait %d hour before creating more URLs",
+                        appProperties.securityProperties().rateLimitDurationHours())
                 : String.format("Maximum number of URLs created has been reached. Please either wait %d hour or log in to create more",
-                Constants.RATE_LIMIT_DURATION_IN_HOURS);
+                appProperties.securityProperties().rateLimitDurationHours());
 
         redirectAttributes.addFlashAttribute("errorMessage", rateLimitMessage);
         return buildView(model, "redirect:/");

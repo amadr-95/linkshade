@@ -2,9 +2,11 @@ package de.linkshade.services;
 
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
-import de.linkshade.config.Constants;
+import de.linkshade.config.AppProperties;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Duration;
@@ -13,16 +15,24 @@ import static de.linkshade.utils.IpAddressUtils.getClientIpAddress;
 
 
 @Service
+@RequiredArgsConstructor
 public class ShareCodeAttemptService {
 
-    private final Cache<@NonNull String, Integer> attemptCache = Caffeine.newBuilder()
-            .expireAfterWrite(Duration.ofMinutes(Constants.CODE_TRIES_DURATION_IN_MINUTES))
-            .maximumSize(1_000)
-            .build();
+    private final AppProperties appProperties;
+
+    private Cache<@NonNull String, Integer> attemptCache;
+
+    @PostConstruct
+    public void postConstruct() {
+        this.attemptCache = Caffeine.newBuilder()
+                .expireAfterWrite(Duration.ofMinutes(appProperties.securityProperties().codeTriesDurationMinutes()))
+                .maximumSize(1_000)
+                .build();
+    }
 
     public boolean hasExceededMaxAttempts(String key) {
         Integer attempts = attemptCache.getIfPresent(key);
-        return attempts != null && attempts >= Constants.NUMBER_OF_CODE_TRIES;
+        return attempts != null && attempts >= appProperties.securityProperties().numberCodeTries();
     }
 
     public void recordFailedAttempt(String key) {

@@ -28,9 +28,6 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Objects;
 
-import static de.linkshade.config.Constants.REMAINING_TOKENS_WARNING;
-
-
 @Slf4j
 @Controller
 @RequestMapping("/")
@@ -110,7 +107,7 @@ public class ShortUrlController {
         String key = shareCodeAttemptService.createKeyFromRequest(shortUrl, request);
         if (shareCodeAttemptService.hasExceededMaxAttempts(key)) {
             model.addAttribute("errorMessage", String.format("Maximum attempts exceeded. Try again in %d minutes",
-                    Constants.CODE_TRIES_DURATION_IN_MINUTES));
+                    appProperties.securityProperties().codeTriesDurationMinutes()));
             addShareCodeAttributes(shortUrl, model);
             helper.addAvatarToModel(model);
             return "error/401";
@@ -140,7 +137,7 @@ public class ShortUrlController {
     private void checkAvailableTokens(RedirectAttributes redirectAttributes, HttpServletRequest request) {
         String bucketKey = rateLimitService.createBucketKeyFromRequest(request);
         long remainingTokens = rateLimitService.consumeToken(bucketKey);
-        if (remainingTokens <= REMAINING_TOKENS_WARNING) {
+        if (remainingTokens <= appProperties.securityProperties().remainingTokensWarning()) {
             redirectAttributes.addFlashAttribute("warningMessage",
                     remainingTokens == 0 ? "You ran out of URLs to be created!" :
                             String.format("You have %d URL(s) left to be created", remainingTokens));

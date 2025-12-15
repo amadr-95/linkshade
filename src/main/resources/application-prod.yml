@@ -20,6 +20,7 @@ logging:
 
 # App properties in prod
 app:
+  check-http-status-code: true
+  enable-delete-account: false
   short-url-properties:
     base-url: ${APP_BASE_URL}
-  check-http-status-code: true  # Verify URLs on prod

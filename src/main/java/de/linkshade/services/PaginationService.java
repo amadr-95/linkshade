@@ -11,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -42,8 +41,8 @@ public class PaginationService {
     }
 
     private int validatePageSize(int pageSize) {
-        // only allow values that are predefined: [5, 10, 20, 50]
-        return Arrays.stream(appProperties.pageAvailableSizes())
+        // only allow values that are predefined
+        return appProperties.pageAvailableSizes().stream()
                 .anyMatch(size -> size == pageSize) ?
                 pageSize : appProperties.pageDefaultSize();
     }
