@@ -160,7 +160,7 @@ git clone https://github.com/yourusername/linkshade.git
 cd linkshade
 
 # Set up environment variables (optional - see table below)
-cp .env.example .env
+cp .env.example .env.local
 ```
 
 ### 📊 Environment Variables Reference
@@ -171,7 +171,6 @@ cp .env.example .env
 | `GITHUB_CLIENT_SECRET`       | GitHub OAuth client secret   | No*      | -       | `xyz789uvw456`                                  |
 | `GOOGLE_CLIENT_ID`           | Google OAuth client ID       | No*      | -       | `123456.apps.googleusercontent.com`             |
 | `GOOGLE_CLIENT_SECRET`       | Google OAuth client secret   | No*      | -       | `GOCSPX-abc123`                                 |
-| `APP_BASE_URL`               | Base URL for the application | Yes      | -       | `http://localhost:8080`                         |
 | `SPRING_DATASOURCE_URL`      | PostgreSQL JDBC URL          | Yes      | -       | `jdbc:postgresql://localhost:5432/linkshade-db` |
 | `SPRING_DATASOURCE_USERNAME` | Database username            | Yes      | -       | `postgres`                                      |
 | `SPRING_DATASOURCE_PASSWORD` | Database password            | Yes      | -       | `postgres`                                      |
@@ -218,6 +217,9 @@ docker compose up -d linkshade-db
 ```
 
 #### Step 2: Run the Application
+> [!NOTE]
+> You need to add the `env.local` path to the run configuration, otherwise
+> env variables won't be loaded and app won't be able to connect to the database
 
 Run `LinkshadeApplication.java` or 
 ```bash
@@ -246,7 +248,7 @@ docker compose down -v
 
 ### Option 2 (Recommended)
 
-Run both the database and application as Docker containers :
+Run both the database and application as Docker containers:
 
 #### Step 1: Build and Start All Services
 
@@ -429,11 +431,8 @@ Contributions are welcome! Please follow these guidelines:
 - [ ] Postgres cronjob for automated expired URL cleanup
 - [ ] Comprehensive unit test coverage
 - [ ] Integration test suite
-- [ ] Enhanced logging with structured logging
 - [ ] Metrics and monitoring integration
-- [ ] API documentation with OpenAPI/Swagger
 - [ ] Internationalization (i18n) support
-- [ ] URL analytics dashboard
 - [ ] QR code generation for shortened URLs
 
 ---

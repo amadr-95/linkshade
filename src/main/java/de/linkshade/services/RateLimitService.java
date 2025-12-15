@@ -3,11 +3,11 @@ package de.linkshade.services;
 import com.github.benmanes.caffeine.cache.Cache;
 import com.github.benmanes.caffeine.cache.Caffeine;
 import de.linkshade.config.AppProperties;
-import de.linkshade.config.Constants;
 import de.linkshade.security.AuthenticationService;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
 import io.github.bucket4j.Refill;
+import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
@@ -21,16 +21,21 @@ import static de.linkshade.utils.IpAddressUtils.getClientIpAddress;
 @RequiredArgsConstructor
 public class RateLimitService {
 
-    private final AppProperties properties;
+    private final AppProperties appProperties;
     private final AuthenticationService authenticationService;
 
     /**
      * Cache with automatic expiration to prevent memory leaks.
      * Buckets are evicted after 2 hours of inactivity.
      */
-    private final Cache<@NonNull String, Bucket> buckets = Caffeine.newBuilder()
-            .expireAfterAccess(Duration.ofHours(Constants.BUCKETS_EXPIRATION_TIME_IN_HOURS))
-            .build();
+    private Cache<@NonNull String, Bucket> buckets;
+
+    @PostConstruct
+    public void postConstruct() {
+        this.buckets = Caffeine.newBuilder()
+                .expireAfterAccess(Duration.ofHours(appProperties.securityProperties().bucketsExpirationTimeHours()))
+                .build();
+    }
 
     public long consumeToken(String bucketKey) {
         return getBucket(bucketKey).tryConsumeAndReturnRemaining(1).getRemainingTokens();
@@ -53,11 +58,11 @@ public class RateLimitService {
 
     private Bucket createBucket(String bucketKey) {
         int limit = bucketKey.endsWith("logged") ?
-                properties.maxRequestLoggedUser() :
-                properties.maxRequestAnonymousUser();
+                appProperties.securityProperties().maxRequestLoggedUser() :
+                appProperties.securityProperties().maxRequestAnonymousUser();
 
         Bandwidth bandwidth = Bandwidth.classic(limit,
-                Refill.intervally(limit, Duration.ofHours(Constants.RATE_LIMIT_DURATION_IN_HOURS)));
+                Refill.intervally(limit, Duration.ofHours(appProperties.securityProperties().rateLimitDurationHours())));
 
         return Bucket.builder()
                 .addLimit(bandwidth)

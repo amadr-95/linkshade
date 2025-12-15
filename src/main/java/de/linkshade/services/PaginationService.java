@@ -1,6 +1,7 @@
 package de.linkshade.services;
 
 import de.linkshade.config.AppProperties;
+import de.linkshade.config.Constants;
 import de.linkshade.domain.entities.User;
 import de.linkshade.security.AuthenticationService;
 import jakarta.annotation.PostConstruct;
@@ -10,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -41,8 +41,8 @@ public class PaginationService {
     }
 
     private int validatePageSize(int pageSize) {
-        // only allow values that are predefined: [5, 10, 20, 50]
-        return Arrays.stream(appProperties.pageAvailableSizes())
+        // only allow values that are predefined
+        return appProperties.pageAvailableSizes().stream()
                 .anyMatch(size -> size == pageSize) ?
                 pageSize : appProperties.pageDefaultSize();
     }
@@ -63,9 +63,9 @@ public class PaginationService {
 
         //if the direction is something different from ASC or DESC, @PageableDefault in the controller makes it ASC by default, no need for validation
         Sort.Order validSortProperty = sortRequest.stream()
-                .filter(sort -> appProperties.urlSortProperties().contains(sort.getProperty()) ||
+                .filter(sort -> Constants.URL_SORT_PROPERTIES.contains(sort.getProperty()) ||
                         (userInfo.get().getRole() == ADMIN &&
-                                appProperties.userSortProperties().contains(sort.getProperty()))
+                                Constants.USER_SORT_PROPERTIES.contains(sort.getProperty()))
                 )
                 .findFirst()
                 .orElse(null);

@@ -11,7 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @RequiredArgsConstructor
-public class UrlFormValidator implements ConstraintValidator<ValidUrlForm, ShortUrlForm> {
+public class ShortUrlFormValidator implements ConstraintValidator<ValidUrlForm, ShortUrlForm> {
 
     private final UrlValidator urlValidator;
     private final ExpirationValidator expirationDateValidator;
