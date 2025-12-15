@@ -1,8 +1,8 @@
 package de.linkshade.services.mapper;
 
+import de.linkshade.config.Constants;
 import de.linkshade.domain.entities.ShortUrl;
 import de.linkshade.domain.entities.dto.ShortUrlDTO;
-import de.linkshade.config.Constants;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -17,7 +17,7 @@ public class ShortUrlMapper {
                         Constants.DEFAULT_USER_NAME : shortUrl.getCreatedByUser().getName())
                 .isPrivate(shortUrl.isPrivate())
                 .shareCode(shortUrl.getShareCode())
-                .createdAt(shortUrl.getCreatedAt())
+                .createdAt(shortUrl.getCreatedAt().toLocalDate())
                 .expiresAt(shortUrl.getExpiresAt())
                 .daysToExpire(shortUrl.daysToExpire())
                 .isExpired(shortUrl.isExpired())

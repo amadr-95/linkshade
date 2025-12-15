@@ -28,6 +28,7 @@ public class PaginationService {
     private void init() {
         this.defaultSort = Sort.by(Sort.Direction.DESC, "createdAt")
                 // unique field (id) is needed to avoid problems when retrieving sorted records from the database
+                // in case 2 urls were created at the exact day and time (rare, but it may happen)
                 .and(Sort.by("id").descending());
     }
 
