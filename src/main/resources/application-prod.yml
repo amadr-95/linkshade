@@ -7,7 +7,18 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
     hikari:
-      maximum-pool-size: 5  # free tier limits connections
+      # Maximum number of connections in the pool
+      maximum-pool-size: 10
+      # Minimum number of idle connections maintained in the pool
+      minimum-idle: 2
+      # Time (ms) a connection can remain idle before being removed
+      idle-timeout: 300000
+      # Maximum lifetime (ms) of a connection in the pool
+      max-lifetime: 1800000
+      # Maximum time (ms) to wait for a connection from the pool
+      connection-timeout: 30000
+      # Time (ms) threshold to detect connection leaks
+      leak-detection-threshold: 2000
   jpa:
     hibernate:
       ddl-auto: validate  # Flyway's managing the schema
