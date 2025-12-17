@@ -16,8 +16,10 @@
 
     <properties>
         <java.version>21</java.version>
-        <webjar.bootstrap.version>5.3.5</webjar.bootstrap.version>
-        <webjar.icons.version>1.11.3</webjar.icons.version>
+        <webjar.bootstrap.version>5.3.8</webjar.bootstrap.version>
+        <webjar.icons.version>1.13.1</webjar.icons.version>
+        <bucket4j.version>8.1.0</bucket4j.version>
+        <caffeine.version>3.2.0</caffeine.version>
     </properties>
 
     <dependencies>
@@ -110,22 +112,23 @@
             <artifactId>spring-boot-starter-oauth2-client</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+
         <!-- Java rate limiting library based on token-bucket algorithm -->
         <dependency>
             <groupId>com.bucket4j</groupId>
             <artifactId>bucket4j-core</artifactId>
-            <version>8.1.0</version>
+            <version>${bucket4j.version}</version>
         </dependency>
 
         <!-- Caching library -->
         <dependency>
             <groupId>com.github.ben-manes.caffeine</groupId>
             <artifactId>caffeine</artifactId>
-            <version>3.2.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-actuator</artifactId>
+            <version>${caffeine.version}</version>
         </dependency>
     </dependencies>
 
