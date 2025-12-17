@@ -6,9 +6,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
 
+@EnableJpaAuditing
 @SpringBootApplication
 @EnableConfigurationProperties(AppProperties.class)
-@EnableJpaAuditing
 public class LinkshadeApplication {
 
     public static void main(String[] args) {
