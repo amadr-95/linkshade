@@ -175,9 +175,9 @@ cp .env.example .env.local
 | `SPRING_DATASOURCE_USERNAME` | Database username            | Yes      | -       | `postgres`                                      |
 | `SPRING_DATASOURCE_PASSWORD` | Database password            | Yes      | -       | `postgres`                                      |
 
-\* *Required for OAuth login functionality. Application will work without OAuth but users won't be able to log in.*
+*Required for OAuth login functionality. Application will work without OAuth but users won't be able to log in.*
 
-> [!INFO]  
+> [!NOTE]
 > If you don't mind having this feature, skip this part and continue with running the app from [here](#option-1)
 
 To enable OAuth authentication, you'll need:
@@ -256,7 +256,7 @@ Run both the database and application as Docker containers:
 docker compose up -d --build
 ```
 
-> [!NOTE]  
+> [!TIP]  
 > Omit `--build` flag if no code changes were made since the last build.
 
 #### Step 2: Verify Services are Running
