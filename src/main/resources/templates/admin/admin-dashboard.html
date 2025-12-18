@@ -40,16 +40,6 @@
                         disabled>
                     Delete Selected
                 </button>
-                <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
-                    title='Delete confirmation',
-                    message='Are you sure you want to delete the selected ' + ${managedEntity} + '?',
-                    captionMessage='This action cannot be undone. ' + ${managedEntity.equalsIgnoreCase('users') ?
-                    'All the associated URLs will also be deleted' : ''},
-                    modalId='deleteConfirmation',
-                    formId=${deleteSelectedFormId},
-                    buttonText='Delete',
-                    buttonClass='btn-danger')}">
-                </div>
                 <input type="hidden" name="returnUrl" class="return-url-input"/>
             </form>
 
@@ -63,16 +53,6 @@
                         data-bs-target="#deleteExpiredUrlsConfirmation">
                     Delete Expired
                 </button>
-                <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
-                        title='Delete confirmation',
-                        message='Are you sure you want to delete ' + ${expiredUrls} +
-                         ' expired URL(s) that do not belong to any user?',
-                        captionMessage='This action cannot be undone',
-                        modalId='deleteExpiredUrlsConfirmation',
-                        formId=${deleteExpiredFormId},
-                        buttonText='Delete',
-                        buttonClass='btn-warning')}">
-                </div>
                 <input type="hidden" name="returnUrl" class="return-url-input"/>
             </form>
 
@@ -95,6 +75,30 @@
              th:insert="~{fragments/pagination-navbar :: pagination}">
         </div>
     </div>
+
+    <!-- Modals rendered outside overflow containers to avoid stacking context issues -->
+    <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
+        title='Delete confirmation',
+        message='Are you sure you want to delete the selected ' + ${managedEntity} + '?',
+        captionMessage='This action cannot be undone. ' + ${managedEntity.equalsIgnoreCase('users') ?
+        'All the associated URLs will also be deleted' : ''},
+        modalId='deleteConfirmation',
+        formId=${deleteSelectedFormId},
+        buttonText='Delete',
+        buttonClass='btn-danger')}">
+    </div>
+
+    <div th:if="${deleteExpiredUrlsEndpoint != null}" th:replace="~{fragments/confirmation-modal :: confirmation-modal(
+            title='Delete confirmation',
+            message='Are you sure you want to delete ' + ${expiredUrls} +
+             ' expired URL(s) that do not belong to any user?',
+            captionMessage='This action cannot be undone',
+            modalId='deleteExpiredUrlsConfirmation',
+            formId=${deleteExpiredFormId},
+            buttonText='Delete',
+            buttonClass='btn-warning')}">
+    </div>
+
 </div>
 <th:block layout:fragment="pageScripts">
     <script th:src="@{/js/adminTabManager.js}" defer></script>
