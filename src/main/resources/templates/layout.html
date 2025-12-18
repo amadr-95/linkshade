@@ -36,6 +36,62 @@
         input[type="date"]::-webkit-datetime-edit-text {
             margin: 0 2px;
         }
+
+        /* Fix modal display issues on mobile devices */
+        .modal {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 1055 !important;
+            width: 100% !important;
+            height: 100% !important;
+            overflow-x: hidden !important;
+            overflow-y: auto !important;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .modal-backdrop {
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            z-index: 1050 !important;
+            width: 100vw !important;
+            height: 100vh !important;
+        }
+
+        .modal.show {
+            display: block !important;
+        }
+
+        .modal-dialog {
+            position: relative;
+            margin: 1.75rem auto;
+            pointer-events: none;
+        }
+
+        .modal-content {
+            pointer-events: auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Ensure modal is properly positioned on mobile */
+        @media (max-width: 576px) {
+            .modal-dialog {
+                max-width: calc(100% - 20px);
+                margin: 10px auto;
+            }
+
+            .modal-content {
+                max-height: calc(100vh - 20px);
+            }
+        }
+
+        /* Prevent body scroll when modal is open */
+        body.modal-open {
+            overflow: hidden !important;
+            padding-right: 0 !important;
+        }
     </style>
 </head>
 <body class="d-flex flex-column pt-5 min-vh-100">
@@ -216,6 +272,7 @@
 <script th:src="@{/webjars/bootstrap/5.3.8/js/bootstrap.bundle.min.js}"></script>
 <!-- Common JS -->
 <script th:src="@{/js/main.js}" defer></script>
+<!--<script th:src="@{/js/modalManager.js}" defer></script>-->
 <script th:src="@{/js/scrollManager.js}" defer></script>
 <!-- Specific JS -->
 <th:block layout:fragment="pageScripts"></th:block>
