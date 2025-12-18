@@ -17,7 +17,7 @@
         No URLs have been created by you yet.
     </div>
 
-    <div th:unless="${entities.data.isEmpty()}" class="table-responsive">
+    <div th:unless="${entities.data.isEmpty()}">
         <div class="mb-3 d-flex flex-nowrap gap-2 overflow-x-auto"
              style="scrollbar-width: none; ::-webkit-scrollbar{display: none;}">
 
@@ -31,15 +31,6 @@
                         disabled>
                     Delete Selected
                 </button>
-                <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
-                    title='Delete confirmation',
-                    message='Are you sure you want to delete the selected URLs?',
-                    captionMessage='This action cannot be undone',
-                    modalId='deleteUrlsConfirmation',
-                    formId='deleteUrlsForm',
-                    buttonText='Delete',
-                    buttonClass='btn-danger')}">
-                </div>
                 <input type="hidden" name="returnUrl" class="return-url-input"/>
             </form>
 
@@ -53,15 +44,6 @@
                         data-bs-target="#reactivateUrlsConfirmation">
                     Reactivate Expired
                 </button>
-                <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
-                        title='Reactivation confirmation',
-                        message='Are you sure you want to reactivate ' + ${expiredUrls} + ' expired URL(s)?',
-                        captionMessage=${null},
-                        modalId='reactivateUrlsConfirmation',
-                        formId='reactivateUrlsForm',
-                        buttonText='Reactivate',
-                        buttonClass='btn-primary')}">
-                </div>
                 <input type="hidden" name="returnUrl" class="return-url-input"/>
             </form>
 
@@ -75,15 +57,6 @@
                         data-bs-target="#deleteExpiredUrlsConfirmation">
                     Delete Expired
                 </button>
-                <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
-                        title='Delete confirmation',
-                        message='Are you sure you want to delete ' + ${expiredUrls} + ' expired URL(s)?',
-                        captionMessage='This action cannot be undone',
-                        modalId='deleteExpiredUrlsConfirmation',
-                        formId='deleteExpiredUrlsForm',
-                        buttonText='Delete',
-                        buttonClass='btn-warning')}">
-                </div>
                 <input type="hidden" name="returnUrl" class="return-url-input"/>
             </form>
         </div>
@@ -100,6 +73,37 @@
 
     <div class="mt-3 d-flex flex-column flex-lg-row justify-content-end align-items-lg-center gap-3"
          th:insert="~{fragments/pagination-navbar :: pagination}">
+    </div>
+
+    <!-- Modals rendered outside overflow containers to avoid stacking context issues -->
+    <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
+        title='Delete confirmation',
+        message='Are you sure you want to delete the selected URLs?',
+        captionMessage='This action cannot be undone',
+        modalId='deleteUrlsConfirmation',
+        formId='deleteUrlsForm',
+        buttonText='Delete',
+        buttonClass='btn-danger')}">
+    </div>
+
+    <div th:if="${expiredUrls > 0}" th:replace="~{fragments/confirmation-modal :: confirmation-modal(
+            title='Reactivation confirmation',
+            message='Are you sure you want to reactivate ' + ${expiredUrls} + ' expired URL(s)?',
+            captionMessage=${null},
+            modalId='reactivateUrlsConfirmation',
+            formId='reactivateUrlsForm',
+            buttonText='Reactivate',
+            buttonClass='btn-primary')}">
+    </div>
+
+    <div th:if="${expiredUrls > 0}" th:replace="~{fragments/confirmation-modal :: confirmation-modal(
+            title='Delete confirmation',
+            message='Are you sure you want to delete ' + ${expiredUrls} + ' expired URL(s)?',
+            captionMessage='This action cannot be undone',
+            modalId='deleteExpiredUrlsConfirmation',
+            formId='deleteExpiredUrlsForm',
+            buttonText='Delete',
+            buttonClass='btn-warning')}">
     </div>
 
 </div>

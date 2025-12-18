@@ -1,80 +1,80 @@
 <div th:fragment="url-table(urls, showCheckboxes, showCreatedBy, showPrivate, showOriginalUrl, showEditButton)"
-     class="border rounded-3 overflow-hidden" xmlns:sec="http://www.w3.org/1999/xhtml">
-    <div class="overflow-x-auto">
-        <table class="table table-striped table-hover mb-0 align-middle">
-            <thead class="text-nowrap">
-            <tr>
-                <th class="text-center align-middle" th:if="${showCheckboxes}">
-                    <label><input type="checkbox" id="selectAll" class="form-check-input"/></label>
-                </th>
+     xmlns:sec="http://www.w3.org/1999/xhtml">
+    <div class="border rounded-3 overflow-hidden">
+        <div class="overflow-x-auto">
+            <table class="table table-striped table-hover mb-0 align-middle">
+                <thead class="text-nowrap">
+                <tr>
+                    <th class="text-center align-middle" th:if="${showCheckboxes}">
+                        <label><input type="checkbox" id="selectAll" class="form-check-input"/></label>
+                    </th>
 
-                <th data-column="shortenedUrl">
-                    <a class="btn sortable-property">
-                        <span>Short URL</span>
-                        <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
-                    </a>
-                </th>
-                <th data-column="originalUrl" th:if="${showOriginalUrl}">
-                    <a class="btn sortable-property">
-                        <span>Original URL</span>
-                        <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
-                    </a>
-                </th>
-                <th class="text-center" data-column="numberOfClicks">
-                    <a class="btn sortable-property">
-                        <span>Clicks</span>
-                        <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
-                    </a>
-                </th>
-                <th class="text-center" data-column="createdByUser" th:if="${showCreatedBy}">
-                    <a class="btn sortable-property">
-                        <span>By</span>
-                        <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
-                    </a>
-                </th>
-                <th class="text-center" data-column="isPrivate" th:if="${showPrivate}">
-                    <a class="btn sortable-property">
-                        <span>Private</span>
-                        <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
-                    </a>
-                </th>
-                <th class="text-center" data-column="createdAt">
-                    <a class="btn sortable-property">
-                        <span>Created At</span>
-                        <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
-                    </a>
-                </th>
-                <th class="text-center" data-column="expiresAt">
-                    <a class="btn sortable-property">
-                        <span>Expires In</span>
-                        <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
-                    </a>
-                </th>
-            </tr>
-            </thead>
+                    <th data-column="shortenedUrl">
+                        <a class="btn sortable-property">
+                            <span>Short URL</span>
+                            <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
+                        </a>
+                    </th>
+                    <th data-column="originalUrl" th:if="${showOriginalUrl}">
+                        <a class="btn sortable-property">
+                            <span>Original URL</span>
+                            <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
+                        </a>
+                    </th>
+                    <th class="text-center" data-column="numberOfClicks">
+                        <a class="btn sortable-property">
+                            <span>Clicks</span>
+                            <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
+                        </a>
+                    </th>
+                    <th class="text-center" data-column="createdByUser" th:if="${showCreatedBy}">
+                        <a class="btn sortable-property">
+                            <span>By</span>
+                            <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
+                        </a>
+                    </th>
+                    <th class="text-center" data-column="isPrivate" th:if="${showPrivate}">
+                        <a class="btn sortable-property">
+                            <span>Private</span>
+                            <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
+                        </a>
+                    </th>
+                    <th class="text-center" data-column="createdAt">
+                        <a class="btn sortable-property">
+                            <span>Created At</span>
+                            <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
+                        </a>
+                    </th>
+                    <th class="text-center" data-column="expiresAt">
+                        <a class="btn sortable-property">
+                            <span>Expires In</span>
+                            <i sec:authorize="isAuthenticated()" class="bi bi-caret-down-fill sort-icon"></i>
+                        </a>
+                    </th>
+                </tr>
+                </thead>
 
-            <tbody>
-            <tr th:each="url : ${urls.data}">
-                <td class="text-center align-middle" th:if="${showCheckboxes}">
-                    <label>
-                        <input type="checkbox" name="urlIds" th:value="${url.id}"
-                               th:form="deleteUrlsForm" class="form-check-input url-checkbox">
-                    </label>
-                </td>
-                <td>
-                    <div class="d-flex align-items-center gap-2">
-                        <button class="btn btn-sm btn-outline-secondary clipboard-button"
-                                th:data-url="${baseUrl + '/s/' + url.shortenedUrl}"
-                                title="Copy link"
-                                type="button">
-                            <i class="bi bi-clipboard"></i>
-                        </button>
+                <tbody>
+                <tr th:each="url : ${urls.data}">
+                    <td class="text-center align-middle" th:if="${showCheckboxes}">
+                        <label>
+                            <input type="checkbox" name="urlIds" th:value="${url.id}"
+                                   th:form="deleteUrlsForm" class="form-check-input url-checkbox">
+                        </label>
+                    </td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            <button class="btn btn-sm btn-outline-secondary clipboard-button"
+                                    th:data-url="${baseUrl + '/s/' + url.shortenedUrl}"
+                                    title="Copy link"
+                                    type="button">
+                                <i class="bi bi-clipboard"></i>
+                            </button>
 
-                        <form th:if="${url.isPrivate && !url.isExpired}" th:action="@{/manage-sharing-code/{id}(id=${url.id})}"
-                              method="POST" th:id="'manageSharingCode-' + ${url.id}"
-                              th:with="isShared=${url.shareCode != null}">
-                            <button class="btn btn-sm"
+                            <button th:if="${url.isPrivate && !url.isExpired}"
+                                    class="btn btn-sm"
                                     type="button"
+                                    th:with="isShared=${url.shareCode != null}"
                                     th:classappend="${isShared ? 'btn-success' : 'btn-outline-primary'}"
                                     th:title="${isShared ? 'Shared - Click to manage' : 'Share private URL'}"
                                     data-bs-toggle="modal"
@@ -82,24 +82,8 @@
                                 <i th:class="${isShared ? 'bi bi-shield-check' : 'bi bi-box-arrow-up'}"></i>
                             </button>
 
-                            <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
-                                 title=${isShared ? 'Stop sharing private URL' : 'Share private URL'},
-                                 message=${isShared ? 'This will revoke the current sharing code (' + url.shareCode + ')'
-                                 : 'Generate a shareable link with a password for this private URL.'},
-                                 captionMessage=${isShared ? 'Anyone with the previous link will lose access' : null},
-                                 modalId='manageSharingCodeConfirmation-' + ${url.id},
-                                 formId='manageSharingCode-' + ${url.id},
-                                 buttonText=${isShared ? 'Stop Sharing' : 'Generate Link'},
-                                 buttonClass=${isShared ? 'btn-danger' : 'btn-primary'})}">
-                            </div>
-                            <input type="hidden" name="returnUrl" class="return-url-input"/>
-                        </form>
-
-                        <!-- insert modal form for editing the url-->
-                        <form th:if="${showEditButton}" th:action="@{/edit-urls/{id}(id=${url.id})}" method="POST"
-                              th:id="'editForm-' + ${url.id}" th:object="${shortUrlEditForm}">
-                            <!-- Button trigger modal -->
-                            <button type="button"
+                            <button th:if="${showEditButton}"
+                                    type="button"
                                     th:id="'editUrlButton-' + ${url.id}"
                                     class="btn btn-sm btn-outline-primary"
                                     data-bs-toggle="modal"
@@ -107,59 +91,84 @@
                                     title="Edit URL">
                                 <i class="bi bi-pencil-square"></i>
                             </button>
-                            <div th:replace="~{fragments/edit-url-modal :: edit-url-modal(url=${url})}"></div>
-                            <input type="hidden" name="returnUrl" class="return-url-input"/>
-                        </form>
 
-                        <a th:href="${baseUrl + '/s/' + url.shortenedUrl}"
-                           target="_blank"
-                           class="me-2 text-decoration-none link-primary link-opacity-75 link-opacity-100-hover">
-                            <span th:text="${#strings.abbreviate(baseUrl + '/s/' + url.shortenedUrl, 40)}"></span>
-                            <i class="bi bi-box-arrow-up-right mx-1"></i>
-                        </a>
-                    </div>
-                </td>
-                <td th:if="${showOriginalUrl}">
-                    <a th:href="${url.originalUrl}" th:text="${#strings.abbreviate(url.originalUrl, 30)}"
-                       target="_blank"></a>
-                </td>
-                <td class="text-center">
-                    <span class="badge bg-light text-dark border"
-                          th:text="${url.numberOfClicks}">
-                    </span>
-                </td>
-                <td th:if="${showCreatedBy}" class="text-center" th:text="${url.createdByUser}"></td>
-                <td th:if="${showPrivate}" class="text-center align-items-center">
-                    <span th:if="${url.isPrivate}" class="badge bg-primary-subtle text-dark-emphasis">Private</span>
-                    <span th:unless="${url.isPrivate}" class="badge bg-success">Public</span>
-                    <span th:if="${url.isPrivate && url.shareCode != null}"
-                          class="badge bg-success-subtle text-success-emphasis">
-                            <i class="bi bi-people-fill"></i>
-                    </span>
-                </td>
-                <td class="text-center">
+                            <a th:href="${baseUrl + '/s/' + url.shortenedUrl}"
+                               target="_blank"
+                               class="me-2 text-decoration-none link-primary link-opacity-75 link-opacity-100-hover">
+                                <span th:text="${#strings.abbreviate(baseUrl + '/s/' + url.shortenedUrl, 40)}"></span>
+                                <i class="bi bi-box-arrow-up-right mx-1"></i>
+                            </a>
+                        </div>
+                    </td>
+                    <td th:if="${showOriginalUrl}">
+                        <a th:href="${url.originalUrl}" th:text="${#strings.abbreviate(url.originalUrl, 30)}"
+                           target="_blank"></a>
+                    </td>
+                    <td class="text-center">
                         <span class="badge bg-light text-dark border"
-                              th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd')}"></span>
-                </td>
-                <td class="text-center">
-                    <span th:with="expText=${url.daysToExpire == null ? 'Never' : (url.daysToExpire < 0 ? 'Expired' : (url.daysToExpire == 0 ? 'Today' : (url.daysToExpire == 1 ? '1 day' : url.daysToExpire + ' days')))}"
-                          th:class="${url.isExpired ? 'badge bg-danger' : (url.daysToExpire == 0 ? 'badge bg-warning text-black' : 'badge bg-success')}"
-                          th:text="${expText}">
+                              th:text="${url.numberOfClicks}">
+                        </span>
+                    </td>
+                    <td th:if="${showCreatedBy}" class="text-center" th:text="${url.createdByUser}"></td>
+                    <td th:if="${showPrivate}" class="text-center align-items-center">
+                        <span th:if="${url.isPrivate}" class="badge bg-primary-subtle text-dark-emphasis">Private</span>
+                        <span th:unless="${url.isPrivate}" class="badge bg-success">Public</span>
+                        <span th:if="${url.isPrivate && url.shareCode != null}"
+                              class="badge bg-success-subtle text-success-emphasis">
+                                <i class="bi bi-people-fill"></i>
+                        </span>
+                    </td>
+                    <td class="text-center">
+                            <span class="badge bg-light text-dark border"
+                                  th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd')}"></span>
+                    </td>
+                    <td class="text-center">
+                        <span th:with="expText=${url.daysToExpire == null ? 'Never' : (url.daysToExpire < 0 ? 'Expired' : (url.daysToExpire == 0 ? 'Today' : (url.daysToExpire == 1 ? '1 day' : url.daysToExpire + ' days')))}"
+                              th:class="${url.isExpired ? 'badge bg-danger' : (url.daysToExpire == 0 ? 'badge bg-warning text-black' : 'badge bg-success')}"
+                              th:text="${expText}">
+                        </span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div>
+            <ul class="pagination justify-content-center mt-3">
+                <li class="page-item disabled">
+                    <span class="page-link" aria-label="Total elements"
+                          th:text="${'Total urls: ' + urls.totalElements}">
                     </span>
-                </td>
-            </tr>
-            </tbody>
-        </table>
+                </li>
+            </ul>
+        </div>
     </div>
 
-    <div>
-        <ul class="pagination justify-content-center mt-3">
-            <li class="page-item disabled">
-                <span class="page-link" aria-label="Total elements"
-                      th:text="${'Total urls: ' + urls.totalElements}">
-                </span>
-            </li>
-        </ul>
+    <!-- Modals outside overflow containers -->
+    <div th:each="url : ${urls.data}">
+        <!-- Sharing code management modal -->
+        <form th:if="${url.isPrivate && !url.isExpired}" th:action="@{/manage-sharing-code/{id}(id=${url.id})}"
+              method="POST" th:id="'manageSharingCode-' + ${url.id}"
+              th:with="isShared=${url.shareCode != null}">
+            <div th:replace="~{fragments/confirmation-modal :: confirmation-modal(
+                 title=${isShared ? 'Stop sharing private URL' : 'Share private URL'},
+                 message=${isShared ? 'This will revoke the current sharing code (' + url.shareCode + ')'
+                 : 'Generate a shareable link with a password for this private URL.'},
+                 captionMessage=${isShared ? 'Anyone with the previous link will lose access' : null},
+                 modalId='manageSharingCodeConfirmation-' + ${url.id},
+                 formId='manageSharingCode-' + ${url.id},
+                 buttonText=${isShared ? 'Stop Sharing' : 'Generate Link'},
+                 buttonClass=${isShared ? 'btn-danger' : 'btn-primary'})}">
+            </div>
+            <input type="hidden" name="returnUrl" class="return-url-input"/>
+        </form>
+
+        <!-- Edit URL modal -->
+        <form th:if="${showEditButton}" th:action="@{/edit-urls/{id}(id=${url.id})}" method="POST"
+              th:id="'editForm-' + ${url.id}" th:object="${shortUrlEditForm}">
+            <div th:replace="~{fragments/edit-url-modal :: edit-url-modal(url=${url})}"></div>
+            <input type="hidden" name="returnUrl" class="return-url-input"/>
+        </form>
     </div>
 </div>
 
