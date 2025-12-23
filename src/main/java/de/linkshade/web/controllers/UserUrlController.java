@@ -66,7 +66,7 @@ public class UserUrlController {
                           @ModelAttribute ShortUrlEditForm shortUrlEditForm,
                           RedirectAttributes redirectAttributes) {
         try {
-            String shortenedUrl = shortUrlService.updateUrl(urlId, shortUrlEditForm);
+            String shortenedUrl = shortUrlService.updateShortUrl(urlId, shortUrlEditForm);
             String shortUrlUpdated =
                     String.format("%s/s/%s", appProperties.shortUrlProperties().baseUrl(), shortenedUrl);
             redirectAttributes.addFlashAttribute("shortUrlSuccessful",
