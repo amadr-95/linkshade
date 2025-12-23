@@ -30,8 +30,10 @@ public class CustomUrlNameValidator {
             return false;
         }
 
-        if (shortenedUrl.chars().anyMatch(c ->
-                !Constants.VALID_CHARACTERS.contains(String.valueOf((char) c)))) {
+        if (shortenedUrl.chars().anyMatch(c -> {
+            String s = String.valueOf((char) c);
+            return !Constants.VALID_CHARACTERS.contains(s) && !Constants.SPECIAL_CHARACTERS.contains(s);
+        })) {
             log.error("ShortenedUrl '{}' contains invalid characters", shortenedUrl);
             contextBuilder.buildContext(context, "{validation.urlForm.invalidCustomUrlName.characters}", Constants.CUSTOM_URL_NAME);
             return false;
