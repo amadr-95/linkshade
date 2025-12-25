@@ -10,7 +10,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -31,7 +30,6 @@ public class UserService {
                 .userProviderId(userAttributes.get("userProviderId").toString())
                 .authProvider(oAuthProvider)
                 .role(Role.USER)
-                .createdAt(LocalDateTime.now())
                 .build();
         return userRepository.save(user);
     }

@@ -111,9 +111,10 @@ public class UserUrlController {
 
     @PostMapping("/reactivate-expired-urls")
     public String reactivateUrls(@RequestParam("returnUrl") String returnUrl,
+                                 @RequestParam("userTimezone") String userTimezone,
                                  RedirectAttributes redirectAttributes) {
         try {
-            int reactivatedExpiredUrls = shortUrlService.reactivateExpiredUrls();
+            int reactivatedExpiredUrls = shortUrlService.reactivateExpiredUrls(userTimezone);
             redirectAttributes.addFlashAttribute("successMessage",
                     String.format("%d URL(s) successfully reactivated", reactivatedExpiredUrls));
         } catch (UserException ex) {

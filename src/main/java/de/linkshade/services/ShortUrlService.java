@@ -1,6 +1,7 @@
 package de.linkshade.services;
 
 import de.linkshade.config.AppProperties;
+import de.linkshade.config.Constants;
 import de.linkshade.domain.entities.PagedResult;
 import de.linkshade.domain.entities.ShortUrl;
 import de.linkshade.domain.entities.User;
@@ -14,7 +15,6 @@ import de.linkshade.exceptions.UserException;
 import de.linkshade.repositories.ShortUrlRepository;
 import de.linkshade.security.AuthenticationService;
 import de.linkshade.services.mapper.ShortUrlMapper;
-import de.linkshade.config.Constants;
 import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import de.linkshade.web.controllers.dto.ShortUrlForm;
 import jakarta.annotation.PostConstruct;
@@ -25,8 +25,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.time.DateTimeException;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -80,23 +81,28 @@ public class ShortUrlService {
     @Transactional
     public String createShortUrl(ShortUrlForm shortUrlForm) throws UrlException {
         Optional<User> currentUser = authenticationService.getUserInfo();
-        LocalDate expirationDate;
-        LocalDateTime createdAt = LocalDateTime.now();
+        ZoneId userTimezone = getZoneId(shortUrlForm.userTimezone());
+        LocalDate expiresAt;
 
-        if (currentUser.isEmpty())
-            expirationDate = createdAt.plusDays(appProperties.shortUrlProperties().defaultExpiryDays()).toLocalDate();
-        else if (shortUrlForm.expirationDate() == null) expirationDate = null;
-        else expirationDate = shortUrlForm.expirationDate();
+        // expiration depends on user's time zone
+        if (currentUser.isEmpty()) {
+            expiresAt = LocalDate.now(userTimezone)
+                    .plusDays(appProperties.shortUrlProperties().defaultExpiryDays());
+        } else if (shortUrlForm.expirationDate() == null) {
+            expiresAt = null;
+        } else {
+            expiresAt = shortUrlForm.expirationDate();
+        }
 
         ShortUrl shortUrl = ShortUrl.builder()
                 .originalUrl(shortUrlForm.originalUrl())
                 .shortenedUrl(shortenUrl(shortUrlForm))
                 .createdByUser(currentUser.orElse(null))
-                .isPrivate(shortUrlForm.isPrivate() != null && shortUrlForm.isPrivate()) //false by default if the user is not logged in
-                .shareCode(null) // by default
+                .isPrivate(shortUrlForm.isPrivate() != null && shortUrlForm.isPrivate())
+                .shareCode(null)
                 .numberOfClicks(0L)
-                .createdAt(createdAt)
-                .expiresAt(expirationDate) //either the default value or the custom value picked by the authenticated user
+                .expiresAt(expiresAt)
+                .zoneId(userTimezone.toString())
                 .build();
 
         shortUrlRepository.save(shortUrl);
@@ -171,7 +177,7 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public String verifySharingCode(String shortenedUrl, String code) throws UrlException{
+    public String verifySharingCode(String shortenedUrl, String code) throws UrlException {
         ShortUrl shortUrl = shortUrlRepository.findByShortenedUrl(shortenedUrl)
                 .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", shortenedUrl)));
 
@@ -190,7 +196,7 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public String updateUrl(UUID urlId, ShortUrlEditForm shortUrlEditForm) throws UrlException {
+    public String updateShortUrl(UUID urlId, ShortUrlEditForm shortUrlEditForm) throws UrlException {
         User user = getUser();
         ShortUrl shortUrl = shortUrlRepository.findById(urlId)
                 .orElseThrow(() -> new UrlNotFoundException(String.format("URL '%s' not found", urlId)));
@@ -201,8 +207,9 @@ public class ShortUrlService {
                     "Trying to edit an URL with wrong user. Expected userId: '%s', got: '%s'",
                     shortUrl.getCreatedByUser().getId(), user.getId()));
 
-        // check whether is expired, if so reactivate and exit the method
-        LocalDate now = LocalDate.now();
+        // if it is expired, reactivate and exit the method
+        ZoneId zoneId = getZoneId(shortUrl.getZoneId());
+        LocalDate now = LocalDate.now(zoneId);
         if (shortUrlEditForm.isExpired()) {
             shortUrl.setExpiresAt(now.plusDays(appProperties.shortUrlProperties().defaultExpiryDays()));
             shortUrlRepository.save(shortUrl);
@@ -220,7 +227,7 @@ public class ShortUrlService {
         if (!expirationChanged && !privacyChanged && !shortenedUrlChanged)
             return String.format("%s (No changes were made)", shortUrl.getShortenedUrl());
 
-        // check individual changes and update the values
+        // check individual changes and update the values if needed
         if (expirationChanged) {
             // Validate expirationDate
             if (expirationDateForm != null &&
@@ -267,14 +274,18 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public int reactivateExpiredUrls() throws UserException {
+    public int reactivateExpiredUrls(String userTimezone) throws UserException {
         UUID userId = getUser().getId();
 
         List<UUID> expiredUrls = shortUrlRepository.findExpiredUrlIdsByUserId(userId);
 
         if (expiredUrls.isEmpty()) return 0;
 
-        LocalDate newExpirationDate = LocalDate.now().plusDays(appProperties.shortUrlProperties().defaultExpiryDays());
+        // assumes all URLs were created in the same time zone
+        ZoneId zoneId = getZoneId(userTimezone);
+
+        LocalDate newExpirationDate = LocalDate.now(zoneId)
+                .plusDays(appProperties.shortUrlProperties().defaultExpiryDays());
 
         return shortUrlRepository.updateExpirationDateByUrlIds(expiredUrls, newExpirationDate);
     }
@@ -339,5 +350,13 @@ public class ShortUrlService {
         return authenticationService.getUserInfo()
                 .orElseThrow(() -> new UserException("User not authenticated"));
     }
-}
 
+    private ZoneId getZoneId(String userTimezone) {
+        try {
+            return ZoneId.of(userTimezone);
+        } catch (DateTimeException ex) {
+            log.warn("Invalid timezone provided: '{}'. Using UTC as fallback", userTimezone);
+            return ZoneId.of("UTC");
+        }
+    }
+}

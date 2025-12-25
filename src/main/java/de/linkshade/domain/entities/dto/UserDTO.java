@@ -4,17 +4,24 @@ import de.linkshade.domain.entities.AuthProvider;
 import de.linkshade.domain.entities.Role;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Builder
 public record UserDTO(
         UUID id,
+
         String name,
+
         String email,
+
         String userProviderId,
+
         AuthProvider authProvider,
-        LocalDateTime createdAt,
+
+        Instant createdAt,
+
         Long numberOfUrlsCreated,
+
         Role role) {
 }
