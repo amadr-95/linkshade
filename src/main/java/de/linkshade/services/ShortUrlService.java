@@ -351,7 +351,7 @@ public class ShortUrlService {
                 .orElseThrow(() -> new UserException("User not authenticated"));
     }
 
-    private ZoneId getZoneId(String userTimezone) {
+    public static ZoneId getZoneId(String userTimezone) {
         try {
             return ZoneId.of(userTimezone);
         } catch (DateTimeException ex) {
