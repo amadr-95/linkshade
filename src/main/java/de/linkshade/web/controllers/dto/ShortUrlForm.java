@@ -20,6 +20,8 @@ public record ShortUrlForm(
 
         Boolean isCustom,
 
-        String customShortUrlName
+        String customShortUrlName,
+
+        String userTimezone
 ) {
 }

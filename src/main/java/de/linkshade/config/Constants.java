@@ -15,6 +15,7 @@ public final class Constants {
     public static final Pattern URL_PATTERN = Pattern.compile(
             "^(https?|ftp)://[-a-zA-Z0-9+&@#/%?=~_|!:,.;]*[-a-zA-Z0-9+&@#/%=~_|]");
     public static final String VALID_CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    public static final String SPECIAL_CHARACTERS = "$-_.+!*'(),";
 
     // Security and rate limit constants
     public static final String X_FORWARDED_FOR = "X-Forwarded-For";

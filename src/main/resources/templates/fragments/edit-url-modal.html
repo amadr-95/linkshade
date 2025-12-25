@@ -43,7 +43,7 @@
                                 </button>
                                 <div class="form-floating">
                                     <input type="date" class="form-control" th:id="'expirationDate-' + ${url.id}"
-                                           name="expirationDate" th:value="${url.expiresAt}">
+                                           name="expirationDate" th:value="${#temporals.format(url.expiresAt, 'yyyy-MM-dd')}">
                                     <label th:for="'expirationDate-' + ${url.id}" class="form-label">Expiring date</label>
                                 </div>
                             </div>

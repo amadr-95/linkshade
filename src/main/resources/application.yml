@@ -49,7 +49,7 @@ app:
     min-shorturl-length: 5
     max-shorturl-length: 20
     # Maximum allowed length of the original URL to be shortened
-    max-original-url-length: 1000
+    max-original-url-length: 2000
     is-custom: false
     # Length of the sharing code generated for private URLs
     sharing-code-length: 6

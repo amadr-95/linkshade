@@ -31,7 +31,8 @@ public class ShortUrlFormValidator implements ConstraintValidator<ValidUrlForm, 
         }
         // User is logged in
         if (authenticationService.getUserInfo().isPresent()) {
-            if (shortUrlForm.expirationDate() != null && !expirationDateValidator.isValid(context, shortUrlForm.expirationDate())) {
+            if (shortUrlForm.expirationDate() != null &&
+                    !expirationDateValidator.isValid(context, shortUrlForm.expirationDate(), shortUrlForm.userTimezone())) {
                 return false;
             }
             if (shortUrlForm.isCustom()) {

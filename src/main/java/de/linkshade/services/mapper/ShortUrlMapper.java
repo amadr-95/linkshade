@@ -17,7 +17,7 @@ public class ShortUrlMapper {
                         Constants.DEFAULT_USER_NAME : shortUrl.getCreatedByUser().getName())
                 .isPrivate(shortUrl.isPrivate())
                 .shareCode(shortUrl.getShareCode())
-                .createdAt(shortUrl.getCreatedAt().toLocalDate())
+                .createdAt(shortUrl.getCreatedAt())
                 .expiresAt(shortUrl.getExpiresAt())
                 .daysToExpire(shortUrl.daysToExpire())
                 .isExpired(shortUrl.isExpired())

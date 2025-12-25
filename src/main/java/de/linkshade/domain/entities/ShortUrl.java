@@ -21,8 +21,9 @@ import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.UUID;
 
@@ -54,30 +55,31 @@ public class ShortUrl {
 
     private boolean isPrivate;
 
-    // this field is only relevant for private url when sharing them
     private String shareCode;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
     @LastModifiedDate
     @Column(insertable = false)
-    private LocalDateTime lastModifiedDate;
+    private Instant lastModifiedAt;
 
     private LocalDate expiresAt;
+
+    @Column(nullable = false, updatable = false)
+    private String zoneId;
 
     @Column(nullable = false)
     private Long numberOfClicks;
 
     public Integer daysToExpire() {
         if (this.expiresAt == null) return null;
-        return (int) ChronoUnit.DAYS.between(LocalDate.now(), this.expiresAt); //might be 0 (same day)
+        return (int) ChronoUnit.DAYS.between(LocalDate.now(ZoneId.of(this.zoneId)), this.expiresAt);
     }
 
     public boolean isExpired() {
-        Integer days = daysToExpire();
-        if (days == null) return false;
-        return days < 0;
+        if (this.expiresAt == null) return false;
+        return LocalDate.now(ZoneId.of(this.zoneId)).isAfter(this.expiresAt);
     }
 }

@@ -27,4 +27,14 @@ document.addEventListener('DOMContentLoaded', function () {
     returnUrlInputs.forEach(input => {
         input.value = window.location.href;
     });
+
+    // Set all userTimezone inputs
+    const userTimeZoneInputs = document.querySelectorAll('.user-timezone-input');
+    userTimeZoneInputs.forEach(input => {
+        try {
+            input.value = Intl.DateTimeFormat().resolvedOptions().timeZone;
+        } catch(e) {
+            console.warn('Could not detect timezone, will use server default');
+        }
+    });
 });

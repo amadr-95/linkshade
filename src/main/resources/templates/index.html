@@ -64,6 +64,8 @@
         </div>
         <div class="card-body">
             <form th:action="@{/short-urls}" method="POST" th:object="${shortUrlForm}">
+                <!-- Hidden field to send browser's time zone -->
+                <input type="hidden" th:field="*{userTimezone}" class="user-timezone-input" />
                 <div class="mb-3">
                     <div class="input-group"
                          th:classappend="${#fields.hasErrors('originalUrl')} ? 'has-validation' : ''">

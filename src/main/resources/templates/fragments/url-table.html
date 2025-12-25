@@ -120,13 +120,25 @@
                     </td>
                     <td class="text-center">
                             <span class="badge bg-light text-dark border"
-                                  th:text="${#temporals.format(url.createdAt, 'yyyy-MM-dd')}"></span>
+                                  th:text="${#temporals.format(url.createdAt, 'dd MMM yyyy')}"></span>
                     </td>
-                    <td class="text-center">
-                        <span th:with="expText=${url.daysToExpire == null ? 'Never' : (url.daysToExpire < 0 ? 'Expired' : (url.daysToExpire == 0 ? 'Today' : (url.daysToExpire == 1 ? '1 day' : url.daysToExpire + ' days')))}"
-                              th:class="${url.isExpired ? 'badge bg-danger' : (url.daysToExpire == 0 ? 'badge bg-warning text-black' : 'badge bg-success')}"
-                              th:text="${expText}">
-                        </span>
+                    <td class="text-center align-middle">
+                        <div th:with="days=${url.daysToExpire}, expired=${url.isExpired}">
+                            <span th:class="${expired} ? 'badge bg-danger' :
+                                            (${days} == 0 ? 'badge bg-warning text-dark' :
+                                            (${days} != null ? 'badge bg-success' : 'badge bg-secondary'))"
+                                  th:text="${days == null ? 'Never' :
+                                            (expired ? 'Expired' :
+                                            (days == 0 ? 'Today' :
+                                            (days == 1 ? '1 day' : days + ' days')))}">
+                            </span>
+
+                            <small th:if="${url.expiresAt != null}"
+                                   class="d-block text-muted mt-1"
+                                   style="font-size: 0.75rem;"
+                                   th:text="${#temporals.format(url.expiresAt, 'dd MMM yyyy')}">
+                            </small>
+                        </div>
                     </td>
                 </tr>
                 </tbody>
