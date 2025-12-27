@@ -1,6 +1,7 @@
 package de.linkshade.services;
 
 import de.linkshade.domain.entities.PagedResult;
+import de.linkshade.domain.entities.ShortUrl;
 import de.linkshade.domain.entities.dto.UserDTO;
 import de.linkshade.exceptions.UserException;
 import de.linkshade.repositories.ShortUrlRepository;
@@ -68,8 +69,17 @@ public class AdminService {
 
     @Transactional
     public int deleteAllNonCreatedByUserExpiredUrls() {
-        int deletedCount = shortUrlRepository.deleteAllNonCreatedByUserExpiredUrls();
+        int deletedCount = shortUrlRepository.deleteAllNonCreatedByUserExpiredUrls(getExpiredUrlsByUserNull());
         log.debug("Batch of non-created-by-user expired urls deletion: {} expired URLs were deleted", deletedCount);
         return deletedCount;
+    }
+
+    public List<UUID> getExpiredUrlsByUserNull() {
+        List<ShortUrl> urlsWithExpiration = shortUrlRepository.findUrlsWithExpirationByUserNull();
+
+        return urlsWithExpiration.stream()
+                .filter(ShortUrl::isExpired)
+                .map(ShortUrl::getId)
+                .toList();
     }
 }

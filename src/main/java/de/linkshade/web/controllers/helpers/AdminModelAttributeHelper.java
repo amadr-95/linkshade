@@ -1,6 +1,6 @@
 package de.linkshade.web.controllers.helpers;
 
-import de.linkshade.services.ShortUrlService;
+import de.linkshade.services.AdminService;
 import de.linkshade.web.controllers.dto.ShortUrlEditForm;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,7 @@ import org.springframework.ui.Model;
 @RequiredArgsConstructor
 public class AdminModelAttributeHelper {
 
-    private final ShortUrlService shortUrlService;
+    private final AdminService adminService;
 
     public void addUrlsManagementAttributes(Model model) {
         model.addAttribute("managedEntity", "URLs");
@@ -27,7 +27,7 @@ public class AdminModelAttributeHelper {
     }
 
     private void addExpiredUrlsAttributesIfPresent(Model model) {
-        int expiredUrls = shortUrlService.getAllNonCreatedByUserExpiredUrls();
+        int expiredUrls = adminService.getExpiredUrlsByUserNull().size();
         if (expiredUrls > 0) {
             model.addAttribute("deleteExpiredFormId", "deleteExpiredUrlsFormId");
             model.addAttribute("deleteExpiredUrlsEndpoint", "/admin/dashboard/delete-expired-urls");

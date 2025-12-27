@@ -22,8 +22,9 @@ public class ModelAttributeHelper {
         model.addAttribute("entities", entities);
         authenticationService.getUserInfo().ifPresent(
                 user -> {
+                    //use to show the button (that sends the form)
                     model.addAttribute("expiredUrls",
-                            shortUrlService.getExpiredUrlsCountByUserId(user.getId()));
+                            shortUrlService.getExpiredUrlsByUserId(user.getId()).size());
                     model.addAttribute("deleteSelectedFormId", "deleteUrlsForm");
                 });
         addAvatarToModel(model);
