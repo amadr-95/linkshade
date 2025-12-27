@@ -7,7 +7,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
+
+import static de.linkshade.services.ShortUrlService.getZoneId;
 
 @Component
 @RequiredArgsConstructor
@@ -17,7 +18,7 @@ public class ExpirationValidator {
     private final AppProperties appProperties;
 
     public boolean isValid(ConstraintValidatorContext context, LocalDate expirationDate, String userTimezone) {
-        LocalDate now = LocalDate.now(ZoneId.of(userTimezone));
+        LocalDate now = LocalDate.now(getZoneId(userTimezone));
         if (expirationDate.isBefore(now) ||
                 expirationDate.isAfter(now.plusDays(appProperties.shortUrlProperties().maxShortUrlExpirationDays()))) {
             contextBuilder.buildContext(context, "{validation.urlForm.expirationDate}", Constants.EXPIRATION_DATE);

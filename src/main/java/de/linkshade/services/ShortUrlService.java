@@ -274,39 +274,42 @@ public class ShortUrlService {
     }
 
     @Transactional
-    public int reactivateExpiredUrls(String userTimezone) throws UserException {
+    public int reactivateExpiredUrls() throws UserException {
         UUID userId = getUser().getId();
 
-        List<UUID> expiredUrls = shortUrlRepository.findExpiredUrlIdsByUserId(userId);
+        List<ShortUrl> expiredUrls = getExpiredUrlsByUserId(userId);
 
         if (expiredUrls.isEmpty()) return 0;
 
-        // assumes all URLs were created in the same time zone
-        ZoneId zoneId = getZoneId(userTimezone);
+        List<UUID> expiredUrlsUUID = expiredUrls.stream()
+                .map(ShortUrl::getId).toList();
 
+        //Assumes the same zoneId for all urls
+        ZoneId zoneId = getZoneId(expiredUrls.getFirst().getZoneId());
         LocalDate newExpirationDate = LocalDate.now(zoneId)
                 .plusDays(appProperties.shortUrlProperties().defaultExpiryDays());
 
-        return shortUrlRepository.updateExpirationDateByUrlIds(expiredUrls, newExpirationDate);
+        return shortUrlRepository.updateExpirationDateByUrlIds(expiredUrlsUUID, newExpirationDate);
     }
 
     @Transactional
     public int deleteExpiredUrls() throws UserException {
         UUID userId = getUser().getId();
 
-        List<UUID> expiredUrls = shortUrlRepository.findExpiredUrlIdsByUserId(userId);
+        List<UUID> expiredUrls = getExpiredUrlsByUserId(userId)
+                .stream().map(ShortUrl::getId).toList();
 
         if (expiredUrls.isEmpty()) return 0;
 
         return shortUrlRepository.deleteByIdInAndCreatedByUserId(expiredUrls, userId);
     }
 
-    public int getExpiredUrlsCountByUserId(UUID userId) {
-        return shortUrlRepository.numberOfExpiredUrlsByUserId(userId);
-    }
+    public List<ShortUrl> getExpiredUrlsByUserId(UUID userId) {
+        List<ShortUrl> urlsWithExpiration = shortUrlRepository.findUrlsWithExpirationByUserId(userId);
 
-    public int getAllNonCreatedByUserExpiredUrls() {
-        return shortUrlRepository.numberOfAllNonCreatedByUserExpiredUrls();
+        return urlsWithExpiration.stream()
+                .filter(ShortUrl::isExpired)
+                .toList();
     }
 
     @Transactional
@@ -351,7 +354,11 @@ public class ShortUrlService {
                 .orElseThrow(() -> new UserException("User not authenticated"));
     }
 
-    private ZoneId getZoneId(String userTimezone) {
+    public static ZoneId getZoneId(String userTimezone) {
+        if (userTimezone == null || userTimezone.isBlank()) {
+            log.warn("Timezone is null or blank. Using UTC as fallback");
+            return ZoneId.of("UTC");
+        }
         try {
             return ZoneId.of(userTimezone);
         } catch (DateTimeException ex) {

@@ -41,5 +41,10 @@ ALTER TABLE short_urls
 -- Index for user lookups
 CREATE INDEX idx_short_urls_user ON short_urls (created_by_user);
 
--- Index for expiration cleanup
-CREATE INDEX idx_short_urls_expiry ON short_urls (expires_at) WHERE expires_at IS NOT NULL;
+-- Index for expiration cleanup/reactivation
+CREATE INDEX idx_short_urls_user_expiry ON short_urls (created_by_user, expires_at)
+    WHERE created_by_user IS NOT NULL AND expires_at IS NOT NULL;
+
+-- Index for batch deleting when urls are expired
+CREATE INDEX idx_short_urls_null_user_expiry ON short_urls (expires_at)
+    WHERE created_by_user IS NULL AND expires_at IS NOT NULL;
