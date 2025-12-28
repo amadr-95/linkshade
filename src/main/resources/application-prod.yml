@@ -22,13 +22,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate  # Flyway's managing the schema
-    properties:
-      hibernate:
-        default_schema: linkshade
+
   flyway:
     enabled: true
     baseline-on-migrate: true
-    default-schema: linkshade
 
 logging:
   level:
