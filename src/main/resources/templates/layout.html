@@ -96,7 +96,7 @@
                 <li class="nav-item d-md-none" sec:authorize="isAuthenticated()">
                     <button type="submit" class="nav-link" form="logoutForm">Logout</button>
                 </li>
-                <li class="nav-item d-md-none" sec:authorize="hasRole('USER')">
+                <li th:if="${enableDeleteAccount}" class="nav-item d-md-none" sec:authorize="hasRole('USER')">
                     <!-- Button trigger delete-modal -->
                     <button type="button"
                             class="nav-link text-danger"
