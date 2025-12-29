@@ -15,7 +15,7 @@ import org.springframework.security.web.SecurityFilterChain;
 public class WebSecurityConfig {
 
     private final String[] WHITE_LIST = {"/", "/short-urls", "/s/**", "/login/**", "/error",
-            "/webjars/**", "/css/**", "/js/**", "/images/**", "/actuator/health"};
+            "/webjars/**", "/css/**", "/js/**", "/images/**", "/actuator/health", "/legal/**"};
     private final OAuth2UserService oAuth2UserService;
 
     @Bean
