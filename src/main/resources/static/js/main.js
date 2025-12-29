@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+    document.getElementById("year").innerHTML = new Date().getFullYear().toString();
     const clipboardButtons = document.querySelectorAll('.clipboard-button');
 
     clipboardButtons.forEach(button => {
