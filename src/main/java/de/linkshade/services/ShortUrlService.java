@@ -251,6 +251,12 @@ public class ShortUrlService {
                         shortenedUrlForm.length() > appProperties.shortUrlProperties().maxShorturlLength())
                     throw new UrlUpdateException(String.format("Shortened length '%s' is outside the limits",
                             shortenedUrlForm.length()));
+                if (shortenedUrlForm.chars().anyMatch(c -> {
+                    String s = String.valueOf((char) c);
+                    return !Constants.VALID_CHARACTERS.contains(s) && !Constants.SPECIAL_CHARACTERS.contains(s);
+                }))
+                    throw new UrlUpdateException(String.format("Shortened value '%s' contains invalid characters",
+                            shortenedUrlForm));
                 // check that it's not existing already
                 if (shortUrlRepository.findByShortenedUrl(shortenedUrlForm).isPresent()) {
                     throw new UrlUpdateException(String.format

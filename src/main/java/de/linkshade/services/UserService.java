@@ -24,9 +24,10 @@ public class UserService {
     @Transactional
     public User registerUser(Map<String, Object> userAttributes, AuthProvider oAuthProvider) {
 
+        Object email = userAttributes.get("email");
         User user = User.builder()
                 .name(userAttributes.get("name").toString())
-                .email(userAttributes.get("email") == null ? "Not provided" : userAttributes.get("email").toString())
+                .email(email == null ? "Not provided" : email.toString())
                 .userProviderId(userAttributes.get("userProviderId").toString())
                 .authProvider(oAuthProvider)
                 .role(Role.USER)
