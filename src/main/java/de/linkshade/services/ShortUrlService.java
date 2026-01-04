@@ -203,7 +203,7 @@ public class ShortUrlService {
 
         if (user.getRole() != ADMIN &&
                 !user.getId().equals(shortUrl.getCreatedByUser().getId()))
-            throw new UrlUpdateException(String.format(
+            throw new UrlException(String.format(
                     "Trying to edit an URL with wrong user. Expected userId: '%s', got: '%s'",
                     shortUrl.getCreatedByUser().getId(), user.getId()));
 
@@ -229,14 +229,7 @@ public class ShortUrlService {
 
         // check individual changes and update the values if needed
         if (expirationChanged) {
-            // Validate expirationDate
-            if (expirationDateForm != null &&
-                    (expirationDateForm.isBefore(now) || expirationDateForm.isAfter(
-                            now.plusDays(appProperties.shortUrlProperties().maxShortUrlExpirationDays())))) {
-                throw new UrlUpdateException(
-                        String.format("Expiration date '%s' is before today or exceeds the limits", expirationDateForm));
-            }
-            shortUrl.setExpiresAt(expirationDateForm);
+            updateExpiration(expirationDateForm, now, shortUrl);
         }
         if (privacyChanged)
             shortUrl.setPrivate(isPrivateForm);
@@ -244,23 +237,42 @@ public class ShortUrlService {
             if (shortUrlEditForm.isRandom())
                 shortUrl.setShortenedUrl(generateRandomShortUrl(null));
             else {
-                // Validate shortened value if not random
-                if (shortenedUrlForm == null || shortenedUrlForm.isBlank())
-                    throw new UrlUpdateException("Shortened value cannot be blank");
-                if (shortenedUrlForm.length() < appProperties.shortUrlProperties().minShorturlLength() ||
-                        shortenedUrlForm.length() > appProperties.shortUrlProperties().maxShorturlLength())
-                    throw new UrlUpdateException(String.format("Shortened length '%s' is outside the limits",
-                            shortenedUrlForm.length()));
-                // check that it's not existing already
-                if (shortUrlRepository.findByShortenedUrl(shortenedUrlForm).isPresent()) {
-                    throw new UrlUpdateException(String.format
-                            ("ShortUrl '%s' already exists", shortenedUrlForm));
-                }
-                shortUrl.setShortenedUrl(shortenedUrlForm);
+                updateShortenedUrl(shortenedUrlForm, shortUrl);
             }
         }
         shortUrlRepository.save(shortUrl);
         return shortUrl.getShortenedUrl();
+    }
+
+    private void updateExpiration(LocalDate expirationDate, LocalDate now, ShortUrl url)
+            throws UrlUpdateException {
+        if (expirationDate != null &&
+                (expirationDate.isBefore(now) || expirationDate.isAfter(
+                        now.plusDays(appProperties.shortUrlProperties().maxShortUrlExpirationDays())))) {
+            throw new UrlUpdateException(
+                    String.format("Expiration date '%s' is before today or exceeds the limits", expirationDate));
+        }
+        url.setExpiresAt(expirationDate);
+    }
+
+    private void updateShortenedUrl(String shortenedUrl, ShortUrl url) throws UrlUpdateException {
+        if (shortenedUrl == null || shortenedUrl.isBlank())
+            throw new UrlUpdateException("Shortened value cannot be blank");
+        if (shortenedUrl.length() < appProperties.shortUrlProperties().minShorturlLength() ||
+                shortenedUrl.length() > appProperties.shortUrlProperties().maxShorturlLength())
+            throw new UrlUpdateException(String.format("Shortened length is outside the limits ('%d')",
+                    shortenedUrl.length()));
+        if (shortenedUrl.chars().anyMatch(c -> {
+            String s = String.valueOf((char) c);
+            return !Constants.VALID_CHARACTERS.contains(s) && !Constants.SPECIAL_CHARACTERS.contains(s);
+        }))
+            throw new UrlUpdateException(String.format("Shortened value '%s' contains invalid characters",
+                    shortenedUrl));
+        if (shortUrlRepository.findByShortenedUrl(shortenedUrl).isPresent()) {
+            throw new UrlUpdateException(String.format
+                    ("Shortened url '%s' already exists", shortenedUrl));
+        }
+        url.setShortenedUrl(shortenedUrl);
     }
 
     @Transactional

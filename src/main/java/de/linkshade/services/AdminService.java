@@ -40,7 +40,7 @@ public class AdminService {
     public PagedResult<UserDTO> findAllUsers(Pageable pageableRequest) {
         Pageable validPage = paginationService.createValidPage(pageableRequest, userRepository::countAll);
 
-        // Since numberOfUrlCreated it is not a field of User table, it needs to be treated with specific queries in the repository
+        // Since numberOfUrlCreated is not a field in User table, it needs to be treated with specific queries in the repository
         Sort.Order orderForNumberOfUrlsCreated = validPage.getSort().getOrderFor("numberOfUrlsCreated");
 
         if (orderForNumberOfUrlsCreated == null) {
@@ -60,7 +60,7 @@ public class AdminService {
     @Transactional
     public DeletionResult deleteSelectedUsers(List<UUID> userIds) throws UserException {
         if (userIds.stream().anyMatch(Objects::isNull))
-            throw new UserException("One or more Users were null");
+            throw new UserException("One or more users were null");
         int urlsDeleted = shortUrlRepository.deleteByCreatedByUserIn(userIds);
         int usersDeleted = userRepository.deleteByIdIn(userIds);
         log.info("Batch users deletion: {} users and {} urls were deleted", usersDeleted, urlsDeleted);

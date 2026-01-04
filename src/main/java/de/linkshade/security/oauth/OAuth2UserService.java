@@ -2,6 +2,7 @@ package de.linkshade.security.oauth;
 
 import de.linkshade.domain.entities.AuthProvider;
 import de.linkshade.domain.entities.User;
+import de.linkshade.exceptions.UserException;
 import de.linkshade.repositories.UserRepository;
 import de.linkshade.services.UserService;
 import lombok.RequiredArgsConstructor;
@@ -14,6 +15,10 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static de.linkshade.domain.entities.AuthProvider.EMAIL;
+import static de.linkshade.domain.entities.AuthProvider.GITHUB;
+import static de.linkshade.domain.entities.AuthProvider.GOOGLE;
 
 @Slf4j
 @Service
@@ -30,7 +35,8 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         Map<String, Object> attributes = extractAttributes(oAuthProviderName, oAuth2User);
 
         //caution: in GitHub might be null if the user did not select any by default on their account
-        String email = attributes.get("email") == null ? null : attributes.get("email").toString();
+        Object emailObject = attributes.get("email");
+        String email = emailObject == null ? null : emailObject.toString();
         String userProviderId = attributes.get("userProviderId").toString();
 
         User user = findOrCreatedUser(userProviderId, email, attributes, oAuthProviderName);
@@ -59,26 +65,28 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private Map<String, Object> extractAttributes(AuthProvider oAuthProvider, OAuth2User oAuth2User) {
         Map<String, Object> attributes = new HashMap<>();
-        // common provider attributes
-        attributes.put("email", oAuth2User.getAttribute("email"));
 
         switch (oAuthProvider) {
             case GITHUB -> {
-                attributes.put("name", oAuth2User.getAttribute("name"));
-                attributes.put("userProviderId", oAuth2User.getAttribute("id"));
+                attributes.put("name", oAuth2User.getAttribute(GITHUB.getNameKey()));
+                attributes.put("userProviderId", oAuth2User.getAttribute(GITHUB.getIdKey()));
                 // GitHub always sends avatar_url as a string (url). In case the user does not have an image,
-                // GitHub generates an icon by default that can be rendered in img html tag
-                attributes.put("avatarUrl", oAuth2User.getAttribute("avatar_url"));
+                // GitHub generates an icon by default that can be rendered in img HTML tag
+                attributes.put("avatarUrl", oAuth2User.getAttribute(GITHUB.getAvatarKey()));
             }
             case GOOGLE -> {
-                attributes.put("name", oAuth2User.getAttribute("given_name"));
-                attributes.put("userProviderId", oAuth2User.getAttribute("sub"));
+                attributes.put("name", oAuth2User.getAttribute(GOOGLE.getIdKey()));
+                attributes.put("userProviderId", oAuth2User.getAttribute(GOOGLE.getNameKey()));
                 // UserInfo endpoint includes picture attribute
-                // Google generates a default image if the user did not upload any, so it can also be rendered under tha img html tag
-                attributes.put("avatarUrl", oAuth2User.getAttribute("picture"));
+                // Google generates a default image if the user did not upload any, so it can also be rendered under that img HTML tag
+                attributes.put("avatarUrl", oAuth2User.getAttribute(GOOGLE.getAvatarKey()));
             }
-            default -> attributes.put("userProviderId", "Not supported");
+            default -> throw new UserException("Something went wrong while logining in or registering a user");
         }
+
+        // common provider attributes
+        attributes.put("email", oAuth2User.getAttribute(EMAIL));
+
         return attributes;
     }
 }
