@@ -7,6 +7,7 @@ A modern URL shortening service built with Spring Boot and PostgreSQL, featuring
 [![Java](https://img.shields.io/badge/Java-21-orange.svg)](https://openjdk.org/projects/jdk/21/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5.7-brightgreen.svg)](https://spring.io/projects/spring-boot)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Latest-blue.svg)](https://www.postgresql.org/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 </div>
 
@@ -23,8 +24,8 @@ A modern URL shortening service built with Spring Boot and PostgreSQL, featuring
 - [Project Structure](#-project-structure)
 - [Database Management](#-database-management)
 - [Performance Optimization](#-performance-optimization)
-- [Screenshots](#-screenshots)
 - [Contributing](#-contributing)
+- [License](#-license)
 
 ---
 
@@ -52,7 +53,7 @@ LinkShade is a production-ready URL shortening service designed with scalability
 - ✅ **Bulk Operations**: Delete or reactivate multiple URLs at once
 - ✅ **User Profiles**: Manage URLs fields
 - ✅ **Admin Dashboard**: Administrative interface for user and URL management
-- 
+
 ### Authentication & Security
 - ✅ **OAuth 2.0 Integration**: Login with Google and GitHub
 - ✅ **Rate Limiting**: Separate limits for anonymous and authenticated users
@@ -91,11 +92,6 @@ LinkShade is a production-ready URL shortening service designed with scalability
 - **Docker**: Containerization for consistent environments
 - **Docker Compose**: Multi-container orchestration
 - **Lombok**: Boilerplate code reduction
-- **JUnit 5**: Testing framework
-
-### Development Tools
-- **Maven Wrapper**: Ensures consistent Maven version
-- **Eclipse Temurin JDK**: OpenJDK distribution for builds
 
 ---
 
@@ -403,19 +399,6 @@ Optional<ShortUrl> findByIdWithUser(@Param("id") Long id);
 
 ---
 
-## 📸 Screenshots
-
-### Home Page
-_Coming soon - URL shortening interface_
-
-### User Dashboard
-_Coming soon - Personal URL management_
-
-### Admin Dashboard
-_Coming soon - Administrative interface_
-
----
-
 ## 🤝 Contributing
 
 Contributions are welcome! Please follow these guidelines:
@@ -428,12 +411,15 @@ Contributions are welcome! Please follow these guidelines:
 
 ### Development Roadmap
 
-- [ ] Postgres cronjob for automated expired URL cleanup
 - [ ] Comprehensive unit test coverage
 - [ ] Integration test suite
-- [ ] Metrics and monitoring integration
-- [ ] Internationalization (i18n) support
 - [ ] QR code generation for shortened URLs
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
