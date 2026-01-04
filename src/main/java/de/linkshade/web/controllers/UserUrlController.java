@@ -3,6 +3,7 @@ package de.linkshade.web.controllers;
 import de.linkshade.config.AppProperties;
 import de.linkshade.exceptions.UrlException;
 import de.linkshade.exceptions.UrlNotFoundException;
+import de.linkshade.exceptions.UrlUpdateException;
 import de.linkshade.exceptions.UserException;
 import de.linkshade.services.SharingResult;
 import de.linkshade.services.ShortUrlService;
@@ -74,8 +75,13 @@ public class UserUrlController {
             redirectAttributes.addFlashAttribute("shortUrlCopyToClipboard", shortUrlUpdated);
         } catch (UrlException ex) {
             log.error("Edit URL problem, reason: '{}'", ex.getMessage());
-            redirectAttributes.addFlashAttribute("errorMessage",
-                    "There was an error editing the URL. Insert valid values and try again");
+            if (ex instanceof UrlUpdateException) {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        String.format("%s", ex.getMessage()));
+            } else {
+                redirectAttributes.addFlashAttribute("errorMessage",
+                        "There was an error editing the URL. Insert valid values and try again");
+            }
         }
         return "redirect:" + returnUrl;
     }
