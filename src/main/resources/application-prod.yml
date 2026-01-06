@@ -33,7 +33,7 @@ logging:
 
 # App properties in prod
 app:
-  check-http-status-code: true
-  enable-delete-account: false
+  check-http-status-code: ${CHECK_HTTP_STATUS_CODE}
+  enable-delete-account: ${ENABLE_DELETE_ACCOUNT}
   short-url-properties:
     base-url: ${APP_BASE_URL}
