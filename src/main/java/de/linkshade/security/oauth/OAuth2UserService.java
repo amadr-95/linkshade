@@ -75,8 +75,8 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                 attributes.put("avatarUrl", oAuth2User.getAttribute(GITHUB.getAvatarKey()));
             }
             case GOOGLE -> {
-                attributes.put("name", oAuth2User.getAttribute(GOOGLE.getIdKey()));
-                attributes.put("userProviderId", oAuth2User.getAttribute(GOOGLE.getNameKey()));
+                attributes.put("name", oAuth2User.getAttribute(GOOGLE.getNameKey()));
+                attributes.put("userProviderId", oAuth2User.getAttribute(GOOGLE.getIdKey()));
                 // UserInfo endpoint includes picture attribute
                 // Google generates a default image if the user did not upload any, so it can also be rendered under that img HTML tag
                 attributes.put("avatarUrl", oAuth2User.getAttribute(GOOGLE.getAvatarKey()));
