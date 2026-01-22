@@ -1,4 +1,7 @@
 server:
+  tomcat:
+    threads:
+      max: 10
   port: ${PORT:8080}
 spring:
 # DB config in prod
@@ -8,7 +11,7 @@ spring:
     password: ${SPRING_DATASOURCE_PASSWORD}
     hikari:
       # Maximum number of connections in the pool
-      maximum-pool-size: 10
+      maximum-pool-size: 5
       # Minimum number of idle connections maintained in the pool
       minimum-idle: 2
       # Time (ms) a connection can remain idle before being removed
