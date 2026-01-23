@@ -132,11 +132,9 @@
                                             (days == 0 ? 'Today' :
                                             (days == 1 ? '1 day' : days + ' days')))}">
                             </span>
-
-                            <small th:if="${url.expiresAt != null}"
-                                   class="d-block text-muted mt-1"
+                            <small class="d-block text-muted mt-1"
                                    style="font-size: 0.75rem;"
-                                   th:text="${#temporals.format(url.expiresAt, 'dd MMM yyyy')}">
+                                   th:text="${url.expiresAt != null ?#temporals.format(url.expiresAt, 'dd MMM yyyy') : '-'}">
                             </small>
                         </div>
                     </td>
