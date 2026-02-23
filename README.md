@@ -76,7 +76,7 @@ LinkShade is a production-ready URL shortening service designed with scalability
 - **Spring Security**: OAuth 2.0 and authentication/authorization
 - **Spring Data JPA**: Database abstraction and ORM
 - **Hibernate**: JPA implementation for entity management
-- **Maven**: Dependency management and build automation
+- **Gradle**: Dependency management and build automation
 
 ### Database
 - **PostgreSQL**: Primary relational database
@@ -139,7 +139,7 @@ Before running the application, ensure you have the following installed:
 | Tool               | Version | Purpose                                                         |
 |--------------------|---------|-----------------------------------------------------------------|
 | **Java JDK**       | 21+     | Required for running the application                            |
-| **Maven**          | 3.8+    | Build and dependency management (or use included Maven Wrapper) |
+| **Gradle**         | 8.12+   | Build and dependency management (or use included Gradle Wrapper)|
 | **Docker**         | Latest  | For containerized PostgreSQL and application deployment         |
 | **Docker Compose** | Latest  | For multi-container orchestration                               |
 | **Git**            | Latest  | Version control                                                 |
@@ -204,7 +204,7 @@ To enable OAuth authentication, you'll need:
 
 ### Option 1
 
-Run the database in Docker and the application from your IDE or Maven:
+Run the database in Docker and the application from your IDE or Gradle:
 
 #### Step 1: Start PostgreSQL
 
@@ -217,9 +217,9 @@ docker compose up -d linkshade-db
 > You need to add the `env.local` path to the run configuration, otherwise
 > env variables won't be loaded and app won't be able to connect to the database
 
-Run `LinkshadeApplication.java` or 
+Run `LinkshadeApplication.java` or
 ```bash
-./mvnw spring-boot:run
+./gradlew bootRun
 ```
 
 #### Step 3: Access the Application
@@ -326,7 +326,8 @@ linkshade/
 │   └── test/                        # Test files
 ├── docker-compose.yml               # Docker Compose configuration
 ├── Dockerfile                       # Multi-stage Docker build
-├── pom.xml                          # Maven configuration
+├── build.gradle                     # Gradle build configuration
+├── settings.gradle                  # Gradle settings
 ├── .env.example                     # Environment variables template
 └── README.md                        # This file
 ```
