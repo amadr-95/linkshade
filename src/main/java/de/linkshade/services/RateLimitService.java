@@ -6,7 +6,6 @@ import de.linkshade.config.AppProperties;
 import de.linkshade.security.AuthenticationService;
 import io.github.bucket4j.Bandwidth;
 import io.github.bucket4j.Bucket;
-import io.github.bucket4j.Refill;
 import jakarta.annotation.PostConstruct;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.NonNull;
@@ -61,8 +60,10 @@ public class RateLimitService {
                 appProperties.securityProperties().maxRequestLoggedUser() :
                 appProperties.securityProperties().maxRequestAnonymousUser();
 
-        Bandwidth bandwidth = Bandwidth.classic(limit,
-                Refill.intervally(limit, Duration.ofHours(appProperties.securityProperties().rateLimitDurationHours())));
+        Bandwidth bandwidth = Bandwidth.builder()
+                .capacity(limit)
+                .refillIntervally(limit, Duration.ofHours(appProperties.securityProperties().rateLimitDurationHours()))
+                .build();
 
         return Bucket.builder()
                 .addLimit(bandwidth)
